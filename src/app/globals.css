@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ *
+ * Tailwind's default palette, radii, shadows and type scale are reset so only
+ * the tokens below exist: `bg-blue-500`, `rounded-xl` or `shadow-lg` simply
+ * won't compile to anything. Spacing keeps Tailwind's 4px base (p-1 = 4px).
+ *
+ * Colors meet WCAG 2.1 AA: text tokens are ≥ 4.5:1 on --surface and
+ * --surface-muted; *-strong status tokens are ≥ 4.5:1 on their *-subtle
+ * backgrounds.
+ */
+
+@theme {
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --text-*: initial;
+  --font-*: initial;
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+
+  /* Neutrals (cool gray) */
+  --color-canvas: #f4f5f7; /* app background */
+  --color-surface: #ffffff; /* panels, tables */
+  --color-surface-muted: #f8f9fa; /* table header, zebra, inputs disabled */
+  --color-surface-hover: #eef1f5;
+  --color-border: #d9dde3;
+  --color-border-strong: #b6bdc7;
+  --color-border-input: #7d8592; /* form controls, 3.6:1 (WCAG 1.4.11) */
+  --color-fg: #1b1f24; /* primary text  ~16:1 */
+  --color-fg-muted: #4a5360; /* secondary text ~7.9:1 */
+  --color-fg-subtle: #5f6874; /* tertiary/meta ~5.8:1 */
+  --color-fg-inverse: #ffffff;
+
+  /* Accent: restrained navy */
+  --color-accent: #1f3b63;
+  --color-accent-hover: #172e4e;
+  --color-accent-subtle: #e8eef6;
+  --color-accent-strong: #1f3b63;
+  --color-focus: #2457a3;
+
+  /* Status */
+  --color-success: #1d7a3e;
+  --color-success-subtle: #e6f4ea;
+  --color-success-strong: #155d2f;
+  --color-warning: #a35c00;
+  --color-warning-subtle: #fdf2e0;
+  --color-warning-strong: #7a4500;
+  --color-danger: #b42318;
+  --color-danger-subtle: #fdecea;
+  --color-danger-strong: #8f1c13;
+
+  /* Radii: 2–4px only */
+  --radius-sm: 2px;
+  --radius: 3px;
+  --radius-md: 4px;
+
+  /* Elevation: menus/popovers only */
+  --shadow-menu: 0 2px 8px rgb(27 31 36 / 0.12), 0 0 0 1px rgb(27 31 36 / 0.06);
+
+  /* Type: dense, 12px minimum for legibility */
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 13px;
+  --text-sm--line-height: 20px;
+  --text-base: 14px;
+  --text-base--line-height: 20px;
+  --text-md: 16px;
+  --text-md--line-height: 24px;
+  --text-lg: 18px;
+  --text-lg--line-height: 24px;
+  --text-xl: 22px;
+  --text-xl--line-height: 28px;
+  --text-2xl: 28px;
+  --text-2xl--line-height: 36px;
+
+  /* Layout */
+  --spacing-nav: 224px;
+  --spacing-row: 32px; /* data table row height */
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    background: var(--color-canvas);
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    /* Tabular figures everywhere so numbers align in tables and stat cards. */
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* One visible focus style for every interactive element (WCAG 2.4.7). */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-accent-subtle);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
