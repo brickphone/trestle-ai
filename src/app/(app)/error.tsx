@@ -8,7 +8,6 @@ function describe(error: unknown): string | undefined {
   if (error && typeof error === "object") {
     const digest = (error as { digest?: unknown }).digest;
     if (typeof digest === "string") return `Reference: ${digest}`;
-    if (error instanceof Error) return error.message;
   }
   return undefined;
 }
@@ -22,7 +21,7 @@ export default function AppError({ error, retry }: { error: unknown; retry: () =
     <div className="p-6">
       <ErrorState
         title="This page failed to load"
-        description="Retry, or go back to the previous page. If it keeps failing, check the server logs."
+        description="Please retry or contact support with the reference below."
         detail={describe(error)}
         action={<Button onClick={retry}>Retry</Button>}
       />

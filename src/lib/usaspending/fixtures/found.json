@@ -1,0 +1,16 @@
+{
+  "recipient": { "results": [{ "uei": "JTAPCFM4NSL4", "recipient_name": "MCKESSON CORPORATION" }] },
+  "search": {
+    "results": [{ "generated_internal_id": "CONT_AWD_H907_9700_SPE2DX16D1500_9700" }],
+    "page_metadata": { "hasNext": false }
+  },
+  "award": {
+    "piid": "H907",
+    "recipient": { "recipient_uei": "JTAPCFM4NSL4" },
+    "base_exercised_options": 61241.34,
+    "total_obligation": 50000,
+    "description": "4534723185!PV PHARM BRANCH, VENDOR, CAGE 0U9U0",
+    "period_of_performance": { "start_date": "2016-06-24", "end_date": "2016-06-27" },
+    "awarding_agency": { "toptier_agency": { "name": "Department of Defense" } }
+  }
+}

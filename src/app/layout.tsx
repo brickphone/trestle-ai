@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PRODUCT_NAME } from "@/lib/config";
 import { IBM_Plex_Mono, Public_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -16,7 +17,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Trestle GovCon", template: "%s · Trestle GovCon" },
+  title: { default: PRODUCT_NAME, template: `%s · ${PRODUCT_NAME}` },
   description: "Cash-flow planning for small federal construction contractors.",
   robots: { index: false, follow: false },
 };

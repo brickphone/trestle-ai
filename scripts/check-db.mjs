@@ -1,26 +1,23 @@
 import assert from "node:assert/strict";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { sql } from "drizzle-orm";
 import postgres from "postgres";
-
-if (!/^postgres(ql)?:\/\//.test(process.env.DATABASE_URL ?? "")) {
-  throw new Error("Set DATABASE_URL in .env.local; see README.md.");
-}
+if (!process.env.DATABASE_URL) throw new Error("Set the restricted DATABASE_URL in .env.local.");
 const client = postgres(process.env.DATABASE_URL, { prepare: false, max: 1, connect_timeout: 10 });
 try {
-  const db = drizzle(client);
-  const [result] = await db.execute(sql`
-    select exists(select 1 from pg_namespace where nspname = 'app') as schema_exists,
-      has_schema_privilege('anon', 'app', 'usage') as anon_access,
-      has_schema_privilege('authenticated', 'app', 'usage') as authenticated_access,
-      exists(select 1 from supabase_migrations.schema_migrations
-        where version = '20261102000000') as migration_applied
-  `);
-  assert.equal(result.schema_exists, true);
-  assert.equal(result.migration_applied, true);
-  assert.equal(result.anon_access, false);
-  assert.equal(result.authenticated_access, false);
-  console.log("Database connection, baseline migration and schema permissions verified.");
+  await client.begin(async (tx) => {
+    const [login] =
+      await tx`select current_user,rolsuper,rolbypassrls from pg_roles where rolname=current_user`;
+    assert.equal(login.current_user, "app_runtime");
+    assert.equal(login.rolsuper, false);
+    assert.equal(login.rolbypassrls, false);
+    await tx`set local role app_request`;
+    const [guard] =
+      await tx`select row_security_active('app.jobs'::regclass) as jobs,row_security_active('app.organizations'::regclass) as orgs`;
+    assert.equal(guard.jobs, true);
+    assert.equal(guard.orgs, true);
+    const rows = await tx`select id from app.jobs`;
+    assert.equal(rows.length, 0, "No identity must mean no rows");
+  });
+  console.log("Restricted runtime connection and active RLS verified.");
 } finally {
   await client.end();
 }

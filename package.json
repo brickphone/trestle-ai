@@ -12,15 +12,18 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "db:start": "supabase start",
-    "db:stop": "supabase stop",
-    "db:reset": "supabase db reset --local",
-    "db:migrate": "supabase migration up --local",
+    "test:e2e": "node --env-file-if-exists=.env.test.local node_modules/@playwright/test/cli.js test",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "db:migration:new": "supabase migration new",
-    "db:check": "node --env-file-if-exists=.env.local scripts/check-db.mjs"
+    "db:check": "node --env-file-if-exists=.env.local scripts/check-db.mjs",
+    "db:provision-runtime": "node --env-file-if-exists=.env.local scripts/provision-runtime.mjs",
+    "staff:create": "node --env-file-if-exists=.env.local scripts/create-staff.mjs",
+    "demo:reset": "node --env-file-if-exists=.env.local scripts/reset-demo.mjs",
+    "test:db": "node --conditions=react-server --env-file-if-exists=.env.test.local --import tsx scripts/test-database.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
     "@tanstack/react-table": "^9.3.1",
     "@tanstack/react-virtual": "^3.14.23",
     "clsx": "^2.1.1",
@@ -47,6 +50,7 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "supabase": "^3.0.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^3.2.7"
   },
