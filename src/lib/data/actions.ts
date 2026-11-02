@@ -1,10 +1,10 @@
 "use server";
 import { z } from "zod";
-import { and, eq, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { withDb } from "../db";
-import * as s from "../db/schema";
+import { userDataClient } from "../supabase/server";
+import { unwrap } from "../supabase/security";
+import { toJson } from "../supabase/database.types";
 import { context, requireOrganization } from "./repository";
 import {
   manualJobs,
@@ -16,7 +16,7 @@ import {
   optionalText,
   uuid,
 } from "./validation";
-import { retainedCents, isoDate, today } from "../finance";
+import { isoDate, today } from "../finance";
 import { lookupUei } from "../usaspending";
 import { PAYMENT_RULES } from "../config";
 import type { ActionResult } from "@/components/product/action-form";
@@ -32,20 +32,20 @@ async function perform(work: () => Promise<void>, target?: string): Promise<Acti
       };
     const cause = error instanceof Error && "cause" in error ? error.cause : error;
     const code = cause && typeof cause === "object" && "code" in cause ? cause.code : undefined;
+    const message =
+      cause && typeof cause === "object" && "message" in cause && typeof cause.message === "string"
+        ? cause.message
+        : undefined;
     if (code === "23505") return { error: "A record with this reference already exists." };
-    if (code === "42501") return { error: "You do not have permission to make this change." };
-    if (code === "P0001" && cause instanceof Error) return { error: cause.message };
+    if (code === "42501" || message === "Read-only account")
+      return { error: "This account does not have permission to make this change." };
+    if (code === "P0001" && message) return { error: message };
     if (code === "23514" || code === "23503")
       return {
         error:
           "These values conflict with the record or its linked records. Check dates, amounts and references.",
       };
-    return {
-      error:
-        error instanceof Error && error.message === "Read-only account"
-          ? "This account is read-only."
-          : "Unable to save. Check your entries and try again.",
-    };
+    return { error: "Unable to save. Check your entries and try again." };
   }
   revalidatePath("/", "layout");
   if (target) redirect(target);
@@ -83,73 +83,51 @@ export async function finishOnboarding(_: ActionResult, form: FormData): Promise
     if (asOf > today()) throw new Error("Future balance");
     const payroll = String(form.get("payroll") ?? "");
     const payrollAmount = payroll ? positiveMoney.parse(payroll) : null;
-    await withDb(async (tx) => {
-      const [row] = await tx.execute<{ id: string }>(
-        sql`select app.create_organization(${name},${uei || null},${awards.length ? "usaspending" : "manual"}) as id`,
-      );
-      if (!row) throw new Error("Organization not created");
-      const org = row.id;
-      for (const award of awards) {
-        const [snapshot] = await tx
-          .insert(s.sourceSnapshots)
-          .values({
-            organization_id: org,
-            external_id: award.externalId,
-            source_url: award.sourceUrl,
-            original: { ...award, companyName: lookup?.kind === "found" ? lookup.name : null },
-          })
-          .returning();
-        await tx.insert(s.jobs).values({
-          organization_id: org,
-          source_snapshot_id: snapshot!.id,
-          contract_number: award.contractNumber,
-          agency: award.agency,
-          description: award.description,
-          contract_value_cents: award.contractValueCents,
-          start_date: award.startDate,
-          end_date: award.endDate,
-          retainage_bps: PAYMENT_RULES.retainageBps,
-          payment_terms_days: PAYMENT_RULES.progressDays,
-          status: "active",
-        });
-      }
-      if (amount !== null)
-        await tx
-          .insert(s.cashBalanceEntries)
-          .values({ organization_id: org, amount_cents: amount, as_of_date: asOf });
-      if (payrollAmount !== null)
-        await tx.insert(s.recurringCosts).values({
-          organization_id: org,
-          label: "Weekly payroll estimate",
-          category: "payroll",
-          amount_cents: payrollAmount,
-          frequency: "weekly",
-          start_date: asOf,
-        });
-      await tx
-        .update(s.organizations)
-        .set({ onboarding_complete: true })
-        .where(eq(s.organizations.id, org));
-    });
+    const client = await userDataClient();
+    unwrap(
+      await client.rpc("complete_onboarding", {
+        company_name: name,
+        company_uei: uei || null,
+        company_origin: awards.length ? "usaspending" : "manual",
+        awards: toJson(
+          awards.map((a) => ({ ...a, companyName: lookup?.kind === "found" ? lookup.name : null })),
+        ),
+        opening_balance: amount,
+        balance_date: asOf,
+        payroll: payrollAmount,
+        retainage_bps: PAYMENT_RULES.retainageBps,
+        payment_terms_days: PAYMENT_RULES.progressDays,
+      }),
+    );
   }, "/");
 }
 export async function saveJob(_: ActionResult, form: FormData): Promise<ActionResult> {
   const id = String(form.get("id") ?? "");
   return perform(
     async () => {
-      const org = await writable();
-      const input = manualJobs.parse(Object.fromEntries(form));
-      await withDb(async (tx) => {
-        if (id) {
-          uuid.parse(id);
-          const rows = await tx
-            .update(s.jobs)
-            .set(input)
-            .where(and(eq(s.jobs.id, id), eq(s.jobs.organization_id, org)))
-            .returning();
-          if (!rows.length) throw new Error("Missing job");
-        } else await tx.insert(s.jobs).values({ ...input, organization_id: org });
-      });
+      const org = await writable(),
+        input = manualJobs.parse(Object.fromEntries(form));
+      const client = await userDataClient();
+      if (id) {
+        uuid.parse(id);
+        unwrap(
+          await client
+            .from("jobs")
+            .update(input)
+            .eq("id", id)
+            .eq("organization_id", org)
+            .is("voided_at", null)
+            .select("id")
+            .single(),
+        );
+      } else
+        unwrap(
+          await client
+            .from("jobs")
+            .insert({ ...input, organization_id: org })
+            .select("id")
+            .single(),
+        );
     },
     id ? `/jobs/${id}` : "/jobs",
   );
@@ -169,23 +147,28 @@ export async function saveChange(_: ActionResult, form: FormData): Promise<Actio
       })
       .parse(Object.fromEntries(form));
     const id = String(form.get("id") ?? "");
-    await withDb(async (tx) => {
-      if (id) {
-        uuid.parse(id);
-        const rows = await tx
-          .update(s.changeOrders)
-          .set(input)
-          .where(
-            and(
-              eq(s.changeOrders.id, id),
-              eq(s.changeOrders.organization_id, org),
-              eq(s.changeOrders.job_id, input.job_id),
-            ),
-          )
-          .returning();
-        if (!rows.length) throw new Error("Missing change");
-      } else await tx.insert(s.changeOrders).values({ ...input, organization_id: org });
-    });
+    const client = await userDataClient();
+    if (id) {
+      uuid.parse(id);
+      unwrap(
+        await client
+          .from("change_orders")
+          .update(input)
+          .eq("id", id)
+          .eq("organization_id", org)
+          .eq("job_id", input.job_id)
+          .is("voided_at", null)
+          .select("id")
+          .single(),
+      );
+    } else
+      unwrap(
+        await client
+          .from("change_orders")
+          .insert({ ...input, organization_id: org })
+          .select("id")
+          .single(),
+      );
   }, `/jobs/${job}`);
 }
 export async function saveInvoice(_: ActionResult, form: FormData): Promise<ActionResult> {
@@ -195,88 +178,33 @@ export async function saveInvoice(_: ActionResult, form: FormData): Promise<Acti
     const input = invoiceInput.parse(Object.fromEntries(form));
     const id = String(form.get("id") ?? "");
     const resubmission = String(form.get("resubmission_of_id") ?? "");
-    await withDb(async (tx) => {
-      const [job] = await tx
-        .select()
-        .from(s.jobs)
-        .where(and(eq(s.jobs.id, input.job_id), eq(s.jobs.organization_id, org)))
-        .for("update");
-      if (!job || job.voided_at) throw new Error("Missing job");
-      const values = {
-        ...input,
-        retainage_cents:
-          input.retainage_cents ?? retainedCents(input.billed_cents, job.retainage_bps),
-      };
-      if (id) {
-        uuid.parse(id);
-        const [invoice] = await tx
-          .select()
-          .from(s.governmentInvoices)
-          .where(
-            and(eq(s.governmentInvoices.id, id), eq(s.governmentInvoices.organization_id, org)),
-          )
-          .for("update");
-        if (!invoice || invoice.voided_at) throw new Error("Missing invoice");
-        // Snapshot terms are unchanged by edits to the job defaults.
-        await tx.update(s.governmentInvoices).set(values).where(eq(s.governmentInvoices.id, id));
-        target = `/invoices/${id}`;
-      } else {
-        const [invoice] = await tx
-          .insert(s.governmentInvoices)
-          .values({
-            ...values,
-            organization_id: org,
-            payment_terms_days: job.payment_terms_days,
-            resubmission_of_id: resubmission ? uuid.parse(resubmission) : null,
-          })
-          .returning();
-        target = `/invoices/${invoice!.id}`;
-      }
-    });
-    // perform's target is chosen after the transaction below.
-    revalidatePath("/", "layout");
+    const client = await userDataClient();
+    const saved = unwrap(
+      await client.rpc("save_government_invoice", {
+        org_id: org,
+        invoice_id: id ? uuid.parse(id) : null,
+        invoice_values: toJson({
+          ...input,
+          resubmission_of_id: resubmission ? uuid.parse(resubmission) : null,
+        }),
+      }),
+    );
+    target = `/invoices/${saved}`;
   }).then((result) => {
     if (!result.error) redirect(target);
     return result;
   });
 }
 export async function recordPayment(_: ActionResult, form: FormData): Promise<ActionResult> {
-  const invoiceId = String(form.get("invoice_id"));
+  const invoice = String(form.get("invoice_id"));
   return perform(async () => {
     const org = await writable();
     const input = paymentInput.parse(Object.fromEntries(form));
-    await withDb(async (tx) => {
-      const [invoice] = await tx
-        .select()
-        .from(s.governmentInvoices)
-        .where(
-          and(
-            eq(s.governmentInvoices.id, input.invoice_id),
-            eq(s.governmentInvoices.organization_id, org),
-          ),
-        )
-        .for("update");
-      if (!invoice) throw new Error("Missing invoice");
-      await tx.insert(s.governmentPayments).values({ ...input, organization_id: org });
-      const [paid] = await tx
-        .select({
-          amount: sql<number>`coalesce(sum(${s.governmentPayments.amount_cents}),0)::float8`,
-        })
-        .from(s.governmentPayments)
-        .where(
-          and(
-            eq(s.governmentPayments.invoice_id, input.invoice_id),
-            eq(s.governmentPayments.kind, "progress"),
-            sql`${s.governmentPayments.voided_at} is null`,
-          ),
-        );
-      if (paid?.amount === invoice.billed_cents - invoice.retainage_cents)
-        await tx
-          .update(s.governmentInvoices)
-          .set({ status: "paid" })
-          .where(eq(s.governmentInvoices.id, input.invoice_id));
-    });
-  }, `/invoices/${invoiceId}`);
+    const client = await userDataClient();
+    unwrap(
+      await client.rpc("record_government_payment", { org_id: org, payment_values: toJson(input) }),
+    );
+  }, `/invoices/${invoice}`);
 }
 export async function saveBalance(_: ActionResult, form: FormData): Promise<ActionResult> {
   return perform(async () => {
@@ -286,13 +214,18 @@ export async function saveBalance(_: ActionResult, form: FormData): Promise<Acti
     if (day > today()) throw new Error("Future balance");
     const job = String(form.get("job_id") ?? "");
     if (job) uuid.parse(job);
-    await withDb((tx) =>
-      tx.insert(s.cashBalanceEntries).values({
-        organization_id: org,
-        job_id: job || null,
-        amount_cents: amount,
-        as_of_date: day,
-      }),
+    const client = await userDataClient();
+    unwrap(
+      await client
+        .from("cash_balance_entries")
+        .insert({
+          organization_id: org,
+          job_id: job || null,
+          amount_cents: amount,
+          as_of_date: day,
+        })
+        .select("id")
+        .single(),
     );
   }, "/forecast");
 }
@@ -315,13 +248,18 @@ export async function saveCost(_: ActionResult, form: FormData): Promise<ActionR
       .parse(Object.fromEntries(form));
     const job = String(form.get("job_id") ?? "");
     if (job) uuid.parse(job);
-    await withDb((tx) =>
-      tx.insert(s.recurringCosts).values({ ...input, organization_id: org, job_id: job || null }),
+    const client = await userDataClient();
+    unwrap(
+      await client
+        .from("recurring_costs")
+        .insert({ ...input, organization_id: org, job_id: job || null })
+        .select("id")
+        .single(),
     );
   }, "/settings");
 }
 export async function saveAssumptions(_: ActionResult, form: FormData): Promise<ActionResult> {
-  const jobId = String(form.get("job_id"));
+  const job = String(form.get("job_id"));
   return perform(async () => {
     const org = await writable();
     const input = z
@@ -339,90 +277,38 @@ export async function saveAssumptions(_: ActionResult, form: FormData): Promise<
         cost_mode: z.enum(["explicit", "modeled"]),
       })
       .parse(Object.fromEntries(form));
-    const enabled = form.get("enabled") === "on";
-    await withDb(async (tx) => {
-      const [existing] = await tx
-        .select()
-        .from(s.forecastAssumptions)
-        .where(
-          and(
-            eq(s.forecastAssumptions.organization_id, org),
-            eq(s.forecastAssumptions.job_id, input.job_id),
-          ),
-        );
-      if (existing)
-        await tx
-          .update(s.forecastAssumptions)
-          .set({ ...input, enabled })
-          .where(eq(s.forecastAssumptions.id, existing.id));
-      else
-        await tx.insert(s.forecastAssumptions).values({ ...input, enabled, organization_id: org });
-    });
-  }, `/jobs/${jobId}#assumptions`);
+    const client = await userDataClient();
+    unwrap(
+      await client
+        .from("forecast_assumptions")
+        .upsert(
+          { ...input, enabled: form.get("enabled") === "on", organization_id: org },
+          { onConflict: "organization_id,job_id" },
+        )
+        .select("id")
+        .single(),
+    );
+  }, `/jobs/${job}#assumptions`);
 }
 export async function voidRecord(_: ActionResult, form: FormData): Promise<ActionResult> {
   return perform(async () => {
     const org = await writable();
     const kind = z
-      .enum(["job", "change", "invoice", "payment", "balance", "cost"])
-      .parse(form.get("kind"));
-    const id = uuid.parse(form.get("id"));
-    const reason = z.string().trim().min(1).max(2000).parse(form.get("reason"));
-    await withDb(async (tx) => {
-      const table = {
-        job: s.jobs,
-        change: s.changeOrders,
-        invoice: s.governmentInvoices,
-        payment: s.governmentPayments,
-        balance: s.cashBalanceEntries,
-        cost: s.recurringCosts,
-      }[kind];
-      if (kind === "payment") {
-        const [payment] = await tx
-          .select()
-          .from(s.governmentPayments)
-          .where(
-            and(eq(s.governmentPayments.id, id), eq(s.governmentPayments.organization_id, org)),
-          );
-        if (payment && payment.kind === "progress" && !payment.voided_at) {
-          await tx
-            .select()
-            .from(s.governmentInvoices)
-            .where(eq(s.governmentInvoices.id, payment.invoice_id))
-            .for("update");
-          await tx
-            .update(s.governmentInvoices)
-            .set({ status: "accepted" })
-            .where(
-              and(
-                eq(s.governmentInvoices.id, payment.invoice_id),
-                eq(s.governmentInvoices.status, "paid"),
-              ),
-            );
-        }
-      }
-      if (kind === "job") {
-        const [invoice] = await tx
-          .select()
-          .from(s.governmentInvoices)
-          .where(
-            and(
-              eq(s.governmentInvoices.job_id, id),
-              sql`${s.governmentInvoices.voided_at} is null`,
-            ),
-          );
-        if (invoice) throw new Error("Void the job invoices first");
-      }
-      const rows = await tx
-        .update(table)
-        .set({ voided_at: new Date(), void_reason: reason })
-        .where(and(eq(table.id, id), eq(table.organization_id, org)))
-        .returning({ id: table.id });
-      if (!rows.length) throw new Error("Missing record");
-    });
+        .enum(["job", "change", "invoice", "payment", "balance", "cost"])
+        .parse(form.get("kind")),
+      id = uuid.parse(form.get("id")),
+      reason = z.string().trim().min(1).max(2000).parse(form.get("reason"));
+    const client = await userDataClient();
+    unwrap(
+      await client.rpc("void_financial_record", {
+        org_id: org,
+        record_kind: kind,
+        record_id: id,
+        reason,
+      }),
+    );
   });
 }
-
 export async function updateInvoiceTiming(_: ActionResult, form: FormData): Promise<ActionResult> {
   const id = String(form.get("invoice_id"));
   return perform(async () => {
@@ -435,32 +321,27 @@ export async function updateInvoiceTiming(_: ActionResult, form: FormData): Prom
         proper_receipt_date: optionalDate,
       })
       .parse(Object.fromEntries(form));
-    await withDb(async (tx) => {
-      const rows = await tx
-        .update(s.governmentInvoices)
-        .set(input)
-        .where(
-          and(
-            eq(s.governmentInvoices.id, id),
-            eq(s.governmentInvoices.organization_id, org),
-            sql`${s.governmentInvoices.voided_at} is null`,
-            sql`${s.governmentInvoices.status} <> 'rejected'`,
-          ),
-        )
-        .returning();
-      if (!rows.length) throw new Error("Missing invoice");
-    });
+    const client = await userDataClient();
+    unwrap(
+      await client
+        .from("government_invoices")
+        .update(input)
+        .eq("id", id)
+        .eq("organization_id", org)
+        .is("voided_at", null)
+        .neq("status", "rejected")
+        .select("id")
+        .single(),
+    );
   }, `/invoices/${id}`);
 }
-
 export async function selectOrganization(form: FormData): Promise<void> {
   const ctx = await context();
   if (!ctx.isStaff) throw new Error("Staff access required");
   const id = uuid.parse(form.get("organization_id"));
   if (!ctx.organizations.some((o) => o.id === id)) throw new Error("Organization unavailable");
   const { cookies } = await import("next/headers");
-  const jar = await cookies();
-  jar.set("organization", id, {
+  (await cookies()).set("organization", id, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

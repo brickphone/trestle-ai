@@ -3,12 +3,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { authClient } from "./server";
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../supabase/database.types";
+import { verifyUserClient, unwrap } from "../supabase/security";
 import { getPublicEnv } from "../env";
 import type { ActionResult } from "@/components/product/action-form";
-import { createRuntime } from "../db/session";
-import { getDatabaseEnv } from "../server-env";
-import { eq } from "drizzle-orm";
-import { memberships, organizations, staffUsers } from "../db/schema";
 const email = z.email();
 function siteUrl() {
   return z.url().parse(process.env.SITE_URL ?? "http://localhost:3000");
@@ -71,28 +69,28 @@ export async function viewDemo(): Promise<void> {
   const env = getPublicEnv();
   // Validate the dedicated identity before installing any cookies. A misconfigured
   // demo must never sign a visitor into a real/staff account, even on a DB error.
-  const isolated = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const isolated = createClient<Database>(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      auth: { persistSession: false, autoRefreshToken: false },
+    },
+  );
   const { data, error } = await isolated.auth.signInWithPassword({ email, password });
   if (error || !data.user || !data.session)
     redirect("/login?message=Demo%20is%20temporarily%20unavailable.");
-  const runtime = createRuntime(getDatabaseEnv().DATABASE_URL);
-  let safe = false;
-  try {
-    safe = await runtime.run(data.user.id, async (tx) => {
-      const staff = await tx.select().from(staffUsers);
-      if (staff.length) return false;
-      const rows = await tx
-        .select({ demo: organizations.is_demo })
-        .from(memberships)
-        .innerJoin(organizations, eq(organizations.id, memberships.organization_id))
-        .where(eq(memberships.user_id, data.user.id));
-      return rows.length === 1 && rows[0]?.demo === true;
-    });
-  } finally {
-    await runtime.close();
-  }
+  await verifyUserClient(isolated, data.user.id);
+  const staff = unwrap(await isolated.from("staff_users").select("user_id"));
+  const memberships = unwrap(
+    await isolated.from("memberships").select("organization_id").eq("user_id", data.user.id),
+  );
+  const orgs = unwrap(await isolated.from("organizations").select("id,is_demo"));
+  const safe =
+    staff.length === 0 &&
+    memberships.length === 1 &&
+    orgs.length === 1 &&
+    orgs[0]?.is_demo === true &&
+    memberships[0]?.organization_id === orgs[0]?.id;
   if (!safe) redirect("/login?message=Demo%20configuration%20requires%20attention.");
   const client = await authClient();
   const { error: sessionError } = await client.auth.setSession(data.session);

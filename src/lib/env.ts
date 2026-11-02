@@ -1,7 +1,22 @@
 import { z } from "zod";
+function isPublishableKey(value: string) {
+  if (value.startsWith("sb_secret_")) return false;
+  const payload = value.split(".")[1];
+  if (!payload) return true;
+  try {
+    return (
+      JSON.parse(atob(payload.replaceAll("-", "+").replaceAll("_", "/"))).role !== "service_role"
+    );
+  } catch {
+    return true;
+  }
+}
 const publicSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z
+    .string()
+    .min(1)
+    .refine(isPublishableKey, "Use a publishable/anon key, never a secret/service-role key"),
 });
 export type PublicEnv = z.infer<typeof publicSchema>;
 export class EnvError extends Error {

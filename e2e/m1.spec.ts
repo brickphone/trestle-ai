@@ -2,11 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
-import postgres from "postgres";
-const hosted =
-  process.env.ALLOW_DATABASE_TESTS === "true" &&
-  !!process.env.SUPABASE_SECRET_KEY &&
-  !!process.env.DATABASE_ADMIN_URL;
+const hosted = process.env.ALLOW_DATABASE_TESTS === "true" && !!process.env.SUPABASE_SECRET_KEY;
 async function axe(page: Page) {
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -85,16 +81,22 @@ test.describe("M1 hosted workflow", () => {
     ).toBeVisible();
     await axe(page);
     // Tampering with a job identifier must not expose another tenant through a route.
-    const db = postgres(process.env.DATABASE_ADMIN_URL!, { prepare: false, max: 1 });
-    try {
-      const [other] =
-        await db`select j.id from app.jobs j join app.organizations o on o.id=j.organization_id where o.is_demo and j.voided_at is null limit 1`;
-      expect(other).toBeTruthy();
-      const response = await page.goto(`/jobs/${other!.id}`);
-      expect(response?.status()).toBe(404);
-    } finally {
-      await db.end();
-    }
+    const { data: demo, error: demoError } = await admin
+      .from("organizations")
+      .select("id")
+      .eq("is_demo", true)
+      .single();
+    if (demoError) throw demoError;
+    const { data: other, error: otherError } = await admin
+      .from("jobs")
+      .select("id")
+      .eq("organization_id", demo.id)
+      .is("voided_at", null)
+      .limit(1)
+      .single();
+    if (otherError) throw otherError;
+    const response = await page.goto(`/jobs/${other.id}`);
+    expect(response?.status()).toBe(404);
   });
   test("staff retains access to internal shells and cannot edit contractor records", async ({
     page,
@@ -112,12 +114,8 @@ test.describe("M1 hosted workflow", () => {
       email_confirm: true,
     });
     if (error) throw error;
-    const db = postgres(process.env.DATABASE_ADMIN_URL!, { prepare: false, max: 1 });
-    try {
-      await db`insert into app.staff_users(user_id) values(${data.user.id})`;
-    } finally {
-      await db.end();
-    }
+    const { error: staffError } = await admin.rpc("provision_staff", { target_user: data.user.id });
+    if (staffError) throw staffError;
     await page.goto("/login");
     await page.getByLabel("Email", { exact: true }).fill(email);
     await page.getByLabel("Password", { exact: true }).fill(password);

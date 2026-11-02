@@ -1,215 +1,224 @@
 # Contractor cash-flow MVP
 
-Cash-flow software for small US federal construction prime contractors. Product branding comes
-from `PRODUCT_NAME` in `src/lib/config.ts`, currently “Product”. Requirements evolve with sales calls.
-No lending, money movement, bank/accounting integrations, or SAM.gov key is required.
+Cash-flow software for small US federal construction prime contractors. Branding comes from
+`PRODUCT_NAME` in `src/lib/config.ts`, currently “Product”. No lending, money movement, AI features,
+bank/accounting connections or SAM.gov key is required.
 
-## Milestones
+## Run locally
 
-- **M1 implemented:** password/magic-link auth, organizations/memberships, global staff registry,
-  restricted database transactions and RLS, UEI onboarding/manual fallback, jobs/change orders,
-  government invoices/partial payments, opening balances/recurring costs, Overview, traceable
-  13-week forecast, authenticated read-only demo.
-- **M1 hosted verification pending:** migrations, RLS/bypass/audit/payment integration checks,
-  demo provisioning, authenticated browser flows and axe checks need a configured hosted test project.
-  Passing unit tests and a production build do not establish that database isolation works.
-- **M2 pending:** subcontractors/payables, alerts/read state, early-pay requests/staff queue.
-- **M3 pending:** teammate invitations, CSV import/export, documents/attachments, agency averages.
+The backend is a **persistent Node.js server**, running together with the Next.js frontend.
+It uses the normal Supabase client over HTTPS. No Docker, Drizzle, Postgres driver, database password,
+restricted database login, or pooler is required to run the application.
 
-Internal prospect shells remain at `/internal`, `/internal/prospects`, `/internal/pipeline`,
-`/internal/runs`. They require staff access already because M1 introduces contractor accounts.
-No ingestion/scoring was added. `/calculator` stays hidden from navigation. The development-only
-`/dev/components` reference retains its clearly labeled synthetic component examples and is 404 in production.
-
-Historical memo: [`docs/wedge-segments-overview.pdf`](docs/wedge-segments-overview.pdf).
-It predates the software-first direction, explores out-of-scope segments, and has unverified claims
-about public certified payroll/payment bond data. Do not use it as a source of legal rules.
-
-## Stack and setup
-
-Next.js 16 App Router/Cache Components, strict TypeScript, Tailwind 4 project tokens, Public Sans,
-TanStack Table/Virtual, Supabase Postgres/Auth, Drizzle, zod, Vitest, Playwright + axe. npm only.
-Use Node LTS 22.13+ or 24+.
-
-**Hosted Supabase only. Docker is not used by this workflow.** No service is provisioned automatically.
+Use Node LTS 22.13+ or 24+, and npm only:
 
 ```sh
 npm ci
-cp .env.example .env.local
-# Fill in hosted project values, then follow the database setup below.
+cp .env.example .env.local  # only if you do not already have this file
+```
+
+Set your existing hosted project values in `.env.local`:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_ANON_KEY
+SITE_URL=http://localhost:3000
+```
+
+`.env.local` takes precedence over `.env`. Do not leave stale local values overriding hosted ones.
+The app rejects a secret/service-role key in the public key variable. Keep secrets out of source/chat.
+
+### Create the database tables once
+
+The URL and key connect to Supabase; the project still needs the application's schema.
+Generate the setup SQL from the versioned migrations:
+
+```sh
+npm run db:sql
+```
+
+Open `supabase/setup.sql`, paste it into your project's **Supabase SQL Editor**, and run it as the
+project owner. The bundle applies pending versions atomically and records them in Supabase's migration
+history. It is safe to run again: already-applied versions are skipped. This also upgrades an older
+installation without copying or discarding its data. The generated bundle is ignored by Git; the
+source of truth is `supabase/migrations/`.
+
+Then:
+
+```sh
+npm run db:check
 npm run dev
 ```
 
-Open `http://localhost:3000`; use `localhost` for Next.js development and browser tests.
+Open **http://localhost:3000/signup**. Use `localhost` for development and browser tests.
+`db:check` checks HTTPS Data API reachability and denial of anonymous table reads. It is not a
+substitute for the authenticated RLS test suite.
 
-### Environment
+If migrations have not been installed, authentication can work while the workspace cannot load.
+Running `npm run dev` does not create tables or provision a project automatically.
 
-`.env*` is ignored except the example. Keep credentials out of source, logs and chat.
+### Auth redirects
 
-| Variable                        | Consumer                                                           |
-| ------------------------------- | ------------------------------------------------------------------ |
-| `DATABASE_URL`                  | Server application only; restricted `app_runtime` login            |
-| `DATABASE_ADMIN_URL`            | Administrative scripts and migrations only; project database owner |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Hosted Supabase project URL                                        |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Publishable/legacy anon key; never a secret/service-role key       |
-| `SUPABASE_SECRET_KEY`           | Administrative Auth scripts only; secret/legacy service-role key   |
-| `SITE_URL`                      | Application origin used for Auth email redirects                   |
-| `DEMO_EMAIL`, `DEMO_PASSWORD`   | Server-only credentials for the dedicated demo account             |
-| `ALLOW_DATABASE_TESTS`          | Explicit test-project opt-in; never enable against customer data   |
-
-The Supabase secret key and admin connection are not imported by application code. Authentication
-is verified with Supabase `getUser()`; cookie contents are not trusted as user identity.
-
-### Hosted database setup
-
-1. Create/use a hosted Supabase project with Postgres 17. Get connection details from its Connect
-   panel. Use a direct or session-pooler administrative URL for schema changes. URL-encode passwords
-   and use SSL as required by the project.
-2. Set `DATABASE_ADMIN_URL`. Choose a separate strong runtime password and put it in `DATABASE_URL`.
-   Its username must be `app_runtime` for direct connections, or `app_runtime.<project-ref>` for the
-   hosted pooler. Do not use `postgres` in the runtime URL.
-3. Apply versioned migrations and provision the restricted login:
-
-```sh
-npm run db:migrate
-npm run db:provision-runtime
-npm run db:check
-```
-
-`db:migrate` invokes the project-local Supabase CLI with the explicit administrative URL. It never
-starts a local stack. The CLI may ask for confirmation of the listed pending migrations.
-`db:provision-runtime` sets only the runtime login password. `db:check` asserts the restricted login,
-active RLS and no rows without an identity. It does not replace the full security test suite.
-
-Migrations run in order from `supabase/migrations`. The baseline private `app` schema is followed by
-identity roles; tenancy; jobs/snapshots/changes; invoices/payments; forecast inputs; audit triggers;
-RLS/grants; demo-login protection; contract-value integrity. No application-startup DDL is used.
-
-Create future changes with `npm run db:migration:new -- descriptive_name`, then update the matching
-Drizzle declarations in `src/lib/db/schema.ts`. SQL migrations are the sole DDL authority; do not
-use dashboard edits or Drizzle push as a second migration path. Fix deployed schemas with new
-migrations. There is deliberately no hosted database-reset command.
-
-`supabase/config.toml` is retained as CLI project metadata; its local-service settings are not an
-instruction to start Docker and are not applied to hosted Auth/Storage by `db:migrate`.
-
-### Hosted Auth setup
-
-Enable email/password authentication. Set the Auth Site URL to `SITE_URL` and allow these redirect URLs:
+Enable email/password Auth in Supabase. Set its Site URL to `SITE_URL` and allow:
 
 - `http://localhost:3000/auth/callback` for development
 - the deployed application origin plus `/auth/callback`
 
-The default PKCE flow exchanges a code at `/auth/callback`. For cross-device confirmation, email
-confirmation/magic-link templates can instead point to
+The standard PKCE flow exchanges a code at `/auth/callback`. For cross-device confirmation, email
+confirmation/magic-link templates can instead use
 `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`.
-Use the project's configured email delivery/SMTP settings; passwords require 12–128 characters.
-Magic-link sign-in does not implicitly create accounts. Sign up first. No application alert emails are sent.
+Use the project's configured email delivery/SMTP. Passwords require 12–128 characters.
+Magic-link sign-in does not implicitly create accounts; sign up first. No in-app alert emails are sent.
 
-Sources: [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client),
-[magic links](https://supabase.com/docs/guides/auth/auth-email-passwordless),
-[migrations](https://supabase.com/docs/guides/local-development/database-migrations).
+### Production
 
-## Roles, RLS and audit
+```sh
+npm run build
+npm start
+```
 
-`app_runtime` is a non-owner, non-superuser login with no RLS bypass and no inherited table access.
-Every ordinary request opens a transaction, asserts that login, switches locally to `app_request`,
-sets the **verified** user's claims locally, and checks `row_security_active` before queries run.
-Role/claims reset at transaction end. Accidentally using the owner URL fails closed.
+Deploy as a long-running Node process with the same environment values. No serverless functions or
+Supabase Edge Functions are used. Postgres functions below are database transactions, not deployed
+application workers.
 
-All twelve application tables have enabled/forced RLS. Tenant IDs on financial records are immutable.
-Composite organization/record foreign keys reject cross-tenant links. There are no anonymous policies.
+## How the backend works
+
+```text
+Browser → persistent Next.js Node server → Supabase Auth / Data API → Postgres
+```
+
+Server Actions validate forms, verify the Supabase user, and use an SSR Supabase client carrying
+that user's access token. Ordinary data access never uses a secret/service-role key. The client is
+request-scoped; there is no shared global user session.
+
+`src/lib/supabase/server.ts` verifies the actual Data API identity with the
+`request_security_context` RPC before access. It requires the `authenticated` role, the expected user
+UUID, and active RLS on all twelve application tables. A service-role/owner client fails this guard.
+Claims/roles are supplied by Supabase Auth and PostgREST; application code no longer sets them itself.
+
+Application tables are in Supabase's standard `public` API schema, with enabled and forced RLS.
+Private policy/trigger helpers remain in `app`. There are **no anonymous policies or table grants**.
+Existing private tables are moved by migration, preserving rows, foreign keys and audit history.
+The old `app_runtime` SQL login is disabled by migration; its credentials are unused and can be removed.
+
+Simple CRUD uses `supabase.from(...)`. Multi-record writes use `security invoker` RPCs so they are
+atomic and retain the caller's RLS permissions:
+
+- `complete_onboarding`: organization, owner membership, selected source snapshots/jobs, opening
+  balance, recurring payroll and onboarding state in one transaction. Its narrowly scoped private
+  organization-creation helper creates only the authenticated caller's organization/membership.
+- `save_government_invoice`: retainage calculation, terms snapshot, creation/edit, original-rejection
+  link and row locking.
+- `record_government_payment`: receipt validation, overpayment checks, receipt insertion and paid-state
+  update together.
+- `void_financial_record`: void reason, related status changes and soft-void together.
+
+Paginated reads request exact row counts so Supabase's response cap cannot silently truncate a
+forecast. API timestamps are normalized into domain records; financial calculations remain pure.
+Types live in `src/lib/data/types.ts` and `src/lib/supabase/database.types.ts`.
+
+## Roles and audit
 
 | Role        | M1 access                                                                          |
 | ----------- | ---------------------------------------------------------------------------------- |
-| Owner       | Read/write own organization business records; edit allowed company fields          |
+| Owner       | Read/write own organization business data; update allowed company fields           |
 | Member      | Read/write own operational records; no role/plan/staff administration              |
 | Staff       | Read all organizations, switch organizations, access Internal; no financial writes |
 | Demo member | Read only the dedicated demo organization; all application writes denied           |
 
-Membership/staff provisioning is administrative in M1; invitations arrive in M3. Plan/demo flags
-are not writable through ordinary application grants. A staff user remains read-only even if also
-listed as an organization member.
+Composite organization/record foreign keys reject cross-tenant links. Financial tenant IDs are
+immutable. Membership/staff provisioning is administrative in M1; invitations arrive in M3. Plan and
+demo flags are not writable through ordinary application grants. Staff remain read-only even when
+listed as organization members.
 
-Create a regular Auth user, get its UUID from Supabase Auth, and provision staff access:
+Database triggers record financial creates/updates/deletes with actor UUID, timestamp, before/after
+values in the same transaction. Audit events are append-only. Financial removal uses soft-void with
+a mandatory reason. Payments must be voided before voiding their invoice; active job invoices must
+be voided before voiding the job.
+
+### Staff and demo setup (optional)
+
+Only these administrative scripts need a server-only Supabase secret/legacy service-role key:
+
+```dotenv
+SUPABASE_SECRET_KEY=YOUR_SERVER_ONLY_SECRET_KEY
+DEMO_EMAIL=YOUR_DEDICATED_DEMO_ACCOUNT_EMAIL
+DEMO_PASSWORD=YOUR_DEDICATED_DEMO_ACCOUNT_PASSWORD
+```
+
+Create a regular Auth user and copy its UUID, then:
 
 ```sh
 npm run staff:create -- AUTH_USER_UUID
-```
-
-Financial creates/updates/deletes write before/after audit events in the same transaction. Triggers
-record actor UUIDs from verified claims; administrative seed operations have no user actor. Audit
-events cannot be edited/deleted. Ordinary financial removal uses soft-void with a mandatory reason.
-Payments must be voided before voiding their invoice; the UI prevents voiding a job with active invoices.
-
-Sources: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security).
-
-## Demo company
-
-Set `DEMO_EMAIL` and a strong `DEMO_PASSWORD` for a dedicated account, then:
-
-```sh
 npm run demo:reset
 ```
 
-“View demo” on the sign-in screen signs into this account server-side. No credentials are sent to
-browser bundles. The server verifies that the account belongs only to the demo organization.
-Every product screen displays **Demo, fictional data · Read-only**. Data stays in the flagged demo
-organization and never enters a real organization. RLS denies its writes. A database trigger also
-blocks password/email/phone changes to the shared account through Auth APIs.
+Both scripts use Supabase's HTTPS API; neither needs a database connection string. Their narrowly
+scoped administrative RPCs are executable only by `service_role`. They are never used by ordinary
+application requests. Demo accounts cannot become staff, and staff cannot become demo accounts.
 
-Reset voids old financial demo rows, disables prior assumptions, creates new fictional records with
-dates relative to today, and retains the append-only audit history. It refuses to repurpose an account
-already belonging to a real organization. Existing credentials are reused; changing the environment
-password alone does not rotate an existing Auth password. Credential rotation requires an explicit
-administrator operation coordinated with the demo-login protection trigger.
+“View demo” signs into the dedicated account after validating the actual API role and confirming
+it has only demo membership, no real-organization access and no staff role. Cookies are installed
+only after validation succeeds. Every product screen displays **Demo, fictional data · Read-only**.
+RLS denies writes, and an Auth trigger blocks changes to its shared email/password/phone.
+
+Reset voids old demo financial rows, disables prior assumptions, creates new fictional rows with
+dates relative to today, and preserves audit history. It cannot repurpose a real organization's user.
+Existing credentials are reused; changing `DEMO_PASSWORD` alone does not rotate an existing Auth
+password. Rotation requires a coordinated administrator operation with the protection trigger.
+
+## Migrations
+
+All DDL lives in timestamped SQL under `supabase/migrations/`. Do not use Drizzle or dashboard table
+edits as a parallel schema authority. SQL Editor execution uses the generated versioned bundle.
+To add a change:
+
+```sh
+npm run db:migration:new -- descriptive_name
+# Edit the new migration; update matching TypeScript records/API types.
+npm run db:sql
+# Run the resulting setup.sql in the hosted SQL Editor.
+```
+
+An optional CLI path, `npm run db:migrate`, can still use `DATABASE_ADMIN_URL` for teams with a direct
+or session-pooler connection. This is strictly administrative and is not required by the app or the
+SQL Editor path. There is no runtime provisioning step or hosted database-reset command.
+`supabase/config.toml` is CLI project metadata, not an instruction to start Docker.
 
 ## Financial and forecast conventions
 
-- USD integer cents; basis-point percentages; Postgres dates. Missing actual values show “Not available”.
-- Regulatory configuration and source/verification notes live in `src/lib/config.ts`. Progress terms
-  default to 14 calendar days; retainage defaults to an editable 5%, including 0%. This retainage
-  default is a product assumption, not a general federal mandate.
-- Submission + invoice terms gives an estimated due-date basis; a proper-request receipt date confirms
-  the basis. Expected receipt dates affect forecasts separately. No interest amount is calculated.
-  Contract conditions and weekend/holiday interest provisions still require verification.
-- Invoice terms are copied from the job when created. Later job edits do not rewrite invoice terms.
-  Rejection requires a reason; resubmission creates a new invoice linked with `resubmission_of_id`.
-- Payments support separate progress/retainage receipts and partial payments. Database triggers reject
-  overpayments. Paid status means the **net progress amount** is fully received; retainage may remain.
-- Only approved changes affect contract value. Pending changes stay separate. Imported baseline values
-  remain immutable in source snapshots; add only changes outside that baseline.
-- Opening bank balance means **start of the as-of day**. A 13-week forecast is anchored to that date;
-  same-day and subsequent recorded receipts are included once. An old balance is flagged for refresh.
-- Expected receipts use unpaid balances and explicit expected dates, falling back to due dates only
-  when current. Past-due/undated amounts are flagged and excluded until a usable date is supplied.
+- Integer USD cents, basis-point percentages, Postgres dates. Product tables display cents exactly.
+  Missing actual values show “Not available”.
+- Regulatory defaults, authoritative links and verification notes live in `src/lib/config.ts`.
+  Progress terms default to 14 calendar days. Retainage defaults to an editable 5%, including 0%:
+  this is a product assumption, not a general federal requirement.
+- Submission + invoice terms gives an estimated due-date basis; proper-request receipt confirms it.
+  Expected receipt dates affect forecasts separately. No interest amount is calculated. Contract
+  conditions and weekend/holiday interest provisions still require verification.
+- Invoice terms are copied from the job on creation. Later job edits do not rewrite them. Rejection
+  requires a reason; resubmission is a new invoice linked by `resubmission_of_id`.
+- Partial progress/retainage receipts are separate. Paid status means the net progress amount is
+  fully received; retainage may remain. Database triggers reject overpayments.
+- Only approved changes affect value. Pending changes stay separate. Imported original values remain
+  in immutable source snapshots; add only changes outside that baseline. Imported/user-confirmed
+  data does not establish contract ownership or an underwriting verification.
+- Opening balance means start of its as-of day. Forecasts span thirteen weeks from that date and
+  include recorded receipts on/after it once. An old balance is flagged for refresh.
+- Expected receipts use unpaid balances, explicit dates and current due-date fallbacks. Past-due or
+  undated amounts are flagged and excluded until a usable date is supplied. Draft/rejected invoices
+  are disclosed and excluded from expected receipts.
 - Future billings use the existing [cash-gap module](src/lib/cashgap/README.md): fixed 30-day months,
-  even billing, even/front-loaded costs, explicit lag/retainage release. Existing non-rejected invoices,
-  including drafts, replace the earliest modeled billings. Unbilled modeled work before the forecast
-  date is not silently carried forward. Disabled assumptions and draft/rejected invoices are disclosed.
-- Select entered recurring costs **or** modeled costs; conflicting inputs exclude the modeled scenario
-  and show a warning. Explicit mode does not add cash-gap costs. No hidden weekly payroll estimates.
-- Weekly views preserve source entries; the headline finds the lowest daily net balance, including
-  opening cash, so a positive week-end balance cannot hide a midweek shortfall. Same-day flows are netted.
-- Per-job views use only job-scoped costs and an explicitly entered job balance. Otherwise they show
-  net contribution; company cash and company-wide costs are never allocated automatically.
+  even billing, even/front-loaded costs, explicit lag and retainage release. Existing non-rejected
+  invoices, including drafts, replace the earliest model billings. Historical unbilled modeled work
+  is not silently carried forward. Disabled assumptions are disclosed.
+- Choose entered recurring costs or modeled costs; overlapping inputs exclude the model with a
+  warning. Company-wide cash/costs are never allocated to a job automatically. Job views without
+  an explicit opening balance show net contribution.
+- Source links preserve every projected flow. The headline uses the lowest daily net balance within
+  each week, including opening cash; same-day flows are netted.
 
 Sources: [FAR 52.232-27](https://www.acquisition.gov/far/52.232-27),
 [FAR 52.232-5](https://www.acquisition.gov/far/52.232-5).
-
-## USAspending and data sources
-
-On-demand lookup confirms exact UEI, fetches award pages/details server-side and preserves source
-links/allowlisted originals. `base_exercised_options` supplies current award value when available;
-`total_obligation` remains separate. An absent value stays absent. Users confirm/edit imported data.
-API failures/not-found results retain manual onboarding. No full ingestion pipeline or SAM dependency.
-
-Manual forms share zod validators through the data-source interface in `src/lib/data/validation.ts`.
-CSV adapters will use these same validated write paths in M3. No government-portal scraping/logins,
-bank credentials, SSNs, or EINs are requested or stored in structured fields. Documents are M3.
-
-Sources: [recipient API](https://github.com/fedspendingtransparency/usaspending-api/blob/master/usaspending_api/api_contracts/contracts/v2/autocomplete/recipient.md),
-[award API](https://github.com/fedspendingtransparency/usaspending-api/blob/master/usaspending_api/api_contracts/contracts/v2/awards/award_id.md).
 
 ## Tests
 
@@ -219,38 +228,53 @@ npm run typecheck
 npm run lint
 npm run format:check
 npm run build
+npm run test:e2e -- --workers=1
 ```
 
-Pure tests cover due-date bases/late flags, cents/retainage, rejected invoices, source mapping/failure
-fixtures, the $1M cash-gap reference, and a hand-calculated 13-week forecast including partial-payment
-replacement, cost overlap, per-job contribution, calendar boundaries and intraweek cash shortfalls.
+`npm test` includes actual PostgreSQL migration/RLS/transaction tests in an ephemeral, in-memory
+PGlite test harness. It uses no Docker, sockets, credentials or hosted data. Only Supabase's managed
+Auth schema/roles/helpers are stubbed; all application migrations, functions, triggers, table grants
+and policies execute as PostgreSQL SQL. Tests apply the generated bundle twice, check all-table RLS,
+cross-org reads/writes/FKs, staff/demo/anonymous restrictions, the actual invoker-role/bypass context,
+transactional rollback, payments and audit append-only behavior. This is a **test dependency only**,
+not the application's backend or a substitute for a hosted Supabase test run.
 
-For database and authenticated browser tests, configure **a dedicated hosted test project** in
-`.env.test.local` with the same variables and `ALLOW_DATABASE_TESTS=true`. Never point it at customer
-data. Apply/provision/seed that project explicitly:
+Unit tests also cover user-token API guards, privileged-key rejection, demo-cookie installation,
+Data API pagination/timestamps, USAspending mapping/failures, cash-gap reference and 13-week forecasts.
+
+For live hosted integration and authenticated browser tests, configure a **dedicated test project**
+in `.env.test.local` with the URL, publishable key, administrative Auth key, demo credentials and
+`ALLOW_DATABASE_TESTS=true`. Install its schema with the same SQL bundle, then:
 
 ```sh
-node --env-file=.env.test.local scripts/migrate.mjs
-node --env-file=.env.test.local scripts/provision-runtime.mjs
 node --env-file=.env.test.local scripts/reset-demo.mjs
 npm run test:db
 npx playwright install chromium
 npm run test:e2e -- --workers=1
 ```
 
-Database tests execute the actual request transaction wrapper with unfiltered queries: org A/B
-isolation, cross-tenant writes/FKs, identity reset, staff read-only, demo read-only, audit append-only,
-payment bounds, all-table RLS, and refusal of an owner connection. The bypass test must pass before
-M1 is accepted as security-verified. Integration fixtures are retained only in this dedicated test project.
+The live bypass test invokes the same normal request guard with an administrative client and must
+fail closed. Live tests also exercise user JWT RLS, staff/demo restrictions, atomic onboarding and
+payments, audit records, cross-organization URLs and axe. Fixtures are retained only in the dedicated
+test project. Hosted-dependent tests are explicitly skipped without configuration; public auth/axe
+and unauthenticated redirect checks still run. No mocked auth/RLS fallback exists in the browser suite.
 
-Browser tests cover sign-up/confirmation/manual onboarding, jobs/invoices/partial/full payments,
-forecast source links, cross-org detail URLs, staff access, demo/read-only screens, virtualized table
-ARIA semantics and axe checks. Tests requiring hosted credentials are explicitly skipped without them;
-public auth/accessibility and unauthenticated redirects still run. Browser tests do not substitute mocked authentication or RLS.
+## Scope and design
 
-## Design system
+M1 contains auth/tenancy, UEI onboarding/manual fallback, jobs/changes, government invoices/payments,
+opening balances/costs, Overview, traceable forecast and authenticated read-only demo.
+M2 remains pending: subcontractors/payables, alerts, early-pay requests/staff queue.
+M3 remains pending: invitations, CSV, documents, agency averages. No full USAspending ingestion.
 
-Project-only tokens in `src/app/globals.css`; Tailwind defaults for colors/radii/shadows/type are reset.
-Public Sans UI, tabular numerals, IBM Plex Mono UEIs, 4px grid, small radii and accessible control borders.
-Reusable primitives live in `src/components/ui`; product forms/tables/source links in
-`src/components/product`. Calm, dense enterprise UI; no government imitation or AI-generated figures.
+Internal prospect shells remain under `/internal`, staff-only. `/calculator` stays hidden from
+navigation. `/dev/components` contains clearly labeled development-only synthetic component examples;
+it returns 404 in production. Existing tokens, Public Sans, tabular figures, 4px spacing and accessible
+control borders remain. No government imitation, gradients or AI-generated figures.
+
+Historical memo: [`docs/wedge-segments-overview.pdf`](docs/wedge-segments-overview.pdf). It predates
+the current software-first direction and has unverified public payroll/bond data claims.
+
+Implementation references: [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client),
+[database functions and privileges](https://supabase.com/docs/guides/database/functions),
+[RLS](https://supabase.com/docs/guides/database/postgres/row-level-security),
+[USAspending award API](https://github.com/fedspendingtransparency/usaspending-api/blob/master/usaspending_api/api_contracts/contracts/v2/awards/award_id.md).

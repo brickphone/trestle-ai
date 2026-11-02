@@ -1,6 +1,6 @@
 import { saveJob } from "@/lib/data/actions";
 import { PAYMENT_RULES } from "@/lib/config";
-import type { Job } from "@/lib/db/schema";
+import type { Job } from "@/lib/data/types";
 import { ActionForm } from "./action-form";
 import { Input, Notes, Options, Hidden, dollars } from "./fields";
 export function JobForm({ job, readOnly = false }: { job?: Job; readOnly?: boolean }) {

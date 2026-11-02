@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Invoice, Payment, Job } from "@/lib/db/schema";
+import type { Invoice, Payment, Job } from "@/lib/data/types";
 import { invoiceTotals } from "@/lib/forecast";
 import { invoiceDueDate, isLate, today } from "@/lib/finance";
 import { formatUsd, formatDate } from "@/lib/format";

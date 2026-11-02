@@ -16,10 +16,10 @@
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "db:migration:new": "supabase migration new",
     "db:check": "node --env-file-if-exists=.env.local scripts/check-db.mjs",
-    "db:provision-runtime": "node --env-file-if-exists=.env.local scripts/provision-runtime.mjs",
     "staff:create": "node --env-file-if-exists=.env.local scripts/create-staff.mjs",
     "demo:reset": "node --env-file-if-exists=.env.local scripts/reset-demo.mjs",
-    "test:db": "node --conditions=react-server --env-file-if-exists=.env.test.local --import tsx scripts/test-database.ts"
+    "test:db": "node --env-file-if-exists=.env.test.local --import tsx scripts/test-database.ts",
+    "db:sql": "node scripts/build-migrations.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -27,9 +27,7 @@
     "@tanstack/react-table": "^9.3.1",
     "@tanstack/react-virtual": "^3.14.23",
     "clsx": "^2.1.1",
-    "drizzle-orm": "^0.45.4",
     "next": "16.4.3",
-    "postgres": "^4.0.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
@@ -37,6 +35,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
+    "@electric-sql/pglite": "^0.5.14",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",

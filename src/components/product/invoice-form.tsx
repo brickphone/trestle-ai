@@ -1,5 +1,5 @@
 import { saveInvoice } from "@/lib/data/actions";
-import type { Invoice, Job } from "@/lib/db/schema";
+import type { Invoice, Job } from "@/lib/data/types";
 import { ActionForm } from "./action-form";
 import { Input, Notes, Options, Hidden, dollars } from "./fields";
 export function InvoiceForm({

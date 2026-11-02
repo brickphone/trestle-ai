@@ -1,13 +1,9 @@
-import postgres from "postgres";
 import { createClient } from "@supabase/supabase-js";
-export function adminDb() {
-  if (!process.env.DATABASE_ADMIN_URL)
-    throw new Error("Set DATABASE_ADMIN_URL for this administrative command.");
-  return postgres(process.env.DATABASE_ADMIN_URL, { prepare: false, max: 1, connect_timeout: 10 });
-}
 export function adminAuth() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SECRET_KEY)
-    throw new Error("Set the Supabase URL and server-only SUPABASE_SECRET_KEY.");
+    throw new Error(
+      "Set the Supabase URL and server-only SUPABASE_SECRET_KEY for administrative setup.",
+    );
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });

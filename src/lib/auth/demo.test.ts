@@ -1,10 +1,11 @@
+import type * as Security from "../supabase/security";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   signIn: vi.fn(),
-  run: vi.fn(),
-  close: vi.fn(),
+  verify: vi.fn(),
   setSession: vi.fn(),
   client: vi.fn(),
+  rows: {} as Record<string, unknown[]>,
 }));
 vi.mock("./server", () => ({ authClient: mocks.client }));
 vi.mock("../env", () => ({
@@ -13,10 +14,20 @@ vi.mock("../env", () => ({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-public-key",
   }),
 }));
-vi.mock("../server-env", () => ({ getDatabaseEnv: () => ({ DATABASE_URL: "test-only" }) }));
-vi.mock("../db/session", () => ({ createRuntime: () => ({ run: mocks.run, close: mocks.close }) }));
+vi.mock("../supabase/security", async (importOriginal) => ({
+  ...(await importOriginal<typeof Security>()),
+  verifyUserClient: mocks.verify,
+}));
 vi.mock("@supabase/supabase-js", () => ({
-  createClient: () => ({ auth: { signInWithPassword: mocks.signIn } }),
+  createClient: () => ({
+    auth: { signInWithPassword: mocks.signIn },
+    from: (table: string) => ({
+      select: () => {
+        const promise = Promise.resolve({ data: mocks.rows[table] ?? [], error: null });
+        return Object.assign(promise, { eq: () => promise });
+      },
+    }),
+  }),
 }));
 vi.mock("next/navigation", () => ({
   redirect: (path: string) => {
@@ -31,6 +42,16 @@ describe("one-click demo authentication boundary", () => {
     vi.clearAllMocks();
     process.env.DEMO_EMAIL = "demo@test.example";
     process.env.DEMO_PASSWORD = "test-only";
+    mocks.rows = {
+      staff_users: [],
+      memberships: [{ organization_id: "demo" }],
+      organizations: [{ id: "demo", is_demo: true }],
+    };
+    mocks.verify.mockResolvedValue({
+      role: "authenticated",
+      user_id: "demo-user",
+      rls_active: true,
+    });
     mocks.signIn.mockResolvedValue({
       data: {
         user: { id: "demo-user" },
@@ -40,7 +61,6 @@ describe("one-click demo authentication boundary", () => {
     });
     mocks.client.mockResolvedValue({ auth: { setSession: mocks.setSession } });
     mocks.setSession.mockResolvedValue({ error: null });
-    mocks.close.mockResolvedValue(undefined);
   });
   afterEach(() => {
     if (previous.email === undefined) delete process.env.DEMO_EMAIL;
@@ -48,25 +68,35 @@ describe("one-click demo authentication boundary", () => {
     if (previous.password === undefined) delete process.env.DEMO_PASSWORD;
     else process.env.DEMO_PASSWORD = previous.password;
   });
-  it("never installs a real/staff account session when demo identity validation fails", async () => {
-    mocks.run.mockResolvedValue(false);
-    await expect(viewDemo()).rejects.toThrow("Demo%20configuration");
+  it("never installs a staff or real-account session", async () => {
+    for (const rows of [
+      {
+        staff_users: [{ user_id: "demo-user" }],
+        memberships: [{ organization_id: "demo" }],
+        organizations: [{ id: "demo", is_demo: true }],
+      },
+      {
+        staff_users: [],
+        memberships: [{ organization_id: "real" }],
+        organizations: [{ id: "real", is_demo: false }],
+      },
+    ]) {
+      mocks.rows = rows;
+      await expect(viewDemo()).rejects.toThrow("Demo%20configuration");
+    }
     expect(mocks.client).not.toHaveBeenCalled();
     expect(mocks.setSession).not.toHaveBeenCalled();
-    expect(mocks.close).toHaveBeenCalledOnce();
   });
-  it("never installs any cookies when the restricted database check fails", async () => {
-    mocks.run.mockRejectedValue(new Error("Unsafe database connection"));
-    await expect(viewDemo()).rejects.toThrow("Unsafe database connection");
+  it("never installs cookies when the Data API RLS guard fails", async () => {
+    mocks.verify.mockRejectedValue(new Error("Unsafe Supabase client"));
+    await expect(viewDemo()).rejects.toThrow("Unsafe Supabase client");
     expect(mocks.client).not.toHaveBeenCalled();
     expect(mocks.setSession).not.toHaveBeenCalled();
-    expect(mocks.close).toHaveBeenCalledOnce();
   });
   it("installs cookies only after validating the read-only demo organization", async () => {
-    mocks.run.mockResolvedValue(true);
     await expect(viewDemo()).rejects.toThrow("redirect:/");
     expect(mocks.setSession).toHaveBeenCalledOnce();
-    expect(mocks.run.mock.invocationCallOrder[0]).toBeLessThan(
+    expect(mocks.verify.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.setSession.mock.invocationCallOrder[0]!,
     );
   });

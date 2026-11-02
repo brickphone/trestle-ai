@@ -6,7 +6,7 @@ import type {
   Balance,
   RecurringCost,
   Assumption,
-} from "../db/schema";
+} from "../data/types";
 import { addDays, daysBetween, invoiceDueDate, retainedCents } from "../finance";
 import { calculateCashGap } from "../cashgap";
 export type ForecastData = {

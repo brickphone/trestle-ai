@@ -1,23 +1,23 @@
-import assert from "node:assert/strict";
-import postgres from "postgres";
-if (!process.env.DATABASE_URL) throw new Error("Set the restricted DATABASE_URL in .env.local.");
-const client = postgres(process.env.DATABASE_URL, { prepare: false, max: 1, connect_timeout: 10 });
-try {
-  await client.begin(async (tx) => {
-    const [login] =
-      await tx`select current_user,rolsuper,rolbypassrls from pg_roles where rolname=current_user`;
-    assert.equal(login.current_user, "app_runtime");
-    assert.equal(login.rolsuper, false);
-    assert.equal(login.rolbypassrls, false);
-    await tx`set local role app_request`;
-    const [guard] =
-      await tx`select row_security_active('app.jobs'::regclass) as jobs,row_security_active('app.organizations'::regclass) as orgs`;
-    assert.equal(guard.jobs, true);
-    assert.equal(guard.orgs, true);
-    const rows = await tx`select id from app.jobs`;
-    assert.equal(rows.length, 0, "No identity must mean no rows");
-  });
-  console.log("Restricted runtime connection and active RLS verified.");
-} finally {
-  await client.end();
+import { createClient } from "@supabase/supabase-js";
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  throw new Error("Set the hosted Supabase URL and publishable key.");
+const client = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  { auth: { persistSession: false } },
+);
+const { error } = await client.from("jobs").select("id").limit(1);
+if (!error) throw new Error("Anonymous database reads are unexpectedly allowed.");
+if (error.code === "PGRST205" || error.code === "42P01") {
+  console.error(
+    "Database schema is not installed yet. Run npm run db:sql and execute supabase/setup.sql in the Supabase SQL Editor.",
+  );
+  process.exitCode = 1;
+} else if (error.code === "42501")
+  console.log(
+    "Hosted Data API is reachable; anonymous table access is denied. Run test:db for authenticated RLS and bypass checks.",
+  );
+else {
+  console.error("Hosted Data API check failed:", error.code ?? "HTTP_ERROR");
+  process.exitCode = 1;
 }

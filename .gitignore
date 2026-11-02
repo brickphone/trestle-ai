@@ -46,3 +46,6 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Generated SQL Editor bundle (source lives in versioned migrations)
+/supabase/setup.sql

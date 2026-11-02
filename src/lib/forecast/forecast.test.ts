@@ -8,7 +8,7 @@ import type {
   Balance,
   Assumption,
   ChangeOrder,
-} from "../db/schema";
+} from "../data/types";
 const base = {
   organization_id: "org",
   created_at: new Date("2026-01-01"),
