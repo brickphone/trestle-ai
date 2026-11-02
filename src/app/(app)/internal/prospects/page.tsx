@@ -9,7 +9,7 @@ export default function ProspectsPage() {
     <>
       <PageHeader
         title="Prospects"
-        breadcrumbs={[{ label: "Overview", href: "/" }, { label: "Prospects" }]}
+        breadcrumbs={[{ label: "Internal", href: "/internal" }, { label: "Prospects" }]}
         description="Ranked firms across segments. Filter, sort, choose columns and export to CSV."
       />
       <PageBody>

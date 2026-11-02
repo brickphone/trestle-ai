@@ -4,10 +4,13 @@ import { NavLinks, type NavItem } from "./nav-links";
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Overview", icon: "overview" },
-  { href: "/prospects", label: "Prospects", icon: "list" },
-  { href: "/pipeline", label: "Pipeline", icon: "pipeline" },
-  { href: "/calculator", label: "Cash-gap calculator", icon: "calculator" },
-  { href: "/runs", label: "Data runs", icon: "runs" },
+  { href: "/internal", label: "Internal", icon: "list" },
+];
+
+export const INTERNAL_NAV_ITEMS: NavItem[] = [
+  { href: "/internal/prospects", label: "Prospects", icon: "list" },
+  { href: "/internal/pipeline", label: "Pipeline", icon: "pipeline" },
+  { href: "/internal/runs", label: "Data runs", icon: "runs" },
 ];
 
 /**
@@ -38,6 +41,10 @@ export function AppShell({ children, footer }: { children: ReactNode; footer?: R
         </div>
         <nav aria-label="Primary" className="flex-1 overflow-y-auto p-2">
           <NavLinks items={NAV_ITEMS} />
+          <div className="mt-4 border-t border-border pt-2">
+            <p className="px-2 py-1 text-xs font-semibold text-fg-subtle">Internal</p>
+            <NavLinks items={INTERNAL_NAV_ITEMS} />
+          </div>
         </nav>
         {footer ? <div className="border-t border-border p-2">{footer}</div> : null}
       </aside>

@@ -8,7 +8,9 @@ import { Icon, type IconName } from "../ui/icon";
 export type NavItem = { href: string; label: string; icon: IconName };
 
 function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  return href === "/" || href === "/internal"
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function NavLinks({ items }: { items: NavItem[] }) {

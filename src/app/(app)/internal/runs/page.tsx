@@ -9,7 +9,7 @@ export default function RunsPage() {
     <>
       <PageHeader
         title="Data runs"
-        breadcrumbs={[{ label: "Overview", href: "/" }, { label: "Data runs" }]}
+        breadcrumbs={[{ label: "Internal", href: "/internal" }, { label: "Data runs" }]}
         description="Ingestion and enrichment history: start and end times, records fetched and errors."
       />
       <PageBody>

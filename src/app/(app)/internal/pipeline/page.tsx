@@ -9,7 +9,7 @@ export default function PipelinePage() {
     <>
       <PageHeader
         title="Pipeline"
-        breadcrumbs={[{ label: "Overview", href: "/" }, { label: "Pipeline" }]}
+        breadcrumbs={[{ label: "Internal", href: "/internal" }, { label: "Pipeline" }]}
         description="Outreach status, owner, notes and last-touched date for each firm."
       />
       <PageBody>

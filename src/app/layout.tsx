@@ -17,7 +17,7 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: { default: "Trestle GovCon", template: "%s · Trestle GovCon" },
-  description: "Internal prospecting and pre-underwriting tool for federal contractors.",
+  description: "Cash-flow planning for small federal construction contractors.",
   robots: { index: false, follow: false },
 };
 

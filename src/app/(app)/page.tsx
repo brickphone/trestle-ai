@@ -9,12 +9,12 @@ export default function OverviewPage() {
     <>
       <PageHeader
         title="Overview"
-        description="Firms ingested, target-band coverage, average score and data freshness for each segment."
+        description="Track federal jobs, government invoices, subcontractor payables and cash flow."
       />
       <PageBody>
         <EmptyState
-          title="No segments ingested yet"
-          description="Segment summaries appear here after the first USAspending ingestion run."
+          title="No jobs added yet"
+          description="Job tracking and the 13-week cash forecast are coming in the MVP."
         />
       </PageBody>
     </>

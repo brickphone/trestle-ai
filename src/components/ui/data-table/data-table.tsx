@@ -160,10 +160,10 @@ export function DataTable<TData extends RowData>({
             style={{ width: table.getTotalSize() }}
           >
             <thead className="sticky top-0 z-10 grid bg-surface-muted">
-              {headerGroups.map((group) => (
+              {headerGroups.map((group, index) => (
                 <tr
                   key={group.id}
-                  aria-rowindex={1}
+                  aria-rowindex={index + 1}
                   className="flex w-full border-b border-border-strong"
                 >
                   {group.headers.map((header) => {
