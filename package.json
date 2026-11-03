@@ -20,7 +20,8 @@
     "demo:reset": "node --env-file-if-exists=.env.local scripts/reset-demo.mjs",
     "test:db": "node --env-file-if-exists=.env.test.local --import tsx scripts/test-database.ts",
     "db:sql": "node scripts/build-migrations.mjs",
-    "test:visual": "npm run build && VISUAL_FIXTURES_DIR=.visual/after-html vitest run visual-fixtures && node scripts/build-visual-client.mjs && playwright test -c playwright.visual.config.ts"
+    "test:visual": "npm run build && VISUAL_FIXTURES_DIR=.visual/after-html vitest run visual-fixtures && node scripts/build-visual-client.mjs && playwright test -c playwright.visual.config.ts",
+    "build:webpack": "next build --webpack && node scripts/check-visual-build.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

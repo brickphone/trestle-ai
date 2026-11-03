@@ -6,6 +6,7 @@ import { contrast, proposal as t } from "./tokens";
 import { TypeComparison } from "./type-comparison";
 import type { loadData } from "@/lib/data/repository";
 
+vi.mock("@/lib/data/actions", () => ({ useBilledEstimate: vi.fn() }));
 vi.mock("@/lib/auth/actions", () => ({ viewDemo: vi.fn() }));
 vi.mock("next/font/local", () => ({ default: () => ({ style: { fontFamily: "Test font" } }) }));
 vi.mock("@/lib/data/repository", () => ({ loadData: vi.fn() }));

@@ -1,4 +1,5 @@
 "use client";
+import { statusLabel } from "@/lib/status-label";
 
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +95,9 @@ export function TableDemo() {
           <Select id="demo-state" value={state} onChange={(e) => setState(e.target.value)}>
             <option value="">All</option>
             {["CA", "TX", "VA", "FL", "WA", "AZ", "CO", "OH"].map((s) => (
-              <option key={s}>{s}</option>
+              <option key={s} value={s}>
+                {statusLabel(s)}
+              </option>
             ))}
           </Select>
         </Field>

@@ -1,3 +1,4 @@
+import { statusLabel } from "@/lib/status-label";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
@@ -54,7 +55,7 @@ export function Status({ value }: { value: string }) {
         : "neutral";
   return (
     <Badge tone={tone}>
-      <span className="capitalize">{value.replaceAll("_", " ")}</span>
+      <span>{statusLabel(value)}</span>
     </Badge>
   );
 }

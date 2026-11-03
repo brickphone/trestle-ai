@@ -44,12 +44,12 @@ export function AppShell({
         Skip to main content
       </a>
       <aside className="flex shrink-0 flex-col border-b border-border bg-surface md:sticky md:top-0 md:h-dvh md:w-nav md:border-r md:border-b-0">
-        <div className="flex h-18 items-center px-6">
+        <div className="flex h-18 items-center px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 rounded-sm hover:text-fg-muted">
             <span className="text-lg font-semibold tracking-tight">{PRODUCT_NAME}</span>
           </Link>
         </div>
-        <nav aria-label="Primary" className="flex-1 overflow-y-auto px-3 py-2">
+        <nav aria-label="Primary" className="flex-1 overflow-y-auto px-3 py-2 lg:px-5">
           <NavLinks items={NAV_ITEMS} />
           {isStaff && (
             <div className="mt-4 border-t border-border pt-2">
@@ -60,9 +60,9 @@ export function AppShell({
             </div>
           )}
         </nav>
-        <div className="border-t border-border p-3">
+        <div className="border-t border-border p-3 lg:p-5">
           {organizationName && (
-            <div className="mb-2 flex flex-col gap-1 px-2">
+            <div className="mb-2 flex flex-col gap-1 px-3">
               <span className="text-xs text-fg-subtle">Organization</span>
               <span className="text-sm font-medium break-words">
                 {readableCase(organizationName)}

@@ -27,10 +27,10 @@ describe("financial display", () => {
     expect(html).toContain("-$123");
     expect(html).toContain('class="text-fg-subtle">.45');
   });
-  it("shows a short UTC date with the full year on hover", () => {
+  it("shows the full UTC date including the year", () => {
     const html = renderToStaticMarkup(<DateText value="2027-01-25" />);
     expect(html).toContain('dateTime="2027-01-25"');
     expect(html).toContain('title="Jan 25, 2027"');
-    expect(html).toContain(">Jan 25</time>");
+    expect(html).toContain(">Jan 25, 2027</time>");
   });
 });

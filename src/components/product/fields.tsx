@@ -2,6 +2,7 @@ import { Field, TextInput, Select, Textarea } from "@/components/ui/form";
 import type { ReactNode } from "react";
 export function Input({
   name,
+  id,
   label,
   type = "text",
   value = "",
@@ -12,6 +13,7 @@ export function Input({
   step,
 }: {
   name: string;
+  id?: string;
   label: string;
   type?: string;
   value?: string | number | null;
@@ -21,7 +23,7 @@ export function Input({
   max?: string | number;
   step?: string;
 }) {
-  const controlId = `${name}-${label.replace(/[^a-zA-Z0-9]/g, "-")}`;
+  const controlId = id ?? `${name}-${label.replace(/[^a-zA-Z0-9]/g, "-")}`;
   return (
     <Field htmlFor={controlId} label={label} hint={hint}>
       <TextInput

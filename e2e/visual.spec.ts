@@ -592,7 +592,9 @@ test("projected job income and weekly job costs produce the reference sawtooth w
   await expect(page.getByRole("table", { name: "13-week cash forecast" })).toBeVisible();
   await expect(page.locator("[data-projected-receipt]")).toHaveCount(2);
   await expect(
-    page.getByText("Hollow markers: Projected, not invoiced income.", { exact: false }),
+    page.getByText("Hollow markers: projected receipts, including assumed receivables.", {
+      exact: false,
+    }),
   ).toBeVisible();
   await page.locator("#week-8-sources summary").click();
   await expect(page.locator("#week-8-sources")).toContainText("Projected, not invoiced");
@@ -742,4 +744,205 @@ test("a missing public amount requires a contract value and estimates billing un
     ).violations,
   ).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("an in-progress job has assumed receipts in the first month, with readable names and matching sources", async ({
+  page,
+}) => {
+  await screen(page, "overview-in-progress");
+  const incoming = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: "Money in", exact: true }) });
+  await expect(incoming.getByText("MCLB Barstow parking lot", { exact: true })).toBeVisible();
+  await expect(
+    incoming.getByText(/Projected, assumed already invoiced, please confirm\./),
+  ).toBeVisible();
+  await expect(incoming.getByRole("listitem").getByText("$190,000", { exact: true })).toBeVisible();
+  const chart = page.locator("[data-cash-chart]");
+  await chart.getByRole("group", { name: "Interactive cash projection" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await expect(chart.getByRole("status")).toContainText("Assumed already invoiced");
+  await page.unrouteAll();
+  await screen(page, "forecast-in-progress");
+  const week = page.locator("#week-4-sources");
+  await week.locator("summary").click();
+  await expect(
+    week.getByRole("link", {
+      name: /MCLB Barstow parking lot: Projected, assumed already invoiced/,
+    }),
+  ).toBeVisible();
+  await expect(week.getByRole("link", { name: /Task order/ })).toHaveCount(0);
+});
+test("a zero billed baseline warns on both the job and Overview Needs attention", async ({
+  page,
+}) => {
+  const message =
+    "Billed so far is $0 but this job is 80% through its schedule, so the forecast may be overstated.";
+  await screen(page, "overview-zero-billed");
+  const attention = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: "Needs attention", exact: true }) });
+  await expect(
+    attention.getByRole("link", {
+      name: new RegExp(message.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    }),
+  ).toBeVisible();
+  await page.unrouteAll();
+  await screen(page, "job-zero-billed");
+  await expect(page.getByRole("alert")).toContainText(message);
+});
+for (const width of [375, 1024, 1440, 1920])
+  test(`chart ticks and low label do not overlap at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await screen(page, "overview-in-progress");
+    const chart = page.locator("[data-cash-chart]");
+    for (const axis of ["x", "y"]) {
+      const boxes = await chart.locator(`[data-axis-label="${axis}"]`).evaluateAll((elements) =>
+        elements.map((element) => {
+          const r = element.getBoundingClientRect();
+          return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+        }),
+      );
+      for (let i = 1; i < boxes.length; i++)
+        expect(
+          axis === "x"
+            ? boxes[i]!.left - boxes[i - 1]!.right
+            : boxes[i]!.top - boxes[i - 1]!.bottom,
+        ).toBeGreaterThanOrEqual(6);
+    }
+    const low = await chart.locator(".chart-low-label").boundingBox(),
+      dot = await chart.locator(".chart-low-dot").boundingBox();
+    expect(low!.y).toBeGreaterThanOrEqual(dot!.y + dot!.height + 4);
+    if (width === 375) {
+      const table = page.getByRole("region", { name: "Government invoices table", exact: true });
+      await table.focus();
+      await page.keyboard.press("ArrowRight");
+      await expect.poll(() => table.evaluate((e) => e.scrollLeft)).toBeGreaterThan(0);
+    }
+    await expect(chart).toHaveScreenshot(`in-progress-chart-${width}.png`);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+  });
+test("sidebar account menu opens upward and left padding matches the page", async ({ page }) => {
+  await screen(page, "forecast-in-progress");
+  const aside = page.locator("aside"),
+    trigger = aside.getByRole("button", { name: "Account: founder@example.test" });
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  const menu = aside.getByRole("menu", { name: "Account" }),
+    signout = menu.getByRole("menuitem", { name: "Sign out" });
+  await expect(signout).toBeFocused();
+  const a = await trigger.boundingBox(),
+    b = await menu.boundingBox();
+  expect(b!.y + b!.height).toBeLessThanOrEqual(a!.y);
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  const padding = await page.evaluate(() => {
+    const link = document.querySelector("nav[aria-label=Primary] a")!,
+      heading = document.querySelector("main h1")!,
+      main = document.querySelector("main")!;
+    return {
+      nav: link.getBoundingClientRect().left + parseFloat(getComputedStyle(link).paddingLeft),
+      page: heading.getBoundingClientRect().left - main.getBoundingClientRect().left,
+    };
+  });
+  expect(Math.abs(padding.nav - padding.page)).toBeLessThan(1);
+});
+
+test("a started zero-billed job offers an explicit estimate without silently accepting it", async ({
+  page,
+}) => {
+  await screen(page, "overview-zero-billed-owner");
+  const notice = page.locator("[data-billed-estimate]").first();
+  await expect(notice.getByText(/Suggested billed so far/)).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("billed-estimate-submission"))).toBeNull();
+  await expect(notice.getByRole("link", { name: "Enter actual" })).toHaveAttribute(
+    "href",
+    /#billed-actual$/,
+  );
+  const expected = await notice.getAttribute("data-estimate-cents");
+  await notice.getByRole("button", { name: "Use estimate" }).click();
+  await expect(notice.getByRole("status")).toContainText("Estimate saved");
+  const sent = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("billed-estimate-submission")!),
+  );
+  expect(sent.expected_estimate_cents).toBe(expected);
+});
+for (const width of [375, 1440])
+  test(`add job has a separate compact form at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await screen(page, "jobs-owner");
+    await expect(page.getByRole("link", { name: "Add job", exact: true })).toHaveAttribute(
+      "href",
+      "/jobs/new",
+    );
+    await expect(page.getByLabel("Contract number", { exact: true })).toHaveCount(0);
+    await page.unrouteAll();
+    await screen(page, "job-new");
+    await expect(page.getByRole("heading", { level: 1, name: "Add job" })).toBeVisible();
+    await expect(page.getByLabel("Government retainage (%)")).toHaveValue("0");
+    const status = page.getByLabel("Job status", { exact: true });
+    await status.selectOption("complete");
+    await expect(status).toHaveValue("complete");
+    await expect(status.locator("option:checked")).toHaveText("Completed");
+    const bounds = await page
+      .locator("main input:not([type=hidden]),main select,main textarea")
+      .evaluateAll((elements) => elements.map((e) => e.getBoundingClientRect().width));
+    expect(Math.max(...bounds)).toBeLessThanOrEqual(600);
+    const start = await page.getByLabel("Start date", { exact: true }).boundingBox(),
+      end = await page.getByLabel("End date", { exact: true }).boundingBox();
+    if (width === 1440) expect(start!.y).toBe(end!.y);
+    await expect(page).toHaveScreenshot(`add-job-${width}.png`, { fullPage: true });
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+  });
+test("calendar dates rendered across app screens always contain a year", async ({ page }) => {
+  for (const name of [
+    "overview-demo",
+    "jobs-owner",
+    "invoices",
+    "forecast-in-progress",
+    "job-detail",
+    "invoice-detail",
+    "settings",
+  ]) {
+    await page.unrouteAll();
+    await screen(page, name);
+    const invalid = await page.evaluate(() => {
+      const found: string[] = [];
+      const walker = document.createTreeWalker(
+        document.querySelector("main")!,
+        NodeFilter.SHOW_TEXT,
+      );
+      let node;
+      while ((node = walker.nextNode())) {
+        const parent = node.parentElement;
+        if (!parent || parent.closest("script,style,[hidden]")) continue;
+        for (const m of (node.textContent ?? "").matchAll(
+          /\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}\b(?:,?\s+\d{4}\b)?/g,
+        ))
+          if (!/\d{4}\b/.test(m[0])) found.push(m[0]);
+      }
+      for (const time of document.querySelectorAll("time[datetime]")) {
+        const year = time.getAttribute("datetime")!.slice(0, 4);
+        if (!time.textContent?.includes(year)) found.push(time.textContent ?? "empty time");
+      }
+      return found;
+    });
+    expect(invalid, `${name}: calendar dates must include year`).toEqual([]);
+  }
 });

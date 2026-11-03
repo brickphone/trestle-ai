@@ -25,3 +25,8 @@ export async function saveContracts(_: unknown, form: FormData) {
   localStorage.setItem("contracts-test-submission", JSON.stringify(Object.fromEntries(form)));
   return { success: "Saved." };
 }
+
+export async function useBilledEstimate(_: ActionResult, form: FormData): Promise<ActionResult> {
+  localStorage.setItem("billed-estimate-submission", JSON.stringify(Object.fromEntries(form)));
+  return { success: "Saved." };
+}

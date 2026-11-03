@@ -470,8 +470,7 @@ export function OnboardingFlow({
                 <>
                   {currency("balance", "Current cash balance")}
                   <p className="text-sm text-fg-muted">
-                    Balance at the start of{" "}
-                    {draft.asOf === asOf ? "today" : <OnboardingDate value={draft.asOf} />} ·{" "}
+                    Balance at the start of {<OnboardingDate value={draft.asOf} />} ·{" "}
                     <button
                       type="button"
                       className="text-accent underline"

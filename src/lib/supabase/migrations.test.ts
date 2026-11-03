@@ -767,3 +767,53 @@ it("edits tracking and billing atomically while preserving job financial history
     asUser(null, "anon", (tx) => tx.query("select public.update_contracts($1,'[]')", [org])),
   ).rejects.toThrow(/permission denied/);
 });
+
+it("defaults government retainage to zero at the database/API boundary and preserves explicit amounts", async () => {
+  const made = await asUser(a, "authenticated", (tx) =>
+    tx.query<{ id: string; retainage_bps: number }>(
+      "insert into public.jobs(organization_id,contract_number,payment_terms_days) values($1,'ZERO-RETAINAGE',30) returning id,retainage_bps",
+      [orgA],
+    ),
+  );
+  expect(made.rows[0]!.retainage_bps).toBe(0);
+  const values = {
+    job_id: jobA,
+    invoice_number: "DEFAULT-RETAINAGE-0",
+    period_start: "2026-01-01",
+    period_end: "2026-01-31",
+    billed_cents: 100000,
+    retainage_cents: null,
+    portal: "other",
+    status: "draft",
+  };
+  const saved = await asUser(a, "authenticated", (tx) =>
+    tx.query<{ id: string }>("select public.save_government_invoice($1,null,$2) as id", [
+      orgA,
+      JSON.stringify(values),
+    ]),
+  );
+  const id = saved.rows[0]!.id;
+  expect(
+    (
+      await db.query<{ retainage_cents: number }>(
+        "select retainage_cents from public.government_invoices where id=$1",
+        [id],
+      )
+    ).rows[0]!.retainage_cents,
+  ).toBe(0);
+  await asUser(a, "authenticated", (tx) =>
+    tx.query("select public.save_government_invoice($1,$2,$3)", [
+      orgA,
+      id,
+      JSON.stringify({ ...values, retainage_cents: 5000 }),
+    ]),
+  );
+  expect(
+    (
+      await db.query<{ retainage_cents: number }>(
+        "select retainage_cents from public.government_invoices where id=$1",
+        [id],
+      )
+    ).rows[0]!.retainage_cents,
+  ).toBe(5000);
+});

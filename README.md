@@ -420,3 +420,81 @@ Active tracked jobs missing a value produce an aggregate forecast warning linked
 Apply the updated `supabase/setup.sql` before saving in hosted Supabase. The added migration
 `20261104001000_contract_editing.sql` preserves all raw snapshots and financial history and
 adds tracking/billing provenance. No Docker or direct database URL is needed.
+
+### Jobs already under way
+
+The forecast keeps two different budgets separate. Future billings and the job cost ratio use
+`max(0, contract value + approved changes − billed to date)`. Billed to date is the greater of
+the opening billed baseline and invoices already included in it, plus later invoices; the same
+invoice is never subtracted twice. Entered job costs still replace the cost model.
+
+For a started job, closed historical calendar months are allocated a steady share of its opening
+**Billed so far** total. Month-end + the job's payment lag determines the receipt date. Only
+receipts on/after the forecast start are included, labelled **Projected, assumed already invoiced,
+please confirm.** Each real invoice replaces its overlapping assumed period without reallocating
+other assumed periods. Recorded payments and partial invoice balances continue to work normally.
+These receipts do not spend the remaining unbilled budget or add historical job costs again.
+With a $0 billed baseline the forecast invents no historical receivable; a progressed job shows a
+warning on its page and in Needs attention, prompting confirmation of the billing baseline.
+
+The hand-calculated regression starts a job in January 2024: $6M contract, $4.8M billed over 24
+closed months, six remaining months, 85% costs and 30-day payment lag. The assumed December
+invoice is $200K gross / $190K net after 5% retainage, arriving January 30, 2026. Future billings
+use only $1.2M; future job costs total $1.02M. The fixture finances are fictional.
+
+Readable job names are presentation derived from the editable description; raw award text and
+contract IDs remain unchanged. Contract IDs appear as secondary text in cash/source lists.
+Axis labels use minimum pixel spacing, zero takes priority over a colliding y tick, and the Low
+annotation has an opaque background below the lowest point. Sidebar padding aligns with page
+padding; the shared account menu opens above the sidebar footer.
+
+### Confirming a $0 opening billed amount
+
+A started job with $0 billed shows **Suggested billed so far** on its page and in Overview →
+Needs attention. The amount is contract/forecast value × elapsed/total schedule days, rounded to
+$1,000. Nothing is persisted by viewing either page. **Use estimate** verifies the displayed amount
+on the server, writes only the billing baseline/date/provenance, and refreshes the forecast.
+The write is conditional on the stored baseline still being zero, so it cannot overwrite a newly
+entered actual amount. **Enter actual** links directly to the job's Billed so far field. Existing
+cost ratios, payment lag, value overrides and model enablement stay unchanged. No new SQL migration
+is required for this action; it uses the existing authenticated, RLS-protected Data API.
+
+Government invoice and new-job retainage now default to 0, with “Verify against your contract.”
+Existing saved retainage is preserved; new invoices default to zero even on legacy jobs with a 5%
+job setting. The separate `PAYMENT_RULES.subcontractorRetainageBps` remains configurable. See
+[FAR 52.232-5(e)](https://www.acquisition.gov/far/52.232-5) for the government retainage provision.
+
+All displayed calendar dates include their year, including chart dates. Global rendered-fixture
+and browser tests check dates across Overview, Jobs, invoices, forecasts, Settings and onboarding.
+Job creation is at `/jobs/new`; the Jobs list links to a form no wider than 600px.
+
+### Local versus deployed code
+
+`http://localhost:3000` is local. `npm run dev` reloads this checkout as files change; refresh the
+browser after a change. `/api/version` reports the runtime mode, revision and feature identifiers.
+In development, revision/dirty status come from this checkout. Production revision comes from
+`APP_REVISION` and should be set to the deployed commit SHA. The endpoint contains no financial
+or account data. Committing does not push, deploy, or approve suggested financial estimates.
+
+To deploy on a Node host, push the reviewed commit to the host's tracked branch, apply the existing
+`supabase/setup.sql` if the hosted database is behind, set the production environment variables
+and the Supabase Auth callback origin, then build and restart the app:
+
+```sh
+npm ci
+export APP_REVISION="$(git rev-parse HEAD)"
+npm run build
+npm start
+```
+
+Keep `APP_REVISION` in the runtime environment too. `npm run build:webpack` is an equivalent,
+checked-in fallback for environments where Turbopack's build workers cannot bind local ports.
+Use the host's assigned `PORT`; do not run `npm start` over an existing development server on the
+same port. Verify the deployed origin's `/api/version` after release. No deployment platform is
+linked in this repository, so a commit alone does not publish a site.
+
+Migration `20261104002000_government_retainage_default.sql` aligns database/API defaults with
+zero government retainage, including calls that omit the amount. It updates defaults and the
+invoice RPC only; it does not rewrite saved jobs or invoices. Apply the regenerated
+`supabase/setup.sql` on the hosted project when deploying this migration. The local application
+already sends an explicit zero for new/blank government-invoice retainage.

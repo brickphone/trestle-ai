@@ -30,6 +30,7 @@ vi.mock("@/lib/data/actions", () => ({
   finishOnboarding: vi.fn(),
   updateCompanySetup: vi.fn(),
   saveContracts: vi.fn(),
+  useBilledEstimate: vi.fn(),
 }));
 vi.mock("@/lib/onboarding/actions", () => ({
   saveOnboardingDraft: vi.fn(),

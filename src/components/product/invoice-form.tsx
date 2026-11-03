@@ -1,3 +1,4 @@
+import { statusLabel } from "@/lib/status-label";
 import { saveInvoice } from "@/lib/data/actions";
 import type { Invoice, Job } from "@/lib/data/types";
 import { ActionForm } from "./action-form";
@@ -63,8 +64,8 @@ export function InvoiceForm({
         <Input
           name="retainage_cents"
           label="Retainage withheld ($)"
-          value={invoice ? dollars(invoice.retainage_cents) : ""}
-          hint="Leave blank to calculate from the job retainage percentage; enter 0 for none."
+          value={invoice ? dollars(invoice.retainage_cents) : "0"}
+          hint="Verify against your contract. Defaults to no government retainage."
         />
         <Input
           name="submitted_date"
@@ -94,7 +95,9 @@ export function InvoiceForm({
         />
         <Options name="portal" label="Submission portal" value={invoice?.portal ?? "other"}>
           {["WAWF/PIEE", "IPP", "other"].map((s) => (
-            <option key={s}>{s}</option>
+            <option key={s} value={s}>
+              {statusLabel(s)}
+            </option>
           ))}
         </Options>
         <Options
@@ -103,7 +106,9 @@ export function InvoiceForm({
           value={invoice?.status === "paid" ? "accepted" : (invoice?.status ?? "draft")}
         >
           {["draft", "submitted", "accepted", "rejected"].map((s) => (
-            <option key={s}>{s}</option>
+            <option key={s} value={s}>
+              {statusLabel(s)}
+            </option>
           ))}
         </Options>
       </div>

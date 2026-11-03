@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { BilledEstimateNotice } from "./billed-estimate-notice";
+import type { ForecastIssue } from "@/lib/forecast";
+import { jobDisplayName } from "@/lib/job-display";
 import type { loadData } from "@/lib/data/repository";
 import { viewDemo } from "@/lib/auth/actions";
 import { forecast, invoiceTotals, type CashSource } from "@/lib/forecast";
@@ -51,7 +54,8 @@ function Upcoming({
             const cost = data.costs.find((c) => s.href === `/settings#cost-${c.id}`);
             const job = data.jobs.find(
               (j) =>
-                j.id === (invoice?.job_id ?? cost?.job_id) || s.href.startsWith(`/jobs/${j.id}#`),
+                j.id === (s.jobId ?? invoice?.job_id ?? cost?.job_id) ||
+                s.href.startsWith(`/jobs/${j.id}#`),
             );
             return (
               <li key={s.id}>
@@ -59,18 +63,16 @@ function Upcoming({
                   href={s.href}
                   className="flex items-center gap-4 border-b border-border py-3 hover:bg-surface-hover"
                 >
-                  <span className="w-12 shrink-0 text-xs text-fg-subtle">
+                  <span className="w-24 shrink-0 text-xs text-fg-subtle">
                     <DateText value={s.date} />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-medium text-accent">
-                      {invoice
-                        ? `${invoice.invoice_number}${s.id.endsWith("retainage") ? " · retainage" : ""}`
-                        : s.label}
+                      {job ? jobDisplayName(job) : s.label}
                     </span>
                     <span className="mt-0.5 block text-xs text-fg-subtle">
                       {job
-                        ? `${job.agency ?? "Agency not available"} · ${job.contract_number}`
+                        ? `${s.detail ?? invoice?.invoice_number ?? cost?.label ?? ""} · ${job.contract_number}`
                         : "Company-wide"}
                     </span>
                   </span>
@@ -97,7 +99,7 @@ function Upcoming({
 export function OverviewContent({ data }: { data: Awaited<ReturnType<typeof loadData>> }) {
   const date = today();
   const balance = data.balances.find((b) => !b.voided_at && !b.job_id);
-  const result = forecast(data, balance?.as_of_date ?? date);
+  const result = forecast(data, balance?.as_of_date ?? date, undefined, date);
   const jobs = data.jobs.filter((j) => !j.voided_at);
   const late = data.invoices.filter(
     (i) =>
@@ -105,11 +107,17 @@ export function OverviewContent({ data }: { data: Awaited<ReturnType<typeof load
       !["draft", "rejected"].includes(i.status) &&
       isLate(i, invoiceTotals(i, data.payments).remaining, date),
   );
-  const attention = [
-    ...late.map((i) => ({ label: `${i.invoice_number} is past due`, href: `/invoices/${i.id}` })),
+  const attention: ForecastIssue[] = [
+    ...late.map((i) => ({
+      label: `${jobDisplayName(data.jobs.find((j) => j.id === i.job_id))}: ${i.invoice_number} is past due`,
+      href: `/invoices/${i.id}`,
+    })),
     ...data.invoices
       .filter((i) => !i.voided_at && i.status === "rejected")
-      .map((i) => ({ label: `${i.invoice_number} was rejected`, href: `/invoices/${i.id}` })),
+      .map((i) => ({
+        label: `${jobDisplayName(data.jobs.find((j) => j.id === i.job_id))}: ${i.invoice_number} was rejected`,
+        href: `/invoices/${i.id}`,
+      })),
     ...result.issues,
   ];
   const upcoming = result.sources
@@ -126,7 +134,7 @@ export function OverviewContent({ data }: { data: Awaited<ReturnType<typeof load
         costs to see your cash outlook.
       </p>
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <ButtonLink href="/jobs" variant="primary">
+        <ButtonLink href="/jobs/new" variant="primary">
           Add your first job
         </ButtonLink>
         <form action={viewDemo}>
@@ -247,6 +255,13 @@ export function OverviewContent({ data }: { data: Awaited<ReturnType<typeof load
                         <Link href={item.href} className="text-accent underline underline-offset-2">
                           {item.label}
                         </Link>
+                        {item.jobId && (
+                          <BilledEstimateNotice
+                            jobId={item.jobId}
+                            estimateCents={item.billingEstimateCents ?? null}
+                            readOnly={data.readOnly}
+                          />
+                        )}
                       </li>
                     ))}
                   </ul>

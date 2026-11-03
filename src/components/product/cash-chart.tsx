@@ -1,10 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { spacedYTicks, spacedXDays } from "@/lib/chart-ticks";
 import type { forecast } from "@/lib/forecast";
 import { addDays } from "@/lib/finance";
-import { formatDate, formatShortDate, formatUsd, formatUsdCompact } from "@/lib/format";
+import { formatDate, formatUsd, formatUsdCompact } from "@/lib/format";
 import { Money, DateText } from "@/components/ui/financial";
 
 type Result = ReturnType<typeof forecast>;
@@ -42,6 +43,17 @@ export function CashChart({
   sourcePrefix?: string;
 }) {
   const id = useId();
+  const plot = useRef<HTMLDivElement>(null),
+    [plotWidth, setPlotWidth] = useState(800);
+  useEffect(() => {
+    if (!plot.current) return;
+    const element = plot.current;
+    const resize = () => setPlotWidth(element.getBoundingClientRect().width);
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [result.hasBalance, result.isContribution]);
   const [range, setRange] = useState<4 | 13>(13);
   const [active, setActive] = useState<number | null>(null);
   if (!result.hasBalance && !result.isContribution)
@@ -52,19 +64,20 @@ export function CashChart({
   const days = range * 7;
   const points = chartSeries(result).slice(0, days + 1);
   const domain = chartDomain(points.map((p) => p.cents));
-  const y = (cents: number) => ((domain.max - cents) / (domain.max - domain.min)) * 184;
+  const y = (cents: number) => ((domain.max - cents) / (domain.max - domain.min)) * 160;
   const x = (day: number) => (day / days) * 1000;
   const low = points.reduce((a, b) => (b.cents < a.cents ? b : a));
   const path = points
     .map((p, i) => `${i ? "L" : "M"}${x(p.day).toFixed(2)},${y(p.cents).toFixed(2)}`)
     .join(" ");
-  const hasProjections = weeks.some((w) => w.sources.some((s) => s.projection === "billing"));
+  const hasProjections = weeks.some((w) =>
+    w.sources.some((s) => s.projection === "billing" || s.projection === "assumed-receivable"),
+  );
   const selected = active === null ? null : weeks[active];
   const crosshair = selected ? ((selected.index + 0.5) / range) * 100 : 0;
   const zeroY = Math.max(0, Math.min(184, y(0)));
-  const ticks = [domain.max, (domain.max + domain.min) / 2, domain.min].filter(
-    (value) => !domain.showZero || Math.abs(value) > 0.001,
-  );
+  const ticks = spacedYTicks(domain);
+  const xDays = spacedXDays(days, plotWidth);
   const lowIndex = Math.min(range - 1, Math.max(0, Math.floor((low.day - 1) / 7)));
   return (
     <figure className="cash-chart" data-cash-chart aria-labelledby={`${id}-heading`}>
@@ -91,7 +104,7 @@ export function CashChart({
       </figcaption>
       {hasProjections && (
         <p className="mb-2 text-xs text-fg-subtle">
-          Hollow markers: Projected, not invoiced income.{" "}
+          Hollow markers: projected receipts, including assumed receivables.{" "}
           <a href={`${sourcePrefix}#projection-sources`} className="underline">
             Review sources
           </a>
@@ -103,18 +116,15 @@ export function CashChart({
             key={i}
             data-chart-label
             className="chart-y-label"
+            data-axis-label="y"
             style={{ top: 8 + y(value) }}
             title={formatUsd(value / 100)}
           >
             {formatUsdCompact(value / 100)}
           </span>
         ))}
-        {domain.showZero && (
-          <span data-chart-label className="chart-y-label" style={{ top: 8 + y(0) }}>
-            $0
-          </span>
-        )}
         <div
+          ref={plot}
           className="chart-plot"
           tabIndex={0}
           role="group"
@@ -171,7 +181,7 @@ export function CashChart({
                 x2="1000"
                 y1={y(value)}
                 y2={y(value)}
-                stroke="var(--color-border)"
+                stroke={value === 0 ? "transparent" : "var(--color-border)"}
                 vectorEffect="non-scaling-stroke"
               />
             ))}
@@ -200,7 +210,11 @@ export function CashChart({
                 (p) =>
                   p.day > 0 &&
                   weeks.some((w) =>
-                    w.sources.some((s) => s.projection === "billing" && s.date === p.date),
+                    w.sources.some(
+                      (s) =>
+                        (s.projection === "billing" || s.projection === "assumed-receivable") &&
+                        s.date === p.date,
+                    ),
                   ),
               )
               .map((p) => (
@@ -239,24 +253,25 @@ export function CashChart({
             style={{
               left: `${(low.day / days) * 100}%`,
               top: `${(y(low.cents) / 184) * 100}%`,
-              transform: `translate(${low.day / days > 0.8 ? "-100%" : low.day / days < 0.2 ? "0" : "-50%"},-100%)`,
+              transform: `translate(${low.day / days > 0.8 ? "-100%" : low.day / days < 0.2 ? "0" : "-50%"},0)`,
             }}
             title={`${formatDate(low.date)} · Week ${lowIndex + 1}`}
           >
             Low {formatUsd(low.cents / 100)}
           </span>
-          {[0, Math.floor(days / 3), Math.floor((days * 2) / 3), days - 1].map((day, i) => (
+          {xDays.map((day, i) => (
             <span
               key={day}
               data-chart-label
               className="chart-x-label"
+              data-axis-label="x"
               style={{
                 left: `${(day / (days - 1)) * 100}%`,
-                transform: `translateX(${i === 0 ? "0" : i === 3 ? "-100%" : "-50%"})`,
+                transform: `translateX(${i === 0 ? "0" : i === xDays.length - 1 ? "-100%" : "-50%"})`,
               }}
               title={formatDate(addDays(points[0]!.date, day))}
             >
-              {formatShortDate(addDays(points[0]!.date, day))}
+              {formatDate(addDays(points[0]!.date, day))}
             </span>
           ))}
         </div>
@@ -291,6 +306,18 @@ export function CashChart({
               <dd className="text-right">
                 <Money cents={-selected.outflowCents} />
               </dd>
+              {selected.sources.some((s) => s.projection === "assumed-receivable") && (
+                <>
+                  <dt>Assumed already invoiced</dt>
+                  <dd className="text-right">
+                    <Money
+                      cents={selected.sources
+                        .filter((s) => s.projection === "assumed-receivable")
+                        .reduce((sum, s) => sum + s.amountCents, 0)}
+                    />
+                  </dd>
+                </>
+              )}
               {selected.sources.some((s) => s.projection === "billing") && (
                 <>
                   <dt>Projected, not invoiced</dt>
@@ -312,6 +339,9 @@ export function CashChart({
                 </>
               )}
             </dl>
+            {selected.sources.some((s) => s.projection === "assumed-receivable") && (
+              <p className="mt-2 text-xs">Projected, assumed already invoiced, please confirm.</p>
+            )}
             {selected.sources.some((s) => s.projection === "billing") && (
               <p className="mt-2 text-xs">Includes Projected, not invoiced income.</p>
             )}
@@ -333,7 +363,12 @@ export function CashChart({
       </div>
       <details className="mt-4 text-sm">
         <summary className="w-fit cursor-pointer text-accent">Show chart data</summary>
-        <div className="mt-3 overflow-x-auto">
+        <div
+          className="mt-3 overflow-x-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Cash projection chart data table"
+        >
           <table className="record-table" aria-label="Cash projection chart data">
             <thead>
               <tr>

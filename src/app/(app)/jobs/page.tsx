@@ -1,11 +1,11 @@
 import Link from "next/link";
+import { jobDisplayName } from "@/lib/job-display";
 import { loadData } from "@/lib/data/repository";
 import { effectiveValue } from "@/lib/forecast";
 import { Money, DateText } from "@/components/ui/financial";
 import { Status } from "@/components/ui/badge";
 import { PageHeader, PageBody } from "@/components/ui/page-header";
-import { Panel } from "@/components/ui/panel";
-import { JobForm } from "@/components/product/job-form";
+import { ButtonLink } from "@/components/ui/button";
 import { RecordTable, cell, link } from "@/components/product/record-table";
 export default async function JobsPage() {
   const data = await loadData();
@@ -13,6 +13,13 @@ export default async function JobsPage() {
     <>
       <PageHeader
         title="Jobs"
+        actions={
+          !data.readOnly ? (
+            <ButtonLink href="/jobs/new" variant="primary">
+              Add job
+            </ButtonLink>
+          ) : undefined
+        }
         description="Federal contracts and approved changes. Pending changes stay separate."
       />
       <PageBody>
@@ -28,8 +35,9 @@ export default async function JobsPage() {
                 <tr key={j.id}>
                   <td className={cell}>
                     <Link className={link} href={`/jobs/${j.id}`}>
-                      {j.contract_number}
+                      {jobDisplayName(j)}
                     </Link>
+                    <span className="block text-xs text-fg-subtle">{j.contract_number}</span>
                   </td>
                   <td className={cell}>{j.agency ?? "Not available"}</td>
                   <td className={cell}>
@@ -50,14 +58,11 @@ export default async function JobsPage() {
           {!data.jobs.some((j) => !j.voided_at) && (
             <tr>
               <td className={cell} colSpan={6}>
-                No jobs yet. Add your first job below.
+                No jobs yet. Use Add job to create your first job.
               </td>
             </tr>
           )}
         </RecordTable>
-        <Panel title="Add a job">
-          <JobForm readOnly={data.readOnly} />
-        </Panel>
       </PageBody>
     </>
   );

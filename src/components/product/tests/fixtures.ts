@@ -393,3 +393,45 @@ export const missingContractsDemo: typeof contractsDemo = {
     original: { ...s.original, obligationsCents: null, contractValueCents: null },
   })),
 };
+export const inProgressDemo: typeof demo = {
+  ...contractsDemo,
+  organization: {
+    ...contractsDemo.organization,
+    name: "In-progress contractor · Demo",
+    is_demo: true,
+  },
+  readOnly: true,
+  jobs: [
+    {
+      ...contractsDemo.jobs[0]!,
+      start_date: "2024-01-01",
+      end_date: "2026-06-30",
+      contract_value_cents: 600000000,
+      obligated_cents: 600000000,
+      description: "MCLB BARSTOW CONSTRUCT PARKING LOT",
+    },
+  ],
+  invoices: [],
+  payments: [],
+  costs: [],
+  changes: [],
+  snapshots: [],
+  balances: [{ ...contractsDemo.balances[0]!, as_of_date: "2026-01-01", amount_cents: 10000000 }],
+  assumptions: [
+    {
+      ...demo.assumptions[0]!,
+      job_id: contractsDemo.jobs[0]!.id,
+      enabled: true,
+      cost_mode: "modeled",
+      cost_ratio_bps: 8500,
+      payment_lag_days: 30,
+      billed_before_tracking_cents: 480000000,
+      billed_through_date: "2026-01-01",
+    },
+  ],
+};
+export const zeroBilledDemo: typeof demo = {
+  ...inProgressDemo,
+  jobs: [{ ...inProgressDemo.jobs[0]!, start_date: "2022-01-01", end_date: "2027-01-01" }],
+  assumptions: [{ ...inProgressDemo.assumptions[0]!, billed_before_tracking_cents: 0 }],
+};

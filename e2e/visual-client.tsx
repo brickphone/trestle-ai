@@ -4,15 +4,21 @@ import { CashChart } from "@/components/product/cash-chart";
 import { forecast } from "@/lib/forecast";
 import {
   demo,
+  inProgressDemo,
+  zeroBilledDemo,
   projectedDemo,
   editDemo,
   contractsDemo,
   missingContractsDemo,
 } from "@/components/product/tests/fixtures";
 
-const result = location.pathname.includes("projected")
-  ? forecast(projectedDemo, "2026-01-01")
-  : forecast(demo, "2026-11-02");
+const result = location.pathname.includes("in-progress")
+  ? forecast(inProgressDemo, "2026-01-01")
+  : location.pathname.includes("zero-billed")
+    ? forecast(zeroBilledDemo, "2026-01-01")
+    : location.pathname.includes("projected")
+      ? forecast(projectedDemo, "2026-01-01")
+      : forecast(demo, "2026-11-02");
 for (const figure of document.querySelectorAll("[data-cash-chart]")) {
   const host = document.createElement("div");
   host.dataset.chartMounted = "true";
@@ -31,6 +37,7 @@ for (const element of document.querySelectorAll("[data-account-menu]")) {
   element.replaceWith(host);
   createRoot(host).render(
     <AccountMenu
+      placement={element.getAttribute("data-placement") === "above" ? "above" : "below"}
       email="founder@example.test"
       signOutAction={async () => {
         document.documentElement.dataset.signedOut = "true";
@@ -105,5 +112,16 @@ if (document.querySelector("[data-contract-editor]")) {
       organizationId={editDemo.organization.id}
     />,
   );
+}
+for (const element of document.querySelectorAll<HTMLElement>("[data-billed-estimate]")) {
+  const { BilledEstimateNotice } = await import("@/components/product/billed-estimate-notice");
+  const props = {
+    jobId: element.dataset.billedEstimate!,
+    estimateCents: element.dataset.estimateCents ? Number(element.dataset.estimateCents) : null,
+    readOnly: element.dataset.readOnly === "true",
+  };
+  const host = document.createElement("div");
+  element.replaceWith(host);
+  createRoot(host).render(<BilledEstimateNotice {...props} />);
 }
 document.documentElement.dataset.visualClient = "ready";

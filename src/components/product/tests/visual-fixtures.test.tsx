@@ -1,4 +1,4 @@
-import { contractsDemo, missingContractsDemo } from "./fixtures";
+import { inProgressDemo, zeroBilledDemo, contractsDemo, missingContractsDemo } from "./fixtures";
 import EditContracts from "@/app/(app)/contracts/edit/page";
 import { lookupUei } from "@/lib/usaspending";
 async function lookupForFixture() {
@@ -79,6 +79,7 @@ vi.mock("@/lib/data/actions", () =>
       "finishOnboarding",
       "updateCompanySetup",
       "saveContracts",
+      "useBilledEstimate",
     ].map((name) => [name, vi.fn()]),
   ),
 );
@@ -90,6 +91,7 @@ vi.mock("@/lib/auth/actions", () => ({
   magicLink: vi.fn(),
 }));
 
+import NewJob from "@/app/(app)/jobs/new/page";
 import Overview from "@/app/(app)/page";
 import Jobs from "@/app/(app)/jobs/page";
 import Invoices from "@/app/(app)/invoices/page";
@@ -112,7 +114,6 @@ import Type from "@/app/(app)/dev/type/page";
 import Login from "@/app/(auth)/login/page";
 import Signup from "@/app/(auth)/signup/page";
 import AuthLayout from "@/app/(auth)/layout";
-import { Button } from "@/components/ui/button";
 
 import { demo, projectedDemo, editDemo } from "./fixtures";
 import { recordedFetcher } from "@/lib/usaspending/fixtures/replay";
@@ -128,6 +129,9 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
   }[] = [
     { name: "overview-empty", path: "/", page: Overview, empty: true },
     { name: "overview-demo", path: "/", page: Overview },
+    { name: "jobs-owner", path: "/jobs", page: Jobs },
+    { name: "job-new", path: "/jobs/new", page: NewJob },
+    { name: "overview-zero-billed-owner", path: "/", page: Overview },
     { name: "jobs", path: "/jobs", page: Jobs },
     { name: "invoices", path: "/invoices", page: Invoices },
     {
@@ -139,6 +143,18 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
       name: "forecast-projected",
       path: "/forecast",
       page: () => Forecast({ searchParams: Promise.resolve({}) }),
+    },
+    { name: "overview-in-progress", path: "/", page: Overview },
+    {
+      name: "forecast-in-progress",
+      path: "/forecast",
+      page: () => Forecast({ searchParams: Promise.resolve({}) }),
+    },
+    { name: "overview-zero-billed", path: "/", page: Overview },
+    {
+      name: "job-zero-billed",
+      path: "/jobs/zero",
+      page: () => Job({ params: Promise.resolve({ id: zeroBilledDemo.jobs[0]!.id }) }),
     },
     { name: "overview-projected", path: "/", page: Overview },
     { name: "settings", path: "/settings", page: Settings },
@@ -237,7 +253,7 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
       vi.useFakeTimers();
       vi.setSystemTime(
         new Date(
-          screen.name.includes("projected")
+          /projected|in-progress|zero-billed/.test(screen.name)
             ? "2026-01-01T12:00:00Z"
             : screen.name === "onboarding-awards"
               ? "2021-03-01T12:00:00Z"
@@ -248,26 +264,36 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
       );
       try {
         mocks.path = screen.path;
-        const data =
-          screen.name === "contracts-edit"
-            ? contractsDemo
-            : screen.name === "contracts-missing"
-              ? missingContractsDemo
-              : screen.name === "settings-owner"
-                ? editDemo
-                : screen.name.includes("projected")
-                  ? projectedDemo
-                  : screen.empty
-                    ? {
-                        ...demo,
-                        jobs: [],
-                        changes: [],
-                        invoices: [],
-                        payments: [],
-                        balances: [],
-                        costs: [],
-                      }
-                    : demo;
+        const data = screen.name.includes("in-progress")
+          ? inProgressDemo
+          : screen.name.includes("zero-billed")
+            ? {
+                ...zeroBilledDemo,
+                readOnly: !screen.name.endsWith("owner"),
+                organization: {
+                  ...zeroBilledDemo.organization,
+                  is_demo: !screen.name.endsWith("owner"),
+                },
+              }
+            : screen.name === "contracts-edit"
+              ? contractsDemo
+              : screen.name === "contracts-missing"
+                ? missingContractsDemo
+                : ["settings-owner", "jobs-owner", "job-new"].includes(screen.name)
+                  ? editDemo
+                  : screen.name.includes("projected")
+                    ? projectedDemo
+                    : screen.empty
+                      ? {
+                          ...demo,
+                          jobs: [],
+                          changes: [],
+                          invoices: [],
+                          payments: [],
+                          balances: [],
+                          costs: [],
+                        }
+                      : demo;
         mocks.load.mockResolvedValue(data);
         mocks.context.mockResolvedValue(
           screen.onboarding ? { ...data, organization: undefined } : data,
@@ -290,10 +316,11 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
               demo={data.organization.is_demo}
               isStaff={screen.path.startsWith("/internal")}
               footer={
-                <details className="text-sm">
-                  <summary className="rounded px-2 py-2 text-fg-muted">Account</summary>
-                  <Button variant="ghost">Sign out</Button>
-                </details>
+                <AccountMenu
+                  email="founder@example.test"
+                  signOutAction={async () => {}}
+                  placement="above"
+                />
               }
             >
               {content}
@@ -303,6 +330,17 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
         if (!screen.auth && !screen.onboarding && data.organization.is_demo)
           expect(html).toContain("Demo, fictional data");
         expect(html).toContain('<main id="main"');
+        // Global contract: every rendered calendar date, including plain-text hero/tooltip copy, has a year.
+        const text = html.replace(/<[^>]+>/g, " ").replace(/&[^;]+;/g, " ");
+        const dates = text.matchAll(
+          /\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}\b(?:,?\s+\d{4}\b)?/g,
+        );
+        for (const date of dates)
+          expect(date[0], `${screen.name}: date must include a year`).toMatch(/\d{4}\b/);
+        for (const time of html.matchAll(
+          /<time[^>]*dateTime="(\d{4})-[^"]*"[^>]*>([^<]+)<\/time>/g,
+        ))
+          expect(time[2]).toContain(time[1]);
         if (process.env.VISUAL_FIXTURES_DIR) {
           mkdirSync(process.env.VISUAL_FIXTURES_DIR, { recursive: true });
           writeFileSync(`${process.env.VISUAL_FIXTURES_DIR}/${screen.name}.html`, html);

@@ -1,4 +1,5 @@
 "use server";
+import { billedEstimateSuggestion } from "../job-billing";
 import { ActionError } from "./action-error";
 import { z } from "zod";
 import { redirect } from "next/navigation";
@@ -41,7 +42,13 @@ async function perform(work: () => Promise<void>, target?: string): Promise<Acti
       cause && typeof cause === "object" && "message" in cause && typeof cause.message === "string"
         ? cause.message
         : undefined;
-    if (code === "PGRST202" || code === "PGRST203" || code === "42883")
+    if (
+      code === "PGRST202" ||
+      code === "PGRST203" ||
+      code === "42883" ||
+      code === "PGRST204" ||
+      code === "42703"
+    )
       return {
         error:
           "Database setup needs updating. Run the current supabase/setup.sql in Supabase SQL Editor, then try again. Your saved progress is kept.",
@@ -65,6 +72,75 @@ async function writable() {
   const ctx = await requireOrganization();
   if (ctx.readOnly) throw new Error("Read-only account");
   return ctx.organization.id;
+}
+export async function useBilledEstimate(_: ActionResult, form: FormData): Promise<ActionResult> {
+  return perform(async () => {
+    const org = await writable(),
+      id = uuid.parse(form.get("job_id")),
+      expected = z.coerce
+        .number()
+        .int()
+        .positive()
+        .max(1e12)
+        .parse(form.get("expected_estimate_cents"));
+    const data = await loadData();
+    if (data.organization.id !== org)
+      throw new ActionError("Workspace changed. Refresh and try again.");
+    const job = data.jobs.find((j) => j.id === id);
+    if (!job) throw new ActionError("Job not available.");
+    const prior = data.assumptions.find((a) => a.job_id === id),
+      estimate = billedEstimateSuggestion(
+        job,
+        prior,
+        data.invoices.filter((i) => i.job_id === id),
+        data.changes,
+        data.snapshots,
+        today(),
+      );
+    if (estimate === null || estimate !== expected)
+      throw new ActionError(
+        "Billing details or the estimate changed. Refresh and check the amount before using it.",
+      );
+    const client = await userDataClient();
+    const values = {
+      billed_before_tracking_cents: estimate,
+      billed_through_date: today(),
+      billed_source: "schedule" as const,
+    };
+    if (prior) {
+      const result = await client
+        .from("forecast_assumptions")
+        .update(values)
+        .eq("organization_id", org)
+        .eq("job_id", id)
+        .eq("billed_before_tracking_cents", 0)
+        .select("id")
+        .maybeSingle();
+      if (result.error) unwrap(result);
+      if (!result.data)
+        throw new ActionError("Billed so far changed. Refresh before making another change.");
+    } else {
+      const result = await client
+        .from("forecast_assumptions")
+        .insert({
+          ...values,
+          organization_id: org,
+          job_id: id,
+          enabled: true,
+          cost_ratio_bps: FORECAST_DEFAULTS.costRatioBps,
+          cost_profile: FORECAST_DEFAULTS.costProfile,
+          duration_months: 1,
+          payment_lag_days: FORECAST_DEFAULTS.paymentLagDays,
+          retainage_release_days: 0,
+          cost_mode: FORECAST_DEFAULTS.costMode,
+        })
+        .select("id")
+        .single();
+      if (result.error?.code === "23505")
+        throw new ActionError("Billing details changed. Refresh before using an estimate.");
+      unwrap(result);
+    }
+  });
 }
 export async function finishOnboarding(_: ActionResult, form: FormData): Promise<ActionResult> {
   return perform(async () => {
@@ -147,7 +223,7 @@ export async function finishOnboarding(_: ActionResult, form: FormData): Promise
         payroll: payrollAmount,
         other_monthly_costs: monthlyAmount,
         job_inputs: toJson(jobInputs),
-        retainage_bps: PAYMENT_RULES.retainageBps,
+        retainage_bps: PAYMENT_RULES.governmentRetainageBps,
         payment_terms_days: PAYMENT_RULES.progressDays,
       }),
     );
@@ -337,6 +413,7 @@ export async function saveInvoice(_: ActionResult, form: FormData): Promise<Acti
         invoice_id: id ? uuid.parse(id) : null,
         invoice_values: toJson({
           ...input,
+          retainage_cents: input.retainage_cents ?? 0,
           resubmission_of_id: resubmission ? uuid.parse(resubmission) : null,
         }),
       }),

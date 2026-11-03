@@ -1,4 +1,13 @@
+import { statusLabel } from "@/lib/status-label";
 import Link from "next/link";
+import { BilledEstimateNotice } from "@/components/product/billed-estimate-notice";
+import {
+  billedScheduleWarning,
+  jobBilledToDate,
+  billedEstimateSuggestion,
+} from "@/lib/job-billing";
+import { jobDisplayName } from "@/lib/job-display";
+import { jobObligations } from "@/lib/job-values";
 import { notFound } from "next/navigation";
 import { loadData, recordHistory } from "@/lib/data/repository";
 import { effectiveValue, invoiceTotals } from "@/lib/forecast";
@@ -32,13 +41,22 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
   const value = effectiveValue(job, data.changes);
   const totals = invoices.map((i) => invoiceTotals(i, data.payments));
   const snapshot = data.snapshots.find((s) => s.id === job.source_snapshot_id);
+  const suggested = billedEstimateSuggestion(
+    job,
+    assumptions,
+    invoices,
+    data.changes,
+    data.snapshots,
+    today(),
+  );
+  const billingWarning = billedScheduleWarning(job, assumptions, invoices, today());
   const readOnly = data.readOnly || !!job.voided_at;
   return (
     <>
       <PageHeader
-        title={job.contract_number}
-        breadcrumbs={[{ label: "Jobs", href: "/jobs" }, { label: job.contract_number }]}
-        description={job.description ?? "Description not available"}
+        title={jobDisplayName(job)}
+        breadcrumbs={[{ label: "Jobs", href: "/jobs" }, { label: jobDisplayName(job) }]}
+        meta={job.contract_number}
         actions={
           <Link href={`/forecast?job=${id}`} className="text-accent underline">
             Job forecast
@@ -46,6 +64,14 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
         }
       />
       <PageBody>
+        {(billingWarning || suggested !== null) && (
+          <section aria-label="Confirm billed so far" className="border-l-2 border-warning pl-3">
+            <p role="alert" className="text-sm text-warning-strong">
+              {billingWarning ?? "Billed so far is $0. Review the suggested estimate."}
+            </p>
+            <BilledEstimateNotice jobId={id} estimateCents={suggested} readOnly={readOnly} />
+          </section>
+        )}
         {job.voided_at && <p role="status">Voided: {job.void_reason}</p>}
         <StatGrid>
           <StatCard
@@ -54,8 +80,8 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
           />
           <StatCard
             label="Billed to date"
-            value={<Money cents={invoices.reduce((s, i) => s + i.billed_cents, 0)} whole />}
-            footnote="Submitted, accepted and paid invoices; drafts/rejected/voided excluded."
+            value={<Money cents={jobBilledToDate(assumptions, invoices)} whole />}
+            footnote="Opening billed total plus subsequent invoices, counted once."
           />
           <StatCard
             label="Paid to date"
@@ -83,11 +109,13 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
         </StatGrid>
         <Panel title="Job details">
           <p className="mb-4 text-sm text-fg-muted">
-            Public obligations: <Money cents={job.obligated_cents} /> · Forecast value before
-            approved changes:{" "}
+            Public obligations: <Money cents={jobObligations(job, snapshot)} /> · Forecast value
+            before approved changes:{" "}
             <Money
               cents={
-                assumptions?.value_override_cents ?? job.obligated_cents ?? job.contract_value_cents
+                assumptions?.value_override_cents ??
+                jobObligations(job, snapshot) ??
+                job.contract_value_cents
               }
             />
           </p>
@@ -150,7 +178,9 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
                         value={c.status}
                       >
                         {["pending", "approved", "rejected"].map((s) => (
-                          <option key={s}>{s}</option>
+                          <option key={s} value={s}>
+                            {statusLabel(s)}
+                          </option>
                         ))}
                       </Options>
                       <Notes name="notes" label={`Change notes ${c.reference}`} value={c.notes} />
@@ -182,7 +212,9 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
                 <Input name="date" label="Change date" type="date" value={today()} required />
                 <Options name="status" label="Change status" value="pending">
                   {["pending", "approved", "rejected"].map((s) => (
-                    <option key={s}>{s}</option>
+                    <option key={s} value={s}>
+                      {statusLabel(s)}
+                    </option>
                   ))}
                 </Options>
                 <Notes name="notes" label="Change notes" />
@@ -223,8 +255,9 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
               />
               <Hidden name="duration_months" value="1" />
               <Input
+                id="billed-actual"
                 name="billed_before_tracking_cents"
-                label="Billed before tracking ($)"
+                label="Billed so far ($)"
                 value={dollars(assumptions?.billed_before_tracking_cents ?? 0)}
                 hint="Opening billed total; historical invoices replace this total rather than adding it again."
                 required

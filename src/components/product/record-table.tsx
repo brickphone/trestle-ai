@@ -9,7 +9,12 @@ export function RecordTable({
   children: ReactNode;
 }) {
   return (
-    <div className="min-w-0 overflow-x-auto">
+    <div
+      className="min-w-0 overflow-x-auto"
+      tabIndex={0}
+      role="region"
+      aria-label={`${label} table`}
+    >
       <table aria-label={label} className="record-table text-base">
         <thead>
           <tr>

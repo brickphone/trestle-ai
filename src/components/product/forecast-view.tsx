@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SourceLink, SourceDisclosure } from "./source-link";
 import type { forecast } from "@/lib/forecast";
-import { formatShortDate } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import { Money, DateText } from "@/components/ui/financial";
 import { CashChart } from "./cash-chart";
 import { Panel } from "@/components/ui/panel";
@@ -24,7 +24,7 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
           }
           detail={
             showBalances
-              ? `Week ${result.lowest.index + 1} · ${formatShortDate(result.lowest.minimumDay)}`
+              ? `Week ${result.lowest.index + 1} · ${formatDate(result.lowest.minimumDay)}`
               : "Enter an opening bank balance."
           }
           footnote="Estimate · Based only on entered records and assumptions."
@@ -48,11 +48,15 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
         Forecast starts at the beginning of the balance as-of date. Recorded receipts on or after
         that date are included. Recurring costs are estimates. Projected, not invoiced receipts are
         separate from real invoices; any invoice suppresses the projection for its billing period.
-        Remaining unbilled value is spread across uncovered months. Job cost ratios cover field
-        payroll and materials; company office overhead is added once. Entered job costs replace the
-        entire cost model for that job. Unclassified company costs are excluded while job costs are
-        projected. Untracked jobs keep their real invoices, receipts and entered costs; future job
-        projections are excluded. Projected retainage is withheld, with no assumed release date.{" "}
+        “Projected, assumed already invoiced, please confirm” estimates unpaid historical monthly
+        billings within the payment lag, allocated from Billed so far. It adds no past job costs and
+        does not reduce the future unbilled budget a second time. A $0 billed baseline produces no
+        assumed receivable; confirm actual billed amounts and enter outstanding invoices. Remaining
+        unbilled value is spread across uncovered months. Job cost ratios cover field payroll and
+        materials; company office overhead is added once. Entered job costs replace the entire cost
+        model for that job. Unclassified company costs are excluded while job costs are projected.
+        Untracked jobs keep their real invoices, receipts and entered costs; future job projections
+        are excluded. Projected retainage is withheld, with no assumed release date.{" "}
         {result.isContribution ? "Company cash is not allocated to this job." : ""}
       </p>
       {result.opening && (
@@ -137,15 +141,18 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
                         {s.label}: <Money cents={s.amountCents} />
                       </Link>
                       <span className="block text-xs text-fg-muted">
+                        {s.jobId && <>{s.jobNumber} · </>}
                         <DateText value={s.date} /> · {s.estimate ? "Estimate" : "Recorded"}
-                        {s.projection === "billing" && s.period && (
-                          <>
-                            {" "}
-                            · Billing period <DateText value={s.period.start} />–
-                            <DateText value={s.period.end} /> · Gross <Money cents={s.grossCents} />{" "}
-                            less withheld retainage <Money cents={s.retainedCents} />
-                          </>
-                        )}
+                        {(s.projection === "billing" || s.projection === "assumed-receivable") &&
+                          s.period && (
+                            <>
+                              {" "}
+                              · Billing period <DateText value={s.period.start} />–
+                              <DateText value={s.period.end} /> · Gross{" "}
+                              <Money cents={s.grossCents} /> less withheld retainage{" "}
+                              <Money cents={s.retainedCents} />
+                            </>
+                          )}
                       </span>
                     </li>
                   ))}

@@ -1,3 +1,5 @@
+import { requireUser } from "@/lib/auth/server";
+import { AccountMenu } from "@/components/product/account-menu";
 import { Suspense } from "react";
 import { AppShell } from "@/components/shell/app-shell";
 import { context } from "@/lib/data/repository";
@@ -5,7 +7,7 @@ import { selectOrganization } from "@/lib/data/actions";
 import { signout } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 async function AuthenticatedShell({ children }: { children: React.ReactNode }) {
-  const ctx = await context();
+  const [ctx, user] = await Promise.all([context(), requireUser()]);
   return (
     <AppShell
       isStaff={ctx.isStaff}
@@ -33,16 +35,7 @@ async function AuthenticatedShell({ children }: { children: React.ReactNode }) {
               <Button type="submit">Switch organization</Button>
             </form>
           )}
-          <details className="text-sm">
-            <summary className="cursor-pointer rounded px-2 py-2 text-fg-muted hover:bg-surface-hover">
-              Account
-            </summary>
-            <form action={signout}>
-              <Button type="submit" variant="ghost">
-                Sign out
-              </Button>
-            </form>
-          </details>
+          <AccountMenu email={user.email ?? "Account"} signOutAction={signout} placement="above" />
         </div>
       }
     >

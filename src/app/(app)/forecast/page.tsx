@@ -1,3 +1,4 @@
+import { jobDisplayName } from "@/lib/job-display";
 import { loadData } from "@/lib/data/repository";
 import { forecast } from "@/lib/forecast";
 import { notFound } from "next/navigation";
@@ -18,7 +19,7 @@ export default async function ForecastPage({
   if (params.job && !job) notFound();
   const parsedStart = isoDate.safeParse(params.start);
   const start = parsedStart.success ? parsedStart.data : (balance?.as_of_date ?? today());
-  const result = forecast(data, start, job?.id);
+  const result = forecast(data, start, job?.id, today());
   return (
     <>
       <PageHeader
@@ -33,7 +34,7 @@ export default async function ForecastPage({
               .filter((j) => !j.voided_at)
               .map((j) => (
                 <option key={j.id} value={j.id}>
-                  {j.contract_number}
+                  {jobDisplayName(j)}
                 </option>
               ))}
           </Options>

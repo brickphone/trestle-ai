@@ -19,7 +19,7 @@ vi.mock("../supabase/server", () => ({ userDataClient: async () => ({ rpc: mocks
 vi.mock("../usaspending", () => ({ lookupUei: mocks.lookup }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-import { finishOnboarding, updateCompanySetup, saveContracts } from "./actions";
+import { finishOnboarding, updateCompanySetup, saveContracts, saveInvoice } from "./actions";
 import { today } from "../finance";
 function form() {
   const data = new FormData();
@@ -48,6 +48,7 @@ describe("real onboarding action recovery", () => {
         opening_balance: 25000000,
         payroll: 6000000,
         other_monthly_costs: null,
+        retainage_bps: 0,
       }),
     );
   });
@@ -204,4 +205,33 @@ describe("contract editor saves", () => {
     expect(mocks.load).not.toHaveBeenCalled();
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
+});
+
+it("blank government invoice retainage is explicitly zero rather than inheriting a legacy job rate", async () => {
+  mocks.requireOrganization.mockResolvedValue({
+    organization: { id: "10000000-0000-4000-8000-000000000001" },
+    readOnly: false,
+  });
+  const f = new FormData();
+  for (const [k, v] of Object.entries({
+    job_id: "20000000-0000-4000-8000-000000000001",
+    invoice_number: "TEST-0",
+    period_start: "2026-01-01",
+    period_end: "2026-01-31",
+    billed_cents: "1000",
+    retainage_cents: "",
+    submitted_date: "",
+    proper_receipt_date: "",
+    expected_payment_date: "",
+    expected_retainage_date: "",
+    portal: "other",
+    status: "draft",
+    rejection_reason: "",
+  }))
+    f.set(k, v);
+  await expect(saveInvoice({}, f)).rejects.toThrow("Redirect: /invoices/org-id");
+  expect(mocks.rpc).toHaveBeenCalledWith(
+    "save_government_invoice",
+    expect.objectContaining({ invoice_values: expect.objectContaining({ retainage_cents: 0 }) }),
+  );
 });

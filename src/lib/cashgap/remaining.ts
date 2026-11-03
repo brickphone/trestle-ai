@@ -87,3 +87,54 @@ export function projectRemainingWork(input: {
   });
   return { billings, costs, periods };
 }
+
+/**
+ * In-flight receivables are part of the historical billed baseline, not new work.
+ * Allocate that baseline steadily over closed calendar billing months; only keep
+ * receipts still within the payment lag. A real invoice suppresses its own period
+ * without redistributing the other assumed invoices. No past job costs are added.
+ */
+export function projectAssumedReceivables(input: {
+  billedCents: number;
+  start: string;
+  asOf: string;
+  paymentLagDays: number;
+  retainageRatio: number;
+  covered: BillingPeriod[];
+}) {
+  if (input.billedCents <= 0 || input.start >= input.asOf || input.paymentLagDays <= 0) return [];
+  const d = new Date(`${input.asOf}T00:00:00Z`);
+  const lastClosed = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 0))
+    .toISOString()
+    .slice(0, 10);
+  const periods = remainingPeriods(input.start, lastClosed);
+  if (!periods.length) return [];
+  const history = calculateCashGap({
+    contractValueCents: input.billedCents,
+    durationMonths: periods.length,
+    costRatio: 0,
+    paymentLagDays: input.paymentLagDays,
+    retainageRatio: input.retainageRatio,
+    retainageReleaseDays: 0,
+    costProfile: "even",
+  }).timeline.filter((e) => e.billingsCents > 0);
+  return periods.flatMap((period, index) => {
+    const date = addDays(period.end, input.paymentLagDays),
+      event = history[index];
+    if (
+      !event ||
+      date < input.asOf ||
+      input.covered.some((i) => i.start <= period.end && i.end >= period.start)
+    )
+      return [];
+    return [
+      {
+        period,
+        date,
+        amountCents: event.billingsCents - event.withheldCents,
+        grossCents: event.billingsCents,
+        retainedCents: event.withheldCents,
+      },
+    ];
+  });
+}

@@ -3,7 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   const path = request.nextUrl.pathname;
-  const publicRoute = path === "/login" || path === "/signup" || path.startsWith("/auth/");
+  const publicRoute =
+    path === "/api/version" || path === "/login" || path === "/signup" || path.startsWith("/auth/");
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL,
     key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const loginRedirect = () => {

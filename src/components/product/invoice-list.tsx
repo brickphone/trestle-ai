@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { jobDisplayName } from "@/lib/job-display";
 import type { Invoice, Payment, Job } from "@/lib/data/types";
 import { invoiceTotals } from "@/lib/forecast";
 import { invoiceDueDate, isLate, today } from "@/lib/finance";
@@ -32,6 +33,7 @@ export function InvoiceList({
         .map((i) => {
           const totals = invoiceTotals(i, payments),
             due = invoiceDueDate(i);
+          const job = jobs.find((j) => j.id === i.job_id);
           return (
             <tr key={i.id}>
               <td className={cell}>
@@ -40,7 +42,10 @@ export function InvoiceList({
                 </Link>
               </td>
               <td className={cell}>
-                {jobs.find((j) => j.id === i.job_id)?.contract_number ?? "Not available"}
+                <span className="block">{jobDisplayName(job)}</span>
+                <span className="block text-xs text-fg-subtle">
+                  {job?.contract_number ?? "Not available"}
+                </span>
               </td>
               <td className={cell}>
                 <Status value={i.status} />

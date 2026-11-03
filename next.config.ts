@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  webpack(config) {
+    config.module.rules.push({
+      test: /globals\.css$/,
+      enforce: "pre",
+      use: ["@tailwindcss/turbopack"],
+    });
+    return config;
+  },
   cacheComponents: true,
   devIndicators: false,
   partialPrefetching: true,

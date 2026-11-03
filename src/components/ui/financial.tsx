@@ -1,11 +1,4 @@
-import {
-  formatDate,
-  formatDateIso,
-  formatShortDate,
-  formatUsd,
-  moneyParts,
-  parseDate,
-} from "@/lib/format";
+import { formatDate, formatDateIso, formatUsd, moneyParts, parseDate } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
 export function Money({
@@ -37,7 +30,7 @@ export function DateText({ value }: { value: string | Date | null | undefined })
   if (!parseDate(value)) return <span>Not available</span>;
   return (
     <time dateTime={formatDateIso(value)} title={formatDate(value)}>
-      {formatShortDate(value)}
+      {formatDate(value)}
     </time>
   );
 }
