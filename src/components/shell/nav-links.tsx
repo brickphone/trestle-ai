@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { Icon, type IconName } from "../ui/icon";
 
-export type NavItem = { href: string; label: string; icon: IconName };
+export type NavItem = { href: string; label: string };
 
 function isActive(pathname: string, href: string) {
   return href === "/" || href === "/internal"
@@ -25,13 +24,12 @@ export function NavLinks({ items }: { items: NavItem[] }) {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex h-8 items-center gap-2 rounded px-2 text-base",
+                "flex h-9 items-center rounded px-3 text-base",
                 active
-                  ? "bg-accent-subtle font-medium text-accent-strong"
+                  ? "bg-accent font-medium text-fg-inverse hover:bg-accent-hover"
                   : "text-fg-muted hover:bg-surface-hover hover:text-fg",
               )}
             >
-              <Icon name={item.icon} className={active ? "text-accent" : "text-fg-subtle"} />
               {item.label}
             </Link>
           </li>

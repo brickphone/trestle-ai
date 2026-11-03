@@ -1,11 +1,15 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { Database } from "../supabase/database.types";
 import { getPublicEnv } from "../env";
 export async function authClient() {
+  // Supabase checks session expiry with Date.now(). Auth must wait for a real
+  // request, including when Next prerenders/prefetches with a cookie snapshot.
+  await connection();
   const jar = await cookies();
   const env = getPublicEnv();
   return createServerClient<Database>(

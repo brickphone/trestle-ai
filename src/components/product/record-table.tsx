@@ -9,26 +9,29 @@ export function RecordTable({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-x-auto rounded border border-border bg-surface">
-      <table aria-label={label} className="w-full text-left text-base">
-        <thead className="bg-surface-muted">
+    <div className="min-w-0 overflow-x-auto">
+      <table aria-label={label} className="record-table text-base">
+        <thead>
           <tr>
             {headers.map((h) => (
               <th
                 key={h}
                 scope="col"
-                className="border-b border-border-strong px-3 py-2 text-xs font-semibold text-fg-muted"
+                data-numeric={
+                  /amount|value|billed|outstanding|retainage|cash|receipts|costs/i.test(h) ||
+                  undefined
+                }
               >
                 {h}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-border">{children}</tbody>
+        <tbody>{children}</tbody>
       </table>
     </div>
   );
 }
-export const cell = "px-3 py-2 align-top";
+export const cell = "align-top";
 export const link =
   "text-accent underline decoration-border-strong underline-offset-2 hover:text-accent-strong";

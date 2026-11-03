@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * Bordered section with a title bar. Used for every block on the firm detail
+ * Section separated by a hairline. Used for every block on the firm detail
  * page (score, metrics, contracts, cash gap). `headingLevel` keeps the
  * document outline correct when panels nest.
  */
@@ -32,9 +32,9 @@ export function Panel({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={cn("flex min-w-0 flex-col rounded-md border border-border bg-surface", className)}
+      className={cn("flex min-w-0 flex-col border-t border-border pt-6", className)}
     >
-      <div className="flex min-h-10 items-center justify-between gap-3 border-b border-border px-4 py-2">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col">
           <Heading id={headingId} className="text-md text-fg">
             {title}
@@ -43,7 +43,7 @@ export function Panel({
         </div>
         {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
       </div>
-      <div className={flush ? undefined : "p-4"}>{children}</div>
+      <div className={flush ? undefined : "flex min-w-0 flex-col gap-4"}>{children}</div>
     </section>
   );
 }

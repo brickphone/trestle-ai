@@ -1,4 +1,5 @@
 .next
+.visual
 node_modules
 package-lock.json
 docs/*.pdf

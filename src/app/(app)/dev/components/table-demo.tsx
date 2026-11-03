@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { DataTable, dataTableColumnHelper } from "@/components/ui/data-table";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { Field, Select, TextInput } from "@/components/ui/form";
+import { Money, DateText } from "@/components/ui/financial";
 import { Icon } from "@/components/ui/icon";
 import { EmptyState } from "@/components/ui/states";
 import { syntheticRows, type SyntheticRow } from "@/dev/synthetic";
-import { formatDate, formatInteger, formatUei, formatUsdCompact } from "@/lib/format";
+import { formatInteger, formatUei } from "@/lib/format";
 
 const h = dataTableColumnHelper<SyntheticRow>();
 
@@ -24,9 +25,9 @@ const columns = h.columns([
   h.accessor("naics", { header: "NAICS", size: 90 }),
   h.accessor("obligated12m", {
     header: "Obligated 12m",
-    size: 130,
+    size: 160,
     meta: { align: "right", description: "Sum of federal_action_obligation, last 12 months" },
-    cell: (c) => formatUsdCompact(c.getValue()),
+    cell: (c) => <Money cents={c.getValue() * 100} />,
   }),
   h.accessor("awardCount", {
     header: "Awards",
@@ -39,7 +40,7 @@ const columns = h.columns([
     header: "First award",
     size: 120,
     sortFn: "text",
-    cell: (c) => formatDate(c.getValue()),
+    cell: (c) => <DateText value={c.getValue()} />,
   }),
   h.accessor("excluded", {
     header: "Status",

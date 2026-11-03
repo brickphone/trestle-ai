@@ -50,6 +50,19 @@ export function formatUsd(value: Maybe<number | string>, opts: { cents?: boolean
   return (opts.cents ? usdCents : usdFull).format(n);
 }
 
+/** Presentation only: input is integer cents, never a financial calculation. */
+export function moneyParts(cents: Maybe<number>, whole = false) {
+  if (cents == null || !Number.isFinite(cents))
+    return { major: NOT_AVAILABLE, fraction: "", negative: false };
+  const formatted = formatUsd((cents === 0 ? 0 : cents) / 100, { cents: !whole });
+  const split = whole ? -1 : formatted.lastIndexOf(".");
+  return {
+    major: split < 0 ? formatted : formatted.slice(0, split),
+    fraction: split < 0 ? "" : formatted.slice(split),
+    negative: cents < 0,
+  };
+}
+
 /** "$1.2M", "$850K", "$12.4B". Values under $1,000 are shown in full. */
 export function formatUsdCompact(value: Maybe<number | string>): string {
   const n = toNumber(value);
@@ -138,6 +151,16 @@ export function formatDate(value: Maybe<string | Date>): string {
   const d = parseDate(value);
   if (!d) return NOT_AVAILABLE;
   return humanDate.format(d);
+}
+
+const shortDate = new Intl.DateTimeFormat(LOCALE, {
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+export function formatShortDate(value: Maybe<string | Date>): string {
+  const date = parseDate(value);
+  return date ? shortDate.format(date) : NOT_AVAILABLE;
 }
 
 const humanDateTime = new Intl.DateTimeFormat(LOCALE, {

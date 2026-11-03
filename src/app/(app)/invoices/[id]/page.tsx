@@ -5,7 +5,7 @@ import { recordPayment, updateInvoiceTiming } from "@/lib/data/actions";
 import { invoiceTotals } from "@/lib/forecast";
 import { invoiceDueDate, isLate, today } from "@/lib/finance";
 import { PAYMENT_RULES } from "@/lib/config";
-import { formatUsd, formatDate } from "@/lib/format";
+import { Money, DateText } from "@/components/ui/financial";
 import { PageHeader, PageBody } from "@/components/ui/page-header";
 import { Panel, DescriptionList } from "@/components/ui/panel";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
@@ -50,20 +50,14 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           </p>
         )}
         <StatGrid>
-          <StatCard label="Billed" value={formatUsd(invoice.billed_cents / 100, { cents: true })} />
-          <StatCard label="Net due" value={formatUsd(totals.net / 100, { cents: true })} />
+          <StatCard label="Billed" value={<Money cents={invoice.billed_cents} whole />} />
+          <StatCard label="Net due" value={<Money cents={totals.net} whole />} />
           <StatCard
             label="Progress payments received"
-            value={formatUsd(totals.paid / 100, { cents: true })}
+            value={<Money cents={totals.paid} whole />}
           />
-          <StatCard
-            label="Net outstanding"
-            value={formatUsd(totals.remaining / 100, { cents: true })}
-          />
-          <StatCard
-            label="Retainage held"
-            value={formatUsd(totals.retainageHeld / 100, { cents: true })}
-          />
+          <StatCard label="Net outstanding" value={<Money cents={totals.remaining} whole />} />
+          <StatCard label="Retainage held" value={<Money cents={totals.retainageHeld} whole />} />
         </StatGrid>
         <Panel title="Payment timing">
           <DescriptionList
@@ -71,18 +65,21 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
             items={[
               {
                 label: "Due date",
-                value: formatDate(due.date),
+                value: <DateText value={due.date} />,
                 note: due.confirmed
                   ? "Confirmed proper-request receipt basis"
                   : "Estimated submission basis",
               },
               {
                 label: "Expected receipt",
-                value: formatDate(invoice.expected_payment_date),
+                value: <DateText value={invoice.expected_payment_date} />,
                 note: "Forecast override; does not change due date.",
               },
               { label: "Terms snapshot", value: `${invoice.payment_terms_days} calendar days` },
-              { label: "Proper request received", value: formatDate(invoice.proper_receipt_date) },
+              {
+                label: "Proper request received",
+                value: <DateText value={invoice.proper_receipt_date} />,
+              },
             ]}
           />
           <p className="mt-3 text-sm text-fg-muted">
@@ -185,9 +182,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               .filter((p) => p.invoice_id === id)
               .map((p) => (
                 <tr id={`payment-${p.id}`} key={p.id}>
-                  <td className={cell}>{formatDate(p.received_date)}</td>
+                  <td className={cell}>{<DateText value={p.received_date} />}</td>
                   <td className={cell}>{p.kind}</td>
-                  <td className={cell}>{formatUsd(p.amount_cents / 100, { cents: true })}</td>
+                  <td className={cell}>{<Money cents={p.amount_cents} />}</td>
                   <td className={cell}>{p.reference ?? "Not available"}</td>
                   <td className={cell}>
                     {p.voided_at ? (

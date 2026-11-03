@@ -23,48 +23,49 @@
   --color-current: currentColor;
   --color-white: #ffffff;
 
-  /* Neutrals (cool gray) */
-  --color-canvas: #f4f5f7; /* app background */
+  /* Warm neutrals. Structure comes from space and hairline dividers. */
+  --color-canvas: #fcfcfa; /* app background */
   --color-surface: #ffffff; /* panels, tables */
-  --color-surface-muted: #f8f9fa; /* table header, zebra, inputs disabled */
-  --color-surface-hover: #eef1f5;
-  --color-border: #d9dde3;
-  --color-border-strong: #b6bdc7;
-  --color-border-input: #7d8592; /* form controls, 3.6:1 (WCAG 1.4.11) */
-  --color-fg: #1b1f24; /* primary text  ~16:1 */
-  --color-fg-muted: #4a5360; /* secondary text ~7.9:1 */
-  --color-fg-subtle: #5f6874; /* tertiary/meta ~5.8:1 */
+  --color-surface-muted: #f3f3ef; /* table header, zebra, inputs disabled */
+  --color-surface-hover: #f1f2ed;
+  --color-border: #e1e0da;
+  --color-border-strong: #b8b8b0;
+  --color-border-input: #85857e; /* 3.6:1 on canvas (WCAG 1.4.11) */
+  --color-fg: #232321; /* 14.9:1 on canvas */
+  --color-fg-muted: #55554f; /* 7.1:1 on canvas */
+  --color-fg-subtle: #6a6a62; /* 5.0:1 on canvas */
   --color-fg-inverse: #ffffff;
 
-  /* Accent: restrained navy */
-  --color-accent: #1f3b63;
-  --color-accent-hover: #172e4e;
-  --color-accent-subtle: #e8eef6;
-  --color-accent-strong: #1f3b63;
-  --color-focus: #2457a3;
+  /* Monochrome actions and chart. Color is reserved for financial meaning. */
+  --color-accent: #151515;
+  --color-accent-hover: #30302e;
+  --color-accent-subtle: #eeede9;
+  --color-accent-strong: #151515;
+  --color-focus: #151515;
 
   /* Status */
-  --color-success: #1d7a3e;
-  --color-success-subtle: #e6f4ea;
-  --color-success-strong: #155d2f;
-  --color-warning: #a35c00;
-  --color-warning-subtle: #fdf2e0;
-  --color-warning-strong: #7a4500;
-  --color-danger: #b42318;
-  --color-danger-subtle: #fdecea;
-  --color-danger-strong: #8f1c13;
+  --color-success: #346346;
+  --color-success-subtle: #edf3ed;
+  --color-success-strong: #346346;
+  --color-warning: #805b22;
+  --color-warning-subtle: #f8f2e7;
+  --color-warning-strong: #805b22;
+  --color-danger: #a13e36;
+  --color-danger-subtle: #fbefed;
+  --color-danger-strong: #a13e36;
 
-  /* Radii: 2–4px only */
-  --radius-sm: 2px;
-  --radius: 3px;
-  --radius-md: 4px;
+  /* Controls 6px; separate objects 8px. */
+  --radius-sm: 6px;
+  --radius: 6px;
+  --radius-md: 8px;
+  --radius-full: 9999px;
 
   /* Elevation: menus/popovers only */
-  --shadow-menu: 0 2px 8px rgb(27 31 36 / 0.12), 0 0 0 1px rgb(27 31 36 / 0.06);
+  --shadow-menu: 0 4px 16px rgb(20 20 18 / 0.08);
 
   /* Type: dense, 12px minimum for legibility */
-  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --text-xs: 12px;
   --text-xs--line-height: 16px;
@@ -76,14 +77,17 @@
   --text-md--line-height: 24px;
   --text-lg: 18px;
   --text-lg--line-height: 24px;
-  --text-xl: 22px;
-  --text-xl--line-height: 28px;
+  --text-xl: 24px;
+  --text-xl--line-height: 32px;
   --text-2xl: 28px;
   --text-2xl--line-height: 36px;
 
+  --text-money: 44px;
+  --text-money--line-height: 48px;
+
   /* Layout */
-  --spacing-nav: 224px;
-  --spacing-row: 32px; /* data table row height */
+  --spacing-nav: 232px;
+  --spacing-row: 40px; /* virtualized data table row height */
 }
 
 @layer base {
@@ -118,7 +122,7 @@
   h3,
   h4 {
     font-weight: 600;
-    letter-spacing: -0.005em;
+    letter-spacing: -0.02em;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -133,4 +137,184 @@
 
 @utility tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Common record tables: quiet headers, aligned numbers, generous rows. */
+@layer components {
+  .record-table {
+    width: 100%;
+    text-align: left;
+  }
+  .record-table th {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: var(--color-fg-muted);
+  }
+  .record-table :is(th, td) {
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+  }
+  .record-table tbody tr:hover {
+    background: var(--color-surface-hover);
+  }
+  .record-table td:has(.money),
+  .record-table th[data-numeric] {
+    text-align: right;
+  }
+  .record-table :is(td, th):first-child {
+    padding-left: 0;
+  }
+  .record-table :is(td, th):last-child {
+    padding-right: 0;
+  }
+}
+
+.workspace-content {
+  width: 100%;
+  max-width: 1264px;
+  min-width: 0;
+  margin-inline: auto;
+}
+.cash-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px 48px;
+  padding-bottom: 24px;
+}
+.cash-hero > div {
+  min-width: 220px;
+}
+.cash-hero-money {
+  margin-top: 8px;
+  font-size: 44px;
+  line-height: 48px;
+  font-weight: 500;
+  letter-spacing: -0.045em;
+}
+.cash-chart {
+  min-width: 0;
+}
+.cash-chart-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+}
+.chart-range {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--color-surface-muted);
+  border-radius: 6px;
+}
+.chart-range button {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+}
+.chart-range button:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-fg);
+}
+.chart-range button[aria-pressed="true"] {
+  color: var(--color-fg-inverse);
+  background: var(--color-accent);
+}
+.chart-frame {
+  position: relative;
+  height: 220px;
+}
+.chart-plot {
+  position: absolute;
+  inset: 8px 12px 28px 64px;
+  border-radius: 2px;
+}
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.chart-y-label,
+.chart-x-label,
+.chart-low-label {
+  position: absolute;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-fg-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.chart-y-label {
+  left: 0;
+  width: 52px;
+  text-align: right;
+  transform: translateY(-50%);
+}
+.chart-x-label {
+  bottom: -26px;
+}
+.chart-low-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  border-radius: 100%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.chart-low-negative {
+  background: var(--color-danger);
+}
+.chart-low-label {
+  margin-top: -10px;
+  color: var(--color-fg);
+}
+.chart-low-label.text-danger-strong {
+  color: var(--color-danger-strong);
+}
+.chart-tooltip {
+  position: absolute;
+  top: 6px;
+  z-index: 1;
+  width: 216px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-menu);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :where(a, button, summary, input, select, textarea):hover {
+    transition:
+      background-color 140ms ease,
+      color 140ms ease,
+      border-color 140ms ease;
+  }
+}
+:where(button, summary, select):not(:disabled) {
+  cursor: pointer;
+}
+:where(input, select, textarea):hover:not(:disabled):not([aria-invalid="true"]) {
+  border-color: var(--color-fg-muted);
+}
+a:hover {
+  text-decoration-thickness: 1.5px;
+}
+
+.chart-range button[aria-pressed="true"]:hover {
+  background: var(--color-accent-hover);
+}
+
+summary:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

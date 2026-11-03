@@ -4,19 +4,11 @@ import { cn } from "@/lib/cn";
 export type BadgeTone = "neutral" | "accent" | "success" | "warning" | "danger";
 
 const tones: Record<BadgeTone, string> = {
-  neutral: "border-border bg-surface-muted text-fg-muted",
-  accent: "border-accent/20 bg-accent-subtle text-accent-strong",
-  success: "border-success/25 bg-success-subtle text-success-strong",
-  warning: "border-warning/25 bg-warning-subtle text-warning-strong",
-  danger: "border-danger/25 bg-danger-subtle text-danger-strong",
-};
-
-const solidTones: Record<BadgeTone, string> = {
-  neutral: "border-fg-muted bg-fg-muted text-fg-inverse",
-  accent: "border-accent bg-accent text-fg-inverse",
-  success: "border-success bg-success text-fg-inverse",
-  warning: "border-warning bg-warning text-fg-inverse",
-  danger: "border-danger bg-danger text-fg-inverse",
+  neutral: "text-fg-muted",
+  accent: "text-accent-strong",
+  success: "text-success-strong",
+  warning: "text-warning-strong",
+  danger: "text-danger-strong",
 };
 
 /**
@@ -40,13 +32,30 @@ export function Badge({
     <span
       title={title}
       className={cn(
-        "inline-flex h-5 items-center gap-1 rounded-sm border px-1.5 text-xs font-medium whitespace-nowrap",
-        solid ? solidTones[tone] : tones[tone],
+        "inline-flex min-h-5 items-center gap-1.5 text-xs font-medium whitespace-nowrap",
+        tones[tone],
+        solid && "font-semibold",
         className,
       )}
     >
+      <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-current" />
       {children}
     </span>
+  );
+}
+
+export function Status({ value }: { value: string }) {
+  const tone = ["paid"].includes(value)
+    ? "success"
+    : ["rejected", "declined", "voided"].includes(value)
+      ? "danger"
+      : ["pending", "on_hold"].includes(value)
+        ? "warning"
+        : "neutral";
+  return (
+    <Badge tone={tone}>
+      <span className="capitalize">{value.replaceAll("_", " ")}</span>
+    </Badge>
   );
 }
 

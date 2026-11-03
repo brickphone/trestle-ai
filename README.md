@@ -40,8 +40,8 @@ npm run db:sql
 Open `supabase/setup.sql`, paste it into your project's **Supabase SQL Editor**, and run it as the
 project owner. The bundle applies pending versions atomically and records them in Supabase's migration
 history. It is safe to run again: already-applied versions are skipped. This also upgrades an older
-installation without copying or discarding its data. The generated bundle is ignored by Git; the
-source of truth is `supabase/migrations/`.
+installation without copying or discarding its data. The generated bundle is visible in the editor; the
+source of truth remains `supabase/migrations/`. Regenerate it instead of editing it directly.
 
 Then:
 
@@ -257,7 +257,21 @@ The live bypass test invokes the same normal request guard with an administrativ
 fail closed. Live tests also exercise user JWT RLS, staff/demo restrictions, atomic onboarding and
 payments, audit records, cross-organization URLs and axe. Fixtures are retained only in the dedicated
 test project. Hosted-dependent tests are explicitly skipped without configuration; public auth/axe
-and unauthenticated redirect checks still run. No mocked auth/RLS fallback exists in the browser suite.
+and unauthenticated redirect checks still run. Hosted flows have no auth/RLS fallback.
+
+Visual regression checks run separately, without hosted credentials:
+
+```sh
+npm run test:visual
+```
+
+This builds the app, checks the emitted bundles for Inter/Lucide, renders the actual screen components
+with an isolated demo (3 jobs, 12 invoices, payroll and manual subcontract-payment estimates), and runs Playwright snapshots and axe against the compiled
+CSS and locally hosted fonts. The actual interactive chart is mounted with a test-only Vite entry. It does not visit authenticated app routes or verify server actions/RLS.
+Snapshots cover empty/demo Overview, Jobs, Government invoices, Forecast and Settings at 1024, 1280,
+1440 and 1920px. Chart labels are checked at 12px at both 1280/1920, with keyboard, hover and range-toggle tests. Axe also checks the detail, onboarding, auth, Internal and development screens.
+Use `npx playwright test -c playwright.visual.config.ts --update-snapshots` after reviewing intentional
+visual changes. Hosted end-to-end checks remain separate. Before/after views: [visual review](docs/visual-polish-pass2.md).
 
 ## Scope and design
 
@@ -268,8 +282,20 @@ M3 remains pending: invitations, CSV, documents, agency averages. No full USAspe
 
 Internal prospect shells remain under `/internal`, staff-only. `/calculator` stays hidden from
 navigation. `/dev/components` contains clearly labeled development-only synthetic component examples;
-it returns 404 in production. Existing tokens, Public Sans, tabular figures, 4px spacing and accessible
-control borders remain. No government imitation, gradients or AI-generated figures.
+it returns 404 in production. Instrument Sans is self-hosted through `next/font/local`, with verified
+tabular figures. The theme uses near-black, warm white surfaces, hairline dividers, 6–8px
+corners and Phosphor regular icons behind one wrapper. Navigation is text-only. Numeric table cells
+are right-aligned; summaries show whole dollars, table cents are quieter, and negatives retain their
+minus signs and color. Short dates expose their full date on hover. No government imitation, gradients
+or AI-generated figures.
+
+While signed in, open `/dev/type` in development to compare Instrument
+Sans, Hanken Grotesk and IBM Plex Sans on the current organization's actual Overview and invoices.
+The page includes monochrome tokens, contrast ratios and a static Söhne
+reference with licensing links. Open-source font binaries and OFL licenses are local; `next/font/local`
+serves them without runtime Google requests. It returns 404 in production. Instrument Sans is applied throughout the app. Pass 2 uses near-black for actions and charts, with color reserved for financial meaning. The fixed-height, interactive Overview chart uses the existing
+forecast's daily source flows and preserves its actual daily low point; chart data and headline values
+link to existing source disclosures. No financial calculation, schema or RLS policy was changed.
 
 Historical memo: [`docs/wedge-segments-overview.pdf`](docs/wedge-segments-overview.pdf). It predates
 the current software-first direction and has unverified public payroll/bond data claims.

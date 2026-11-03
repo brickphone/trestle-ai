@@ -52,11 +52,11 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-2 border-b border-border bg-surface px-6 pt-4 pb-4">
+    <header className="flex flex-col gap-3 px-6 pt-8 pb-6 lg:px-8">
       <Breadcrumbs items={breadcrumbs} />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-xl text-fg">{title}</h1>
+          <h1 className="text-xl font-medium text-fg">{title}</h1>
           {description ? <p className="max-w-3xl text-base text-fg-muted">{description}</p> : null}
           {meta ? (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fg-subtle">
@@ -72,5 +72,5 @@ export function PageHeader({
 
 /** Standard page body padding and vertical rhythm. */
 export function PageBody({ children }: { children: ReactNode }) {
-  return <div className="flex flex-col gap-4 p-6">{children}</div>;
+  return <div className="flex flex-col gap-8 px-6 pb-8 lg:px-8">{children}</div>;
 }

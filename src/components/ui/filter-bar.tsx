@@ -22,10 +22,7 @@ export function FilterBar({
   return (
     <form
       role="search"
-      className={cn(
-        "flex flex-col gap-3 rounded-md border border-border bg-surface p-3",
-        className,
-      )}
+      className={cn("flex flex-col gap-3 border-b border-border py-4", className)}
       {...rest}
     >
       <div className="flex flex-wrap items-end gap-3">

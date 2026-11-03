@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { SourceLink } from "./source-link";
+import { SourceLink, SourceDisclosure } from "./source-link";
 import type { forecast } from "@/lib/forecast";
-import { formatUsd, formatDate } from "@/lib/format";
+import { formatShortDate } from "@/lib/format";
+import { Money, DateText } from "@/components/ui/financial";
+import { CashChart } from "./cash-chart";
 import { Panel } from "@/components/ui/panel";
 import { StatGrid, StatCard } from "@/components/ui/stat-card";
 import { RecordTable, cell, link } from "./record-table";
@@ -9,6 +11,7 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
   const showBalances = result.hasBalance || result.isContribution;
   return (
     <>
+      <SourceDisclosure />
       <StatGrid>
         <StatCard
           label={
@@ -16,17 +19,18 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
           }
           value={
             <SourceLink target={`week-${result.lowest.index}-sources`}>
-              {formatUsd(showBalances ? result.lowest.minimumCents / 100 : null, { cents: true })}
+              <Money cents={showBalances ? result.lowest.minimumCents : null} whole />
             </SourceLink>
           }
           detail={
             showBalances
-              ? `Week ${result.lowest.index + 1} · ${formatDate(result.lowest.start)}`
+              ? `Week ${result.lowest.index + 1} · ${formatShortDate(result.lowest.minimumDay)}`
               : "Enter an opening bank balance."
           }
           footnote="Estimate · Based only on entered records and assumptions."
         />
       </StatGrid>
+      <CashChart result={result} sourcePrefix="" />
       {result.issues.length > 0 && (
         <Panel title="Missing inputs and exclusions">
           <ul className="flex list-disc flex-col gap-1 pl-4">
@@ -48,8 +52,8 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
       {result.opening && (
         <p>
           <Link className={link} href={`/settings#balance-${result.opening.id}`}>
-            Opening balance: {formatUsd(result.opening.amount_cents / 100, { cents: true })} ·{" "}
-            {formatDate(result.opening.as_of_date)}
+            Opening balance: <Money cents={result.opening.amount_cents} /> ·{" "}
+            <DateText value={result.opening.as_of_date} />
           </Link>
         </p>
       )}
@@ -69,27 +73,27 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
             <th scope="row" className={cell}>
               Week {w.index + 1}
               <span className="block text-xs font-normal text-fg-muted">
-                {formatDate(w.start)} – {formatDate(w.end)}
+                <DateText value={w.start} /> – <DateText value={w.end} />
               </span>
             </th>
             <td className={cell}>
               <SourceLink target={`week-${w.index}-sources`}>
-                {formatUsd(showBalances ? w.startingCents / 100 : null, { cents: true })}
+                <Money cents={showBalances ? w.startingCents : null} />
               </SourceLink>
             </td>
             <td className={cell}>
               <SourceLink target={`week-${w.index}-sources`}>
-                {formatUsd(w.inflowCents / 100, { cents: true })}
+                <Money cents={w.inflowCents} />
               </SourceLink>
             </td>
             <td className={cell}>
               <SourceLink target={`week-${w.index}-sources`}>
-                {formatUsd(w.outflowCents / 100, { cents: true })}
+                <Money cents={w.outflowCents} />
               </SourceLink>
             </td>
             <td className={`${cell} ${w.closingCents < 0 ? "font-medium text-danger-strong" : ""}`}>
               <SourceLink target={`week-${w.index}-sources`}>
-                {formatUsd(showBalances ? w.closingCents / 100 : null, { cents: true })}
+                <Money cents={showBalances ? w.closingCents : null} />
               </SourceLink>
             </td>
             <td className={cell}>
@@ -117,17 +121,17 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
                     </>
                   )}
                   . Lowest daily balance this week:{" "}
-                  {formatUsd(showBalances ? w.minimumCents / 100 : null, { cents: true })} on{" "}
-                  {formatDate(w.minimumDay)}. Same-day flows are netted.
+                  <Money cents={showBalances ? w.minimumCents : null} /> on{" "}
+                  <DateText value={w.minimumDay} />. Same-day flows are netted.
                 </p>
                 <ul className="flex flex-col gap-2">
                   {w.sources.map((s) => (
                     <li key={s.id}>
                       <Link className={link} href={s.href}>
-                        {s.label}: {formatUsd(s.amountCents / 100, { cents: true })}
+                        {s.label}: <Money cents={s.amountCents} />
                       </Link>
                       <span className="block text-xs text-fg-muted">
-                        {formatDate(s.date)} · {s.estimate ? "Estimate" : "Recorded"}
+                        <DateText value={s.date} /> · {s.estimate ? "Estimate" : "Recorded"}
                       </span>
                     </li>
                   ))}

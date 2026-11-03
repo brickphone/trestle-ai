@@ -128,7 +128,8 @@ test.describe("hosted demo and staff screens", () => {
     await expect(table.locator("tbody tr").first()).toHaveAttribute("aria-rowindex", "2");
     const viewport = page.getByRole("region", { name: "Synthetic firms table, scrollable" });
     await viewport.evaluate((element) => {
-      element.scrollTop = 32 * 1000;
+      const row = element.querySelector("tbody tr");
+      element.scrollTop = (row?.getBoundingClientRect().height ?? 40) * 1000;
     });
     await expect
       .poll(async () =>

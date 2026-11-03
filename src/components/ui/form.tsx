@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 import { Icon } from "./icon";
 
 const control =
-  "h-8 w-full rounded border border-border-input bg-surface px-2 text-base text-fg placeholder:text-fg-subtle disabled:bg-surface-muted disabled:text-fg-subtle aria-invalid:border-danger";
+  "h-9 w-full rounded border border-border-input bg-surface px-3 text-base text-fg placeholder:text-fg-subtle disabled:bg-surface-muted disabled:text-fg-subtle aria-invalid:border-danger";
 
 /** Label above a control. Always render a visible label; placeholders are not labels. */
 export function Field({

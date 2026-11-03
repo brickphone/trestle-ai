@@ -1,7 +1,7 @@
 import { loadData } from "@/lib/data/repository";
 import { saveBalance, saveCost } from "@/lib/data/actions";
 import { today } from "@/lib/finance";
-import { formatUsd, formatDate } from "@/lib/format";
+import { Money, DateText } from "@/components/ui/financial";
 import { PageHeader, PageBody } from "@/components/ui/page-header";
 import { Panel, DescriptionList } from "@/components/ui/panel";
 import { ActionForm } from "@/components/product/action-form";
@@ -32,13 +32,17 @@ export default async function SettingsPage() {
           <RecordTable label="Opening balances" headers={["As of", "Scope", "Amount", "State"]}>
             {data.balances.map((b) => (
               <tr key={b.id} id={`balance-${b.id}`}>
-                <td className={cell}>{formatDate(b.as_of_date)}</td>
+                <td className={cell}>
+                  <DateText value={b.as_of_date} />
+                </td>
                 <td className={cell}>
                   {b.job_id
                     ? (data.jobs.find((j) => j.id === b.job_id)?.contract_number ?? "Not available")
                     : "Company"}
                 </td>
-                <td className={cell}>{formatUsd(b.amount_cents / 100, { cents: true })}</td>
+                <td className={cell}>
+                  <Money cents={b.amount_cents} />
+                </td>
                 <td className={cell}>
                   {b.voided_at ? (
                     `Voided: ${b.void_reason}`
@@ -95,10 +99,12 @@ export default async function SettingsPage() {
                     ? (data.jobs.find((j) => j.id === c.job_id)?.contract_number ?? "Not available")
                     : "Company"}
                 </td>
-                <td className={cell}>{formatUsd(c.amount_cents / 100, { cents: true })}</td>
                 <td className={cell}>
-                  {c.frequency} · {formatDate(c.start_date)} –{" "}
-                  {c.end_date ? formatDate(c.end_date) : "Ongoing"}
+                  <Money cents={c.amount_cents} />
+                </td>
+                <td className={cell}>
+                  {c.frequency} · <DateText value={c.start_date} /> –{" "}
+                  {c.end_date ? <DateText value={c.end_date} /> : "Ongoing"}
                 </td>
                 <td className={cell}>
                   {c.voided_at ? (

@@ -20,15 +20,10 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex min-w-0 flex-col gap-1 rounded-md border border-border bg-surface px-4 py-3",
-        className,
-      )}
-    >
+    <div className={cn("flex min-w-0 flex-col gap-2 py-2", className)}>
       <dt className="truncate text-xs font-medium text-fg-muted">{label}</dt>
       <dd className="flex flex-col gap-1">
-        <span className="text-2xl font-semibold text-fg tabular">{value}</span>
+        <span className="text-2xl font-medium tracking-tight text-fg tabular">{value}</span>
         {detail ? <span className="text-sm text-fg-muted">{detail}</span> : null}
         {footnote ? (
           <span className="flex items-center gap-2 text-xs text-fg-subtle">{footnote}</span>

@@ -26,7 +26,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-start gap-2 rounded-md border border-dashed border-border-strong bg-surface px-6 py-8",
+        "flex flex-col items-start gap-2 rounded-md bg-surface-muted px-6 py-8",
         className,
       )}
     >
@@ -64,7 +64,11 @@ export function ErrorState({
         <p className="font-semibold text-danger-strong">{title}</p>
         {description ? <div className="text-base text-fg">{description}</div> : null}
         {detail ? (
-          <pre className="mt-1 overflow-x-auto rounded-sm border border-danger/20 bg-surface px-2 py-1 font-mono text-xs text-fg-muted">
+          <pre
+            tabIndex={0}
+            aria-label="Error details"
+            className="mt-1 overflow-x-auto rounded-sm border border-danger/20 bg-surface px-2 py-1 font-mono text-xs text-fg-muted"
+          >
             {detail}
           </pre>
         ) : null}
@@ -122,14 +126,7 @@ export function LoadingState({
   className?: string;
 }) {
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className={cn(
-        "flex flex-col gap-2 rounded-md border border-border bg-surface p-4",
-        className,
-      )}
-    >
+    <div role="status" aria-live="polite" className={cn("flex flex-col gap-2 py-4", className)}>
       <span className="sr-only">{label}…</span>
       <Skeleton className="h-4 w-48" />
       {Array.from({ length: rows }, (_, i) => (

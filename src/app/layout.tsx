@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
 import { PRODUCT_NAME } from "@/lib/config";
-import { IBM_Plex_Mono, Public_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const publicSans = Public_Sans({
-  variable: "--font-public-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const instrument = localFont({
+  src: "../assets/fonts/instrument-sans.ttf",
+  variable: "--font-instrument-sans",
+  weight: "400 700",
   display: "swap",
 });
 
@@ -24,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${publicSans.variable} ${plexMono.variable}`}>
+    <html lang="en" className={instrument.variable}>
       <body className="min-h-dvh">{children}</body>
     </html>
   );

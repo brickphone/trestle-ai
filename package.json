@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/check-visual-build.mjs",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -19,9 +19,11 @@
     "staff:create": "node --env-file-if-exists=.env.local scripts/create-staff.mjs",
     "demo:reset": "node --env-file-if-exists=.env.local scripts/reset-demo.mjs",
     "test:db": "node --env-file-if-exists=.env.test.local --import tsx scripts/test-database.ts",
-    "db:sql": "node scripts/build-migrations.mjs"
+    "db:sql": "node scripts/build-migrations.mjs",
+    "test:visual": "npm run build && VISUAL_FIXTURES_DIR=.visual/after-html vitest run visual-fixtures && node scripts/build-visual-client.mjs && playwright test -c playwright.visual.config.ts"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
     "@tanstack/react-table": "^9.3.1",

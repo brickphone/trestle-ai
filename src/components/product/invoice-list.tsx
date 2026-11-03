@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { Invoice, Payment, Job } from "@/lib/data/types";
 import { invoiceTotals } from "@/lib/forecast";
 import { invoiceDueDate, isLate, today } from "@/lib/finance";
-import { formatUsd, formatDate } from "@/lib/format";
+import { Money, DateText } from "@/components/ui/financial";
+import { Status } from "@/components/ui/badge";
 import { RecordTable, cell, link } from "./record-table";
 export function InvoiceList({
   invoices,
@@ -42,16 +43,22 @@ export function InvoiceList({
                 {jobs.find((j) => j.id === i.job_id)?.contract_number ?? "Not available"}
               </td>
               <td className={cell}>
-                {i.status}
+                <Status value={i.status} />
                 {isLate(i, totals.remaining, today()) && (
-                  <span className="ml-2 font-medium text-danger-strong">Past due</span>
+                  <span className="ml-2 font-medium text-warning-strong">Past due</span>
                 )}
               </td>
-              <td className={cell}>{formatUsd(i.billed_cents / 100, { cents: true })}</td>
-              <td className={cell}>{formatUsd(totals.remaining / 100, { cents: true })}</td>
-              <td className={cell}>{formatUsd(totals.retainageHeld / 100, { cents: true })}</td>
               <td className={cell}>
-                {formatDate(due.date)}
+                <Money cents={i.billed_cents} />
+              </td>
+              <td className={cell}>
+                <Money cents={totals.remaining} />
+              </td>
+              <td className={cell}>
+                <Money cents={totals.retainageHeld} />
+              </td>
+              <td className={cell}>
+                <DateText value={due.date} />
                 {due.date && (
                   <span className="block text-xs text-fg-subtle">
                     {due.confirmed ? "Confirmed basis" : "Estimated basis"}

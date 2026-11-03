@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { loadData, recordHistory } from "@/lib/data/repository";
 import { effectiveValue, invoiceTotals } from "@/lib/forecast";
 import { saveChange, saveAssumptions } from "@/lib/data/actions";
-import { formatUsd, formatDate } from "@/lib/format";
+import { Money, DateText } from "@/components/ui/financial";
+import { Status } from "@/components/ui/badge";
 import { PageHeader, PageBody } from "@/components/ui/page-header";
 import { Panel, DescriptionList } from "@/components/ui/panel";
 import { StatCard, StatGrid } from "@/components/ui/stat-card";
@@ -48,39 +49,35 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
         <StatGrid>
           <StatCard
             label="Contract value"
-            value={formatUsd(value === null ? null : value / 100, { cents: true })}
+            value={<Money cents={value === null ? null : value} whole />}
           />
           <StatCard
             label="Billed to date"
-            value={formatUsd(invoices.reduce((s, i) => s + i.billed_cents, 0) / 100, {
-              cents: true,
-            })}
+            value={<Money cents={invoices.reduce((s, i) => s + i.billed_cents, 0)} whole />}
             footnote="Submitted, accepted and paid invoices; drafts/rejected/voided excluded."
           />
           <StatCard
             label="Paid to date"
-            value={formatUsd(totals.reduce((s, t) => s + t.paid + t.retainagePaid, 0) / 100, {
-              cents: true,
-            })}
+            value={<Money cents={totals.reduce((s, t) => s + t.paid + t.retainagePaid, 0)} whole />}
           />
           <StatCard
             label="Retainage held"
-            value={formatUsd(totals.reduce((s, t) => s + t.retainageHeld, 0) / 100, {
-              cents: true,
-            })}
+            value={<Money cents={totals.reduce((s, t) => s + t.retainageHeld, 0)} whole />}
           />
           <StatCard
             label="Net outstanding"
-            value={formatUsd(totals.reduce((s, t) => s + t.remaining, 0) / 100, { cents: true })}
+            value={<Money cents={totals.reduce((s, t) => s + t.remaining, 0)} whole />}
           />
           <StatCard
             label="Pending changes"
-            value={formatUsd(
-              changes
-                .filter((c) => c.status === "pending")
-                .reduce((s, c) => s + c.amount_cents, 0) / 100,
-              { cents: true },
-            )}
+            value={
+              <Money
+                cents={changes
+                  .filter((c) => c.status === "pending")
+                  .reduce((s, c) => s + c.amount_cents, 0)}
+                whole
+              />
+            }
           />
         </StatGrid>
         <Panel title="Job details">
@@ -151,9 +148,11 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
                     <VoidForm kind="change" id={c.id} readOnly={readOnly} />
                   </details>
                 </td>
-                <td className={cell}>{formatUsd(c.amount_cents / 100, { cents: true })}</td>
-                <td className={cell}>{formatDate(c.date)}</td>
-                <td className={cell}>{c.status}</td>
+                <td className={cell}>{<Money cents={c.amount_cents} />}</td>
+                <td className={cell}>{<DateText value={c.date} />}</td>
+                <td className={cell}>
+                  <Status value={c.status} />
+                </td>
                 <td className={cell}>{c.notes ?? "Not available"}</td>
               </tr>
             ))}

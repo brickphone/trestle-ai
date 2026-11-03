@@ -16,7 +16,7 @@ async function AuthenticatedShell({ children }: { children: React.ReactNode }) {
           {ctx.isStaff && (
             <form action={selectOrganization} className="flex flex-col gap-2">
               <label htmlFor="staff-organization" className="text-xs text-fg-muted">
-                View organization
+                Organization
               </label>
               <select
                 id="staff-organization"
@@ -33,11 +33,16 @@ async function AuthenticatedShell({ children }: { children: React.ReactNode }) {
               <Button type="submit">Switch organization</Button>
             </form>
           )}
-          <form action={signout}>
-            <Button type="submit" variant="ghost">
-              Sign out
-            </Button>
-          </form>
+          <details className="text-sm">
+            <summary className="cursor-pointer rounded px-2 py-2 text-fg-muted hover:bg-surface-hover">
+              Account
+            </summary>
+            <form action={signout}>
+              <Button type="submit" variant="ghost">
+                Sign out
+              </Button>
+            </form>
+          </details>
         </div>
       }
     >

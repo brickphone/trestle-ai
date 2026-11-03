@@ -7,3 +7,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## User preferences: Git
+
+- Never create a commit without first asking the user and receiving explicit approval for that commit.
+- Approval to implement changes does not authorize committing them. Earlier commit approvals do not carry over to future commits.
+- Leave changes uncommitted for review unless the user approves a commit. Do not amend or rewrite existing commits without explicit approval.

@@ -14,7 +14,7 @@ import { Icon } from "../icon";
 import { ColumnPicker } from "./column-picker";
 import { dataTableFeatures, type DataTableColumn } from "./features";
 
-const ROW_HEIGHT = 32; // keep in sync with --spacing-row
+const ROW_HEIGHT = 40; // keep in sync with --spacing-row
 
 type Controlled<T> = { value: T; onChange: (next: T) => void };
 
@@ -128,7 +128,7 @@ export function DataTable<TData extends RowData>({
   const virtualRows = virtualizer.getVirtualItems();
 
   return (
-    <div className="flex min-w-0 flex-col rounded-md border border-border bg-surface">
+    <div className="flex min-w-0 flex-col">
       {(toolbar || columnPicker) && (
         <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2">
           <div className="flex min-w-0 flex-wrap items-center gap-2">{toolbar}</div>
@@ -159,12 +159,12 @@ export function DataTable<TData extends RowData>({
             className="grid min-w-full text-base"
             style={{ width: table.getTotalSize() }}
           >
-            <thead className="sticky top-0 z-10 grid bg-surface-muted">
+            <thead className="sticky top-0 z-10 grid bg-canvas">
               {headerGroups.map((group, index) => (
                 <tr
                   key={group.id}
                   aria-rowindex={index + 1}
-                  className="flex w-full border-b border-border-strong"
+                  className="flex w-full border-b border-border"
                 >
                   {group.headers.map((header) => {
                     const col = header.column;
@@ -183,7 +183,7 @@ export function DataTable<TData extends RowData>({
                               : undefined
                         }
                         title={col.columnDef.meta?.description}
-                        className="flex h-8 items-center text-left text-xs font-semibold text-fg-muted"
+                        className="flex h-9 items-center text-left text-xs font-medium text-fg-muted"
                         style={{ width: header.getSize(), flex: `1 0 ${header.getSize()}px` }}
                       >
                         {header.isPlaceholder ? null : canSort ? (

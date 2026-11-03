@@ -23,6 +23,11 @@ import {
   formatUsd,
   formatUsdCompact,
 } from "@/lib/format";
+import { Money, DateText } from "@/components/ui/financial";
+import { CashChart } from "@/components/product/cash-chart";
+import { loadData } from "@/lib/data/repository";
+import { forecast } from "@/lib/forecast";
+import { today } from "@/lib/finance";
 import { TableDemo } from "./table-demo";
 
 export const metadata: Metadata = { title: "Component reference" };
@@ -31,8 +36,11 @@ export const metadata: Metadata = { title: "Component reference" };
  * Development-only reference for the design system. All values on this page
  * are synthetic and labeled as such. Returns 404 in production builds.
  */
-export default function ComponentReferencePage() {
+export default async function ComponentReferencePage() {
   if (process.env.NODE_ENV === "production") notFound();
+  const data = await loadData();
+  const opening = data.balances.find((b) => !b.voided_at && !b.job_id);
+  const result = forecast(data, opening?.as_of_date ?? today());
 
   return (
     <>
@@ -43,8 +51,8 @@ export default function ComponentReferencePage() {
           { label: "Development" },
           { label: "Components" },
         ]}
-        description="Design-system components with synthetic values. Development builds only."
-        meta={<Badge tone="warning">Synthetic data</Badge>}
+        description="Design-system components, type specimens and the current workspace chart. Development only."
+        meta={<Badge tone="warning">Development only</Badge>}
         actions={
           <>
             <Button variant="secondary">Secondary</Button>
@@ -53,9 +61,29 @@ export default function ComponentReferencePage() {
         }
       />
       <PageBody>
-        <Callout tone="warning" title="Synthetic values">
-          Every firm, figure and UEI on this page is generated for layout testing and does not
-          describe a real entity.
+        <Panel
+          title="Financial typography"
+          description="Type specimens, not account data. Summary figures use whole dollars; table cents are quieter. Negative amounts retain their sign."
+        >
+          <div className="flex flex-wrap items-baseline gap-8">
+            <span className="text-money font-medium">
+              <Money cents={4940800} whole />
+            </span>
+            <Money cents={4940899} />
+            <Money cents={-240050} />
+            <Money cents={0} />
+            <DateText value="2027-01-25" />
+          </div>
+        </Panel>
+        <Panel
+          title="Cash chart"
+          description="Current workspace data. Estimate; the data table links to forecast sources."
+        >
+          <CashChart result={result} />
+        </Panel>
+        <Callout tone="warning" title="Reference examples">
+          The cash chart uses current workspace records. Other component examples use synthetic
+          values for layout testing and do not describe real entities.
         </Callout>
 
         <StatGrid>

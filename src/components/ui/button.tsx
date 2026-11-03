@@ -11,15 +11,15 @@ const base =
 const variants: Record<Variant, string> = {
   primary:
     "border-accent bg-accent text-fg-inverse hover:border-accent-hover hover:bg-accent-hover",
-  secondary: "border-border-input bg-surface text-fg hover:bg-surface-hover",
+  secondary: "border-transparent bg-surface-muted text-fg hover:bg-surface-hover",
   ghost: "border-transparent bg-transparent text-fg-muted hover:bg-surface-hover hover:text-fg",
   danger:
     "border-danger bg-danger text-fg-inverse hover:border-danger-strong hover:bg-danger-strong",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-7 px-2 text-sm",
-  md: "h-8 px-3 text-base",
+  sm: "h-8 px-3 text-sm",
+  md: "h-9 px-3 text-base",
 };
 
 export function buttonClasses(variant: Variant = "secondary", size: Size = "md") {

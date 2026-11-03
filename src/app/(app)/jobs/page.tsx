@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { loadData } from "@/lib/data/repository";
 import { effectiveValue } from "@/lib/forecast";
-import { formatUsd, formatDate } from "@/lib/format";
+import { Money, DateText } from "@/components/ui/financial";
+import { Status } from "@/components/ui/badge";
 import { PageHeader, PageBody } from "@/components/ui/page-header";
 import { Panel } from "@/components/ui/panel";
 import { JobForm } from "@/components/product/job-form";
@@ -31,12 +32,14 @@ export default async function JobsPage() {
                     </Link>
                   </td>
                   <td className={cell}>{j.agency ?? "Not available"}</td>
-                  <td className={cell}>{j.status}</td>
                   <td className={cell}>
-                    {formatUsd(value === null ? null : value / 100, { cents: true })}
+                    <Status value={j.status} />
                   </td>
                   <td className={cell}>
-                    {formatDate(j.start_date)} – {formatDate(j.end_date)}
+                    <Money cents={value} />
+                  </td>
+                  <td className={cell}>
+                    <DateText value={j.start_date} /> – <DateText value={j.end_date} />
                   </td>
                   <td className={cell}>
                     {j.source_snapshot_id ? "USAspending + your edits" : "Manual entry"}

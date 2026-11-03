@@ -16,7 +16,7 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/consistent-type-imports": "error",
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "coverage/**"]),
+  globalIgnores([".next/**", ".visual/**", "out/**", "build/**", "next-env.d.ts", "coverage/**"]),
 ]);
 
 export default eslintConfig;
