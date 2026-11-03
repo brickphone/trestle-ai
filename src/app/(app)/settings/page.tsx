@@ -1,3 +1,4 @@
+import { ButtonLink } from "@/components/ui/button";
 import { loadData } from "@/lib/data/repository";
 import { saveBalance, saveCost, classifyCost } from "@/lib/data/actions";
 import { today } from "@/lib/finance";
@@ -15,6 +16,11 @@ export default async function SettingsPage() {
       <PageHeader title="Settings" description="Opening balances and recurring cost assumptions." />
       <PageBody>
         <Panel title="Organization">
+          {data.isOwner && !data.readOnly && (
+            <div className="mb-4">
+              <ButtonLink href="/contracts/edit">Edit contracts</ButtonLink>
+            </div>
+          )}
           <DescriptionList
             items={[
               { label: "Company", value: data.organization.name },

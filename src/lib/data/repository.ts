@@ -1,4 +1,5 @@
 import "server-only";
+import { requireUser } from "../auth/server";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -20,6 +21,7 @@ import type {
   AuditEvent,
 } from "./types";
 export const context = cache(async () => {
+  const user = await requireUser();
   const selected = (await cookies()).get("organization")?.value;
   const client = await userDataClient();
   const [staffRows, memberRows, organizationRows] = await Promise.all([
@@ -40,6 +42,11 @@ export const context = cache(async () => {
     organization,
     organizations: orgs,
     isStaff: staff.length > 0,
+    isOwner:
+      !!organization &&
+      members.some(
+        (m) => m.user_id === user.id && m.organization_id === organization.id && m.role === "owner",
+      ),
     readOnly: staff.length > 0 || !!organization?.is_demo,
   };
 });

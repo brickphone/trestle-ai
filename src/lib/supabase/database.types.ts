@@ -44,6 +44,8 @@ export type Database = {
     CompositeTypes: Record<string, never>;
     Functions: {
       request_security_context: { Args: Record<string, never>; Returns: SecurityContext };
+      update_contracts: { Args: { org_id: string; contract_values: Json }; Returns: boolean };
+      update_company_setup: { Args: { org_id: string; setup_values: Json }; Returns: string };
       complete_onboarding: {
         Args: {
           company_name: string;

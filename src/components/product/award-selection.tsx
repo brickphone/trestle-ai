@@ -1,7 +1,15 @@
 "use client";
+import { InfoTooltip } from "./info-tooltip";
 import { readableCase } from "@/lib/display-case";
 import { useState } from "react";
-import { isUmbrella, preselectedAwards, sentenceDescription } from "@/lib/onboarding/model";
+import {
+  isUmbrella,
+  preselectedAwards,
+  sentenceDescription,
+  defaultContractInput,
+  scheduleBilledEstimate,
+  type ContractInput,
+} from "@/lib/onboarding/model";
 import type { Award, Lookup } from "@/lib/usaspending";
 import { loadOlderAwards } from "@/lib/usaspending/actions";
 import { awardStatus, sortAwards } from "@/lib/usaspending/presentation";
@@ -10,7 +18,7 @@ import { Money } from "@/components/ui/financial";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoneyInput } from "./money-input";
-import { FORECAST_DEFAULTS } from "@/lib/config";
+
 import { Checkbox, Field, TextInput } from "@/components/ui/form";
 
 type Found = Extract<Lookup, { kind: "found" }>;
@@ -27,6 +35,7 @@ export function AwardSelection({
   selection,
   onSelectionChange,
   onLoaded,
+  lockedIds,
   quickInputs,
   onQuickInputChange,
 }: {
@@ -35,8 +44,9 @@ export function AwardSelection({
   selection?: string[];
   onSelectionChange?: (ids: string[]) => void;
   onLoaded?: (result: Found) => void;
-  quickInputs?: Record<string, { billed: string; lag: string }>;
-  onQuickInputChange?: (id: string, input: { billed: string; lag: string }) => void;
+  lockedIds?: string[];
+  quickInputs?: Record<string, ContractInput>;
+  onQuickInputChange?: (id: string, input: ContractInput) => void;
 }) {
   const [loaded, setLoaded] = useState(result);
   const [selected, setSelected] = useState(
@@ -57,24 +67,48 @@ export function AwardSelection({
       data-award-id={award.externalId}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <Checkbox
-          style={{ position: "relative", zIndex: 10 }}
-          name="award"
-          value={award.externalId}
-          label={
-            <span className="after:absolute after:inset-0 after:cursor-pointer">
+        {lockedIds?.includes(award.externalId) && selected.has(award.externalId) ? (
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">
               {sentenceDescription(award.description) ?? "Description not available"}
-            </span>
-          }
-          checked={selected.has(award.externalId)}
-          onChange={(event) => {
-            const next = new Set(selected);
-            if (event.target.checked) next.add(award.externalId);
-            else next.delete(award.externalId);
-            setSelected(next);
-            onSelectionChange?.([...next]);
-          }}
-        />
+            </p>
+            <div className="mt-1 flex items-center gap-3 text-xs">
+              <span className="font-medium">Tracked</span>
+              <button
+                type="button"
+                className="relative z-10 text-fg-muted underline hover:text-fg"
+                aria-label={`Remove ${award.contractNumber}`}
+                onClick={() => {
+                  const next = new Set(selected);
+                  next.delete(award.externalId);
+                  setSelected(next);
+                  onSelectionChange?.([...next]);
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        ) : (
+          <Checkbox
+            style={{ position: "relative", zIndex: 10 }}
+            name="award"
+            value={award.externalId}
+            label={
+              <span className="after:absolute after:inset-0 after:cursor-pointer">
+                {sentenceDescription(award.description) ?? "Description not available"}
+              </span>
+            }
+            checked={selected.has(award.externalId)}
+            onChange={(event) => {
+              const next = new Set(selected);
+              if (event.target.checked) next.add(award.externalId);
+              else next.delete(award.externalId);
+              setSelected(next);
+              onSelectionChange?.([...next]);
+            }}
+          />
+        )}
         <Badge>{awardStatus(award, asOf)}</Badge>
       </div>
       <div className="mt-2 flex flex-col gap-1 pl-6">
@@ -89,11 +123,13 @@ export function AwardSelection({
           <OnboardingDate value={award.endDate} />
         </p>
         <p className="text-xs text-fg-muted">
-          Obligated amount: <Money cents={award.obligationsCents} />
+          Obligated amount: <Money cents={award.obligationsCents} whole />
         </p>
         <div className="flex flex-wrap gap-4 text-xs">
           <a href={award.sourceUrl} className="relative z-10 text-accent underline">
-            View on USAspending
+            {award.sourceUrl.startsWith("https://www.usaspending.gov/")
+              ? "View on USAspending"
+              : "View job"}
           </a>
           {award.parentAwardUrl && (
             <a href={award.parentAwardUrl} className="relative z-10 text-accent underline">
@@ -104,35 +140,82 @@ export function AwardSelection({
         {selected.has(award.externalId) &&
           quickInputs &&
           (() => {
-            const input = quickInputs[award.externalId] ?? {
-              billed: "0",
-              lag: String(FORECAST_DEFAULTS.paymentLagDays),
-            };
+            const input = quickInputs[award.externalId] ?? defaultContractInput(award, asOf);
             return (
               <div className="relative z-10 mt-4 grid gap-3 sm:grid-cols-2">
-                <Field
-                  htmlFor={`billed-${award.externalId}`}
-                  label="Billed so far"
-                  hint="Opening billed total before tracking invoices here. Default $0; verify this amount."
-                >
-                  <div className="relative">
-                    <span className="absolute top-2 left-3 text-fg-subtle" aria-hidden="true">
-                      $
-                    </span>
+                {(award.requiresContractValue ??
+                  (award.obligationsCents === null && award.contractValueCents === null)) && (
+                  <Field
+                    htmlFor={`value-${award.externalId}`}
+                    label="Contract value ($)"
+                    hint="Not in public data, enter from your contract"
+                  >
                     <MoneyInput
-                      className="pl-7"
-                      id={`billed-${award.externalId}`}
-                      value={input.billed}
-                      onValueChange={(billed) =>
-                        onQuickInputChange?.(award.externalId, { ...input, billed })
-                      }
+                      id={`value-${award.externalId}`}
+                      required
+                      value={input.value ?? ""}
+                      onValueChange={(value) => {
+                        const estimate = scheduleBilledEstimate(
+                          Number(value) * 100,
+                          award.startDate,
+                          award.endDate,
+                          asOf,
+                        );
+                        onQuickInputChange?.(award.externalId, {
+                          ...input,
+                          value,
+                          ...(input.estimated || !input.billed
+                            ? {
+                                billed: estimate === null ? "" : String(estimate / 100),
+                                estimated: estimate !== null && estimate > 0,
+                              }
+                            : {}),
+                        });
+                      }}
                     />
+                  </Field>
+                )}
+
+                <div className="relative">
+                  <div className="absolute -top-1 right-0">
+                    <InfoTooltip label="About billed so far">
+                      The schedule estimate uses contract value × elapsed days ÷ total days, rounded
+                      to the nearest $1,000. Replace it with actual billing. Invoices entered here
+                      replace overlapping projections.
+                    </InfoTooltip>
                   </div>
-                </Field>
+                  <Field
+                    htmlFor={`billed-${award.externalId}`}
+                    label={<span className="inline-flex items-center gap-1">Billed so far</span>}
+                    hint={
+                      input.estimated
+                        ? "Estimated from schedule, please check."
+                        : "Total billed before tracking here."
+                    }
+                  >
+                    <div className="relative">
+                      <span className="absolute top-2 left-3 text-fg-subtle" aria-hidden="true">
+                        $
+                      </span>
+                      <MoneyInput
+                        className="pl-7"
+                        id={`billed-${award.externalId}`}
+                        value={input.billed}
+                        onValueChange={(billed) =>
+                          onQuickInputChange?.(award.externalId, {
+                            ...input,
+                            billed,
+                            estimated: false,
+                          })
+                        }
+                      />
+                    </div>
+                  </Field>
+                </div>
                 <Field
                   htmlFor={`lag-${award.externalId}`}
                   label="Usual days until the government pays"
-                  hint="Expected receipt lag after monthly billing; editable on the job."
+                  hint="Days after monthly billing."
                 >
                   <TextInput
                     id={`lag-${award.externalId}`}
@@ -154,19 +237,26 @@ export function AwardSelection({
   return (
     <div className="flex flex-col gap-5" data-award-selection>
       <input type="hidden" name="include_older" value={loaded.hasOlder ? "0" : "1"} />
-      <p className="text-sm text-fg-muted">
-        {loaded.totalAwards} awards found ·{" "}
-        {awards.filter((a) => awardStatus(a, asOf) === "Active").length} active ·{" "}
-        {loaded.hasOlder ? "showing those ending in the last 2 years" : "showing all awards"}
-      </p>
-      <p role="status" className="text-xs text-fg-subtle">
-        Showing {awards.length} of {loaded.totalAwards} awards · All {loaded.searchPages} search{" "}
-        {loaded.searchPages === 1 ? "page" : "pages"} checked.
-      </p>
-      <p className="text-xs text-fg-subtle">
-        Active means the performance end date is today or later; it does not confirm agency
-        closeout. Completed contracts are not selected automatically.
-      </p>
+      <div className="flex items-center gap-2">
+        <p role="status" className="text-sm text-fg-muted">
+          {selected.size} tracked ·{" "}
+          {
+            awards.filter((a) => selected.has(a.externalId) && awardStatus(a, asOf) === "Active")
+              .length
+          }{" "}
+          active
+        </p>
+        <InfoTooltip label="About contract selection">
+          {lockedIds ? (
+            "Tracked work drives future income and job costs. Removing tracking stops future projections; saved jobs, invoices and payments stay in your workspace."
+          ) : (
+            <>
+              Showing {awards.length} of {loaded.totalAwards} awards. All {loaded.searchPages}{" "}
+              search pages checked. Active means the end date is today or later.
+            </>
+          )}
+        </InfoTooltip>
+      </div>
       <section aria-label="Active awards">
         <h3 className="text-md font-medium">Active ({active.length})</h3>
         {active.length ? (

@@ -1,3 +1,5 @@
+import { contractsDemo, missingContractsDemo } from "./fixtures";
+import EditContracts from "@/app/(app)/contracts/edit/page";
 import { lookupUei } from "@/lib/usaspending";
 async function lookupForFixture() {
   const found = await lookupUei("HSNPS86TJGM6");
@@ -75,6 +77,8 @@ vi.mock("@/lib/data/actions", () =>
       "updateInvoiceTiming",
       "selectOrganization",
       "finishOnboarding",
+      "updateCompanySetup",
+      "saveContracts",
     ].map((name) => [name, vi.fn()]),
   ),
 );
@@ -110,7 +114,7 @@ import Signup from "@/app/(auth)/signup/page";
 import AuthLayout from "@/app/(auth)/layout";
 import { Button } from "@/components/ui/button";
 
-import { demo, projectedDemo } from "./fixtures";
+import { demo, projectedDemo, editDemo } from "./fixtures";
 import { recordedFetcher } from "@/lib/usaspending/fixtures/replay";
 
 describe("visual screen fixtures (isolated; never saved to a database)", () => {
@@ -153,6 +157,9 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
       path: "/invoices/demo-invoice-3",
       page: () => Invoice({ params: Promise.resolve({ id: "demo-invoice-3" }) }),
     },
+    { name: "contracts-edit", path: "/contracts/edit", page: EditContracts },
+    { name: "contracts-missing", path: "/contracts/edit", page: EditContracts },
+    { name: "settings-owner", path: "/settings", page: Settings },
     {
       name: "onboarding",
       path: "/onboarding",
@@ -241,19 +248,26 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
       );
       try {
         mocks.path = screen.path;
-        const data = screen.name.includes("projected")
-          ? projectedDemo
-          : screen.empty
-            ? {
-                ...demo,
-                jobs: [],
-                changes: [],
-                invoices: [],
-                payments: [],
-                balances: [],
-                costs: [],
-              }
-            : demo;
+        const data =
+          screen.name === "contracts-edit"
+            ? contractsDemo
+            : screen.name === "contracts-missing"
+              ? missingContractsDemo
+              : screen.name === "settings-owner"
+                ? editDemo
+                : screen.name.includes("projected")
+                  ? projectedDemo
+                  : screen.empty
+                    ? {
+                        ...demo,
+                        jobs: [],
+                        changes: [],
+                        invoices: [],
+                        payments: [],
+                        balances: [],
+                        costs: [],
+                      }
+                    : demo;
         mocks.load.mockResolvedValue(data);
         mocks.context.mockResolvedValue(
           screen.onboarding ? { ...data, organization: undefined } : data,
@@ -272,8 +286,8 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
             <AuthLayout>{content}</AuthLayout>
           ) : (
             <AppShell
-              organizationName={demo.organization.name}
-              demo
+              organizationName={data.organization.name}
+              demo={data.organization.is_demo}
               isStaff={screen.path.startsWith("/internal")}
               footer={
                 <details className="text-sm">
@@ -286,7 +300,8 @@ describe("visual screen fixtures (isolated; never saved to a database)", () => {
             </AppShell>
           ),
         );
-        if (!screen.auth && !screen.onboarding) expect(html).toContain("Demo, fictional data");
+        if (!screen.auth && !screen.onboarding && data.organization.is_demo)
+          expect(html).toContain("Demo, fictional data");
         expect(html).toContain('<main id="main"');
         if (process.env.VISUAL_FIXTURES_DIR) {
           mkdirSync(process.env.VISUAL_FIXTURES_DIR, { recursive: true });

@@ -6,9 +6,11 @@ import type {
   Balance,
   RecurringCost,
   Assumption,
+  SourceSnapshot,
 } from "../data/types";
 import { addDays, daysBetween, invoiceDueDate } from "../finance";
 import { projectRemainingWork } from "../cashgap/remaining";
+import { jobObligations } from "../job-values";
 import { FORECAST_DEFAULTS } from "../config";
 export type ForecastData = {
   jobs: Job[];
@@ -18,6 +20,7 @@ export type ForecastData = {
   balances: Balance[];
   costs: RecurringCost[];
   assumptions: Assumption[];
+  snapshots?: SourceSnapshot[];
 };
 export type CashSource = {
   id: string;
@@ -148,6 +151,7 @@ export function forecast(data: ForecastData, startDate: string, jobId?: string) 
   const modeledJobs = jobs.filter(
     (j) =>
       j.status === "active" &&
+      j.is_tracked !== false &&
       data.assumptions.find((a) => a.job_id === j.id)?.enabled !== false &&
       data.assumptions.find((a) => a.job_id === j.id)?.cost_mode !== "explicit",
   );
@@ -196,7 +200,7 @@ export function forecast(data: ForecastData, startDate: string, jobId?: string) 
     }
   }
   for (const job of jobs) {
-    if (job.status !== "active") continue;
+    if (job.status !== "active" || job.is_tracked === false) continue;
     const assumption = data.assumptions.find((a) => a.job_id === job.id);
     if (assumption?.enabled === false) {
       issues.push({
@@ -206,7 +210,12 @@ export function forecast(data: ForecastData, startDate: string, jobId?: string) 
       continue;
     }
     const value =
-      assumption?.value_override_cents ?? job.obligated_cents ?? job.contract_value_cents;
+      assumption?.value_override_cents ??
+      jobObligations(
+        job,
+        data.snapshots?.find((s) => s.id === job.source_snapshot_id),
+      ) ??
+      job.contract_value_cents;
     const approved = active(data.changes)
       .filter((c) => c.job_id === job.id && c.status === "approved")
       .reduce((sum, c) => sum + c.amount_cents, 0);
@@ -340,6 +349,22 @@ export function forecast(data: ForecastData, startDate: string, jobId?: string) 
       sources: rows,
     };
   });
+  const missingValueJobs = jobs.filter(
+    (j) =>
+      j.status === "active" &&
+      j.is_tracked !== false &&
+      (data.assumptions.find((a) => a.job_id === j.id)?.value_override_cents ??
+        jobObligations(
+          j,
+          data.snapshots?.find((s) => s.id === j.source_snapshot_id),
+        ) ??
+        j.contract_value_cents) == null,
+  );
+  if (missingValueJobs.length)
+    issues.unshift({
+      label: `${missingValueJobs.length} ${missingValueJobs.length === 1 ? "job has" : "jobs have"} no contract value`,
+      href: "/contracts/edit",
+    });
   const lowest = weeks.reduce((a, b) => (b.minimumCents < a.minimumCents ? b : a));
   return {
     weeks,

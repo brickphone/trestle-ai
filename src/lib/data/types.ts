@@ -28,6 +28,7 @@ export type SourceSnapshot = {
   fetched_at: Date;
 };
 export type Job = Financial & {
+  is_tracked?: boolean;
   obligated_cents?: number | null;
   source_snapshot_id: string | null;
   contract_number: string;
@@ -88,6 +89,7 @@ export type RecurringCost = Financial & {
   end_date: string | null;
 };
 export type Assumption = RecordBase & {
+  billed_source?: "legacy" | "schedule" | "manual";
   billed_before_tracking_cents?: number;
   billed_through_date?: string | null;
   value_override_cents?: number | null;

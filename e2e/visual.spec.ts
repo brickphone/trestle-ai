@@ -240,7 +240,8 @@ test("recorded onboarding awards group, sort and retain choices when all older p
   for (const checkbox of await completed.getByRole("checkbox").all())
     await expect(checkbox).not.toBeChecked();
   await picker.getByRole("button", { name: "Show older awards", exact: true }).click();
-  await expect(picker.getByRole("status")).toContainText("Showing 113 of 113 awards");
+  await picker.getByRole("button", { name: "About contract selection" }).click();
+  await expect(picker.getByRole("tooltip")).toContainText("Showing 113 of 113 awards");
   await expect(active.getByRole("checkbox").first()).not.toBeChecked();
   await expect(picker.getByRole("button", { name: "Show older awards", exact: true })).toHaveCount(
     0,
@@ -271,7 +272,8 @@ test("current-date recording shows no active contracts instead of preselecting o
     "No active federal contracts found; you can add a job manually",
   );
   await expect(picker.locator('input[type="checkbox"]:checked')).toHaveCount(0);
-  await expect(picker.getByRole("status")).toContainText("Showing 1 of 113 awards");
+  await picker.getByRole("button", { name: "About contract selection" }).click();
+  await expect(picker.getByRole("tooltip")).toContainText("Showing 1 of 113 awards");
 });
 
 for (const width of [375, 1024, 1440]) {
@@ -634,4 +636,110 @@ test("onboarding captures per-contract billed amounts and payment lag separately
   ).toBe(true);
   expect(saved.monthly).toBe("35000");
   expect(saved.payroll).toBe("5000");
+});
+
+test("owner edits tracked contracts in the app layout and can remove and retrack without deleting history", async ({
+  page,
+}) => {
+  await screen(page, "contracts-edit");
+  await expect(page.getByText("2 tracked · 2 active", { exact: true })).toBeVisible();
+  await expect(page.getByText("$3,377,000", { exact: true })).toBeVisible();
+  await expect(page.getByText("$27,095,272", { exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Onboarding steps" })).toHaveCount(0);
+  await expect(page.getByText(/Step \d of 5/)).toHaveCount(0);
+  const active = page.getByRole("region", { name: "Active awards" });
+  await expect(active.getByRole("checkbox")).toHaveCount(0);
+  const remove = active.getByRole("button", { name: /^Remove / }).first();
+  await remove.click();
+  await expect(active.getByRole("checkbox")).toHaveCount(1);
+  await active.getByRole("checkbox").click();
+  await expect(active.getByRole("checkbox")).toHaveCount(0);
+  await active.getByLabel("Billed so far", { exact: true }).first().fill("250000");
+  await active
+    .getByLabel("Usual days until the government pays", { exact: true })
+    .first()
+    .fill("45");
+  await keyboardButton(page, "Save");
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("contracts-test-submission")!),
+  );
+  expect(saved.organization_id).toBe("10000000-0000-4000-8000-000000000001");
+  expect(
+    JSON.parse(saved.contracts).some(
+      (j: { billedCents: number; paymentLagDays: number; billedSource: string }) =>
+        j.billedCents === 25000000 && j.paymentLagDays === 45 && j.billedSource === "manual",
+    ),
+  ).toBe(true);
+});
+test("settings links owners to contracts and the editor is accessible", async ({ page }) => {
+  await screen(page, "settings-owner");
+  await expect(page.getByRole("link", { name: "Edit contracts", exact: true })).toHaveAttribute(
+    "href",
+    "/contracts/edit",
+  );
+  await page.unrouteAll();
+  await screen(page, "contracts-edit");
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+});
+
+for (const width of [1440, 1024, 375])
+  test(`contracts editor layout at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await screen(page, "contracts-edit");
+    await expect(page).toHaveScreenshot(`contracts-edit-${width}.png`, { fullPage: true });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+  });
+
+test("a missing public amount requires a contract value and estimates billing until manually overwritten", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await screen(page, "contracts-missing");
+  const value = page.getByLabel("Contract value ($)", { exact: true }),
+    billed = page.getByLabel("Billed so far", { exact: true });
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+  await expect(value).toHaveAttribute("required", "");
+  await value.fill("1200000");
+  await expect(value).toHaveValue("1,200,000");
+  await expect(
+    page.getByText("Estimated from schedule, please check.", { exact: true }),
+  ).toBeVisible();
+  await expect(billed).not.toHaveValue("0");
+  await billed.fill("250000");
+  await value.fill("1500000");
+  await expect(billed).toHaveValue("250,000");
+  const info = page.getByRole("button", { name: "About billed so far" });
+  await info.focus();
+  await expect(page.getByRole("tooltip")).toBeVisible();
+  const box = await page.getByRole("tooltip").boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(375);
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
+  await keyboardButton(page, "Save");
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("contracts-test-submission")!),
+  );
+  expect(JSON.parse(saved.contracts)[0]).toMatchObject({
+    contractValueCents: 150000000,
+    billedCents: 25000000,
+    billedSource: "manual",
+  });
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

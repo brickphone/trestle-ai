@@ -9,11 +9,12 @@ import { today } from "@/lib/finance";
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ done?: string; manual?: string; uei?: string }>;
+  searchParams: Promise<{ done?: string; manual?: string; uei?: string; edit?: string }>;
 }) {
   const user = await requireUser();
   const ctx = await context(),
     params = await searchParams;
+  if (ctx.organization && params.edit === "1") redirect("/contracts/edit");
   if (ctx.organization && params.done !== "1") redirect("/");
   if (params.done === "1" && !ctx.organization) redirect("/onboarding");
   if (params.done === "1")
@@ -26,7 +27,7 @@ export default async function OnboardingPage({
     .eq("user_id", user.id)
     .maybeSingle();
   const saved = draftSchema.safeParse(data?.draft);
-  let draft = saved.success ? saved.data : emptyDraft(asOf);
+  let draft = saved.success && !saved.data.editingOrganizationId ? saved.data : emptyDraft(asOf);
   if (!saved.success && params.manual === "1") draft = { ...draft, manual: true, step: 1 };
   if (!saved.success && /^[A-Z0-9]{12}$/.test(params.uei ?? ""))
     draft = { ...draft, uei: params.uei!, step: 1 };

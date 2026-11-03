@@ -51,7 +51,8 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
         Remaining unbilled value is spread across uncovered months. Job cost ratios cover field
         payroll and materials; company office overhead is added once. Entered job costs replace the
         entire cost model for that job. Unclassified company costs are excluded while job costs are
-        projected. Projected retainage is withheld, with no assumed release date.{" "}
+        projected. Untracked jobs keep their real invoices, receipts and entered costs; future job
+        projections are excluded. Projected retainage is withheld, with no assumed release date.{" "}
         {result.isContribution ? "Company cash is not allocated to this job." : ""}
       </p>
       {result.opening && (

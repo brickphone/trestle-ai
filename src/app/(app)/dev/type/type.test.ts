@@ -80,6 +80,7 @@ describe("type decision", () => {
       },
       organizations: [],
       isStaff: false,
+      isOwner: true,
       readOnly: false,
       jobs: [],
       changes: [],

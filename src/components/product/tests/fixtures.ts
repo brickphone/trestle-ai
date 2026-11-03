@@ -53,6 +53,7 @@ const organization = {
 export const demo: Data = {
   organization,
   organizations: [organization],
+  isOwner: true,
   isStaff: false,
   readOnly: true,
   jobs: [
@@ -308,4 +309,87 @@ export const projectedDemo: typeof demo = {
       end_date: null,
     },
   ],
+};
+
+/** Isolated owner-edit fixture; no production authentication shortcut. */
+export const editDemo: typeof demo = {
+  ...demo,
+  organization: {
+    ...demo.organization,
+    id: "10000000-0000-4000-8000-000000000001",
+    uei: "HSNPS86TJGM6",
+    is_demo: false,
+  },
+  readOnly: false,
+  isOwner: true,
+  balances: [{ ...demo.balances[0]!, amount_cents: 25000000 }],
+  costs: [
+    {
+      ...demo.costs[0]!,
+      id: "setup-monthly",
+      job_id: null,
+      cost_scope: "overhead",
+      label: "Monthly overhead",
+      start_date: "2026-11-02",
+      frequency: "monthly",
+      category: "other",
+      amount_cents: 3500000,
+    },
+    {
+      ...demo.costs[0]!,
+      id: "setup-office",
+      job_id: null,
+      cost_scope: "overhead",
+      label: "Weekly office payroll",
+      start_date: "2026-11-02",
+      frequency: "weekly",
+      category: "payroll",
+      amount_cents: 500000,
+    },
+  ],
+};
+
+/** Genuine public task-order responses; operational edit fixture only, never persisted. */
+import cjw from "@/lib/usaspending/fixtures/cjw-task-orders.json";
+export const contractsDemo: typeof demo = {
+  ...editDemo,
+  organization: { ...editDemo.organization, name: "C J W CONSTRUCTION, INC.", uei: "MY4DNWXWL7M1" },
+  assumptions: [],
+  jobs: cjw.records.map((record, index) => ({
+    ...demo.jobs[0]!,
+    id: `20000000-0000-4000-8000-00000000000${index + 1}`,
+    organization_id: editDemo.organization.id,
+    source_snapshot_id: `source-${index}`,
+    contract_number: `Task order ${record.detail.piid} under ${record.detail.parent_award.piid}`,
+    agency: record.detail.parent_award.agency_name,
+    description: record.detail.description,
+    start_date: record.detail.period_of_performance.start_date,
+    end_date: record.detail.period_of_performance.end_date,
+    contract_value_cents: record.detail.base_and_all_options * 100,
+    obligated_cents: null,
+  })),
+  snapshots: cjw.records.map((record, index) => ({
+    id: `source-${index}`,
+    organization_id: editDemo.organization.id,
+    external_id: record.searchRow.generated_internal_id,
+    source_url: `https://www.usaspending.gov/award/${record.searchRow.generated_internal_id}`,
+    original: {
+      obligationsCents: record.detail.total_obligation * 100,
+      contractValueCents: record.detail.base_and_all_options * 100,
+      description: record.detail.description,
+      isTaskOrder: true,
+      parentAwardId: record.detail.parent_award.piid,
+      placeOfPerformanceCity: null,
+      placeOfPerformanceState: null,
+    },
+    fetched_at: new Date(cjw.recordedAt),
+  })),
+};
+export const missingContractsDemo: typeof contractsDemo = {
+  ...contractsDemo,
+  jobs: [{ ...contractsDemo.jobs[0]!, obligated_cents: null, contract_value_cents: null }],
+  snapshots: contractsDemo.snapshots.map((s) => ({
+    ...s,
+    original: { ...s.original, obligationsCents: null, contractValueCents: null },
+  })),
 };

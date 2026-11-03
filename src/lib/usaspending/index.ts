@@ -4,6 +4,7 @@ import { cleanAwardDescription, recentAwardCutoff, sortAwards } from "./presenta
 
 export type Award = {
   externalId: string;
+  requiresContractValue?: boolean;
   contractNumber: string;
   rawContractNumber: string;
   isTaskOrder: boolean;

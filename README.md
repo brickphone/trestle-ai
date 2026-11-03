@@ -393,3 +393,30 @@ projection: either office overhead, or work costs assigned to a job. A zero ente
 allowed and creates no expense row. Run `npm test` for the hand-calculated $1.2M reference: Jan–Jun
 2026, 85% costs, 30-day lag, $100K opening and $20K overhead gives a $300K shortfall on March 1,
 just before the first payment on March 2. This reference includes 5% retainage.
+
+### Editing tracked contracts
+
+Owners use **Settings → Edit contracts** (`/contracts/edit`) in the normal app layout. The legacy
+`/onboarding?edit=1` address redirects there. First-time onboarding keeps its focused step flow.
+Save applies tracking, billing baseline and payment-lag changes in one user-JWT, RLS-enforced
+transaction. Cancel leaves stored records unchanged. Removing tracking excludes future modeled
+billings and job costs; it preserves the job, all invoices, receipts, entered costs and source snapshots.
+The editor requires a positive manual contract value only when public data lacks one.
+
+Legacy job rows can have a null dedicated obligations column. Display and forecast resolve it
+from the original, matching source snapshot; the migration backfills only missing stored amounts.
+If both are absent, the editor refreshes the specific awards from USAspending and Save repeats
+that server-side verification. Failed lookups leave values missing rather than inventing amounts.
+Award-level `total_obligation` is used for delivery orders, separately from a parent IDV or ceiling.
+The recorded CJW fixture includes N6247326F0157 ($3,377,000) and N6247324F5214 ($27,095,272;
+its ceiling is $27,120,272). Raw public snapshots remain unchanged.
+
+Billed-so-far defaults to value × elapsed/total performance days, clamped to the schedule and
+rounded to the nearest $1,000. It is labelled as an estimate; manual edits clear that label and
+are saved with their provenance. Before the job starts it defaults to $0. Missing dates/values
+or an early started job whose estimate rounds to zero require an explicit billed amount.
+Active tracked jobs missing a value produce an aggregate forecast warning linked to the editor.
+
+Apply the updated `supabase/setup.sql` before saving in hosted Supabase. The added migration
+`20261104001000_contract_editing.sql` preserves all raw snapshots and financial history and
+adds tracking/billing provenance. No Docker or direct database URL is needed.

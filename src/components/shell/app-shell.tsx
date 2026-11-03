@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { readableCase } from "@/lib/display-case";
 import { PRODUCT_NAME } from "@/lib/config";
 import type { ReactNode } from "react";
 import { NavLinks, type NavItem } from "./nav-links";
@@ -63,7 +64,9 @@ export function AppShell({
           {organizationName && (
             <div className="mb-2 flex flex-col gap-1 px-2">
               <span className="text-xs text-fg-subtle">Organization</span>
-              <span className="text-sm font-medium break-words">{organizationName}</span>
+              <span className="text-sm font-medium break-words">
+                {readableCase(organizationName)}
+              </span>
               {isStaff && <span className="text-xs text-fg-subtle">Staff read-only access</span>}
             </div>
           )}

@@ -1,16 +1,21 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Lookup } from "@/lib/usaspending";
 import { saveOnboardingDraft, findOnboardingCompany } from "@/lib/onboarding/actions";
-import { preselectedAwards, type OnboardingDraft } from "@/lib/onboarding/model";
-import { finishOnboarding } from "@/lib/data/actions";
+import {
+  preselectedAwards,
+  defaultContractInput,
+  validContractInput,
+  type OnboardingDraft,
+} from "@/lib/onboarding/model";
+import { finishOnboarding, updateCompanySetup } from "@/lib/data/actions";
 import { AwardSelection, OnboardingDate } from "./award-selection";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Field, TextInput } from "@/components/ui/form";
 import { readableCase } from "@/lib/display-case";
 import { Icon } from "@/components/ui/icon";
 import { MoneyInput } from "./money-input";
-import { FORECAST_DEFAULTS } from "@/lib/config";
 import { cents } from "@/lib/finance";
 
 type Found = Extract<Lookup, { kind: "found" }>;
@@ -43,19 +48,23 @@ export function OnboardingFlow({
   asOf,
   done: initiallyDone = false,
   initialError = "",
+  editing = false,
+  existingJobIds = [],
 }: {
   initial: OnboardingDraft;
   initialLookup?: Found | null;
   asOf: string;
   done?: boolean;
   initialError?: string;
+  editing?: boolean;
+  existingJobIds?: string[];
 }) {
   const [done, setFinished] = useState(initiallyDone);
   const [draft, setDraft] = useState(initial),
     [result, setResult] = useState(initialLookup),
     [pending, setPending] = useState(false),
     [error, setError] = useState(initialError),
-    [editing, setEditing] = useState(initial.manual),
+    [editingName, setEditingName] = useState(initial.manual),
     [editDate, setEditDate] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -90,7 +99,7 @@ export function OnboardingFlow({
   const manual = () =>
     run(async () => {
       setResult(null);
-      setEditing(true);
+      setEditingName(true);
       await persist({
         ...draft,
         step: 1,
@@ -106,7 +115,7 @@ export function OnboardingFlow({
     run(() =>
       persist({
         ...draft,
-        step: draft.step === 3 && draft.manual ? 1 : Math.max(0, draft.step - 1),
+        step: draft.step === 3 && draft.manual && !editing ? 1 : Math.max(0, draft.step - 1),
       }),
     );
   const finish = async (skip = false) => {
@@ -131,23 +140,33 @@ export function OnboardingFlow({
     form.set(
       "job_inputs",
       JSON.stringify(
-        next.selected.map((externalId) => ({
-          externalId,
-          billedCents: cents(next.awardInputs?.[externalId]?.billed || "0"),
-          paymentLagDays: Number(
-            next.awardInputs?.[externalId]?.lag ?? FORECAST_DEFAULTS.paymentLagDays,
-          ),
-        })),
+        next.selected.map((externalId) => {
+          const input =
+            next.awardInputs?.[externalId] ??
+            defaultContractInput(
+              result!.awards.find((a) => a.externalId === externalId)!,
+              asOf,
+            );
+          return {
+            externalId,
+            billedCents: cents(input.billed),
+            billedSource: input.estimated ? "schedule" : "manual",
+            ...(input.value ? { contractValueCents: cents(input.value) } : {}),
+            paymentLagDays: Number(input.lag),
+          };
+        }),
       ),
     );
-    const saved = await finishOnboarding({}, form);
+    if (editing) form.set("organization_id", draft.editingOrganizationId!);
+    const saved = await (editing ? updateCompanySetup : finishOnboarding)({}, form);
     if (saved.error) throw Error(saved.error);
     if (saved.success) setFinished(true);
   };
   const submit = (event: FormEvent) => {
     event.preventDefault();
     void run(async () => {
-      if (draft.step === 0) {
+      if (draft.step === 0 && editing) await persist({ ...draft, step: 1 });
+      else if (draft.step === 0) {
         const sameCompany = !draft.manual && result?.uei === draft.uei && !!draft.name;
         const found = await findOnboardingCompany(draft.uei, sameCompany && draft.includeOlder);
         if (found.kind !== "found") throw Error(found.message);
@@ -162,9 +181,13 @@ export function OnboardingFlow({
         };
         await persist(next);
         setResult(found);
-        setEditing(false);
+        setEditingName(false);
       } else if (draft.step === 1)
-        await persist({ ...draft, step: draft.manual ? 3 : 2, name: draft.name.trim() });
+        await persist({
+          ...draft,
+          step: draft.manual && !editing ? 3 : 2,
+          name: draft.name.trim(),
+        });
       else if (draft.step === 2) await persist({ ...draft, step: 3 });
       else if (draft.step === 3) await persist({ ...draft, step: 4 });
       else await finish();
@@ -172,7 +195,7 @@ export function OnboardingFlow({
   };
   const valid =
     draft.step === 0
-      ? /^[A-Z0-9]{12}$/.test(draft.uei)
+      ? editing || /^[A-Z0-9]{12}$/.test(draft.uei)
       : draft.step === 1
         ? !!draft.name.trim()
         : draft.step === 3
@@ -181,13 +204,13 @@ export function OnboardingFlow({
             draft.asOf <= asOf
           : draft.step === 2
             ? draft.selected.every((id) => {
-                const input = draft.awardInputs?.[id];
+                const award = result?.awards.find((a) => a.externalId === id);
                 return (
-                  !input ||
-                  (validMoney(input.billed || "0") &&
-                    cents(input.billed || "0") >= 0 &&
-                    /^\d+$/.test(input.lag) &&
-                    Number(input.lag) <= 36500)
+                  !!award &&
+                  validContractInput(
+                    award,
+                    draft.awardInputs?.[id] ?? defaultContractInput(award, asOf),
+                  )
                 );
               })
             : draft.step === 4
@@ -243,7 +266,7 @@ export function OnboardingFlow({
               "Cash today",
               "Overhead not tied to jobs",
             ].map((label, index) => {
-              const skipped = draft.manual && index === 2;
+              const skipped = draft.manual && !editing && index === 2;
               const current = index === draft.step;
               const completed = !current && !skipped && index < (draft.furthestStep ?? draft.step);
               return (
@@ -301,18 +324,30 @@ export function OnboardingFlow({
           className="text-[28px] leading-tight font-medium tracking-tight outline-none"
         >
           {done
-            ? "You’re set up"
+            ? editing
+              ? "Company setup updated"
+              : "You’re set up"
             : draft.manual && draft.step === 1
               ? "What’s your company called?"
               : titles[draft.step]}
         </h1>
         <p className="mt-3 mb-8 text-sm text-fg-muted">
           {done
-            ? "Your workspace is ready. Add invoices to see when money comes in and how your cash may change."
+            ? editing
+              ? "Your changes are saved. Review your updated cash forecast in Overview."
+              : "Your workspace is ready. Add invoices to see when money comes in and how your cash may change."
             : draft.manual && draft.step === 1
               ? "Start with your company name. You can add jobs manually in your workspace."
               : helpers[draft.step]}
         </p>
+        {editing && !done && (
+          <p className="mb-6 text-sm text-fg-muted">
+            Editing your current company. Changes apply when you choose Save changes.{" "}
+            <Link href="/settings" className="underline">
+              Back to Settings
+            </Link>
+          </p>
+        )}
         {done ? (
           <ButtonLink href="/" variant="primary">
             Go to overview
@@ -326,9 +361,11 @@ export function OnboardingFlow({
                     label="Unique Entity Identifier (UEI)"
                     htmlFor="uei"
                     hint={
-                      draft.uei && !/^[A-Z0-9]{12}$/.test(draft.uei)
-                        ? "Enter all 12 letters and numbers."
-                        : "12 letters and numbers. No SAM.gov login needed."
+                      editing
+                        ? "This UEI identifies your current company and stays unchanged."
+                        : draft.uei && !/^[A-Z0-9]{12}$/.test(draft.uei)
+                          ? "Enter all 12 letters and numbers."
+                          : "12 letters and numbers. No SAM.gov login needed."
                     }
                     className="max-w-64"
                   >
@@ -343,26 +380,30 @@ export function OnboardingFlow({
                       }
                       autoComplete="off"
                       spellCheck={false}
+                      readOnly={editing}
+                      placeholder={editing && !draft.uei ? "Manual company" : ""}
                       aria-invalid={!!draft.uei && !/^[A-Z0-9]{12}$/.test(draft.uei)}
                       aria-describedby="uei-hint"
                       className="w-56 tracking-widest"
                     />
                   </Field>
-                  <p className="text-sm text-fg-muted">
-                    Don’t have one or not a federal contractor yet?{" "}
-                    <button
-                      type="button"
-                      className="text-accent underline"
-                      onClick={() => void manual()}
-                    >
-                      Set up manually.
-                    </button>
-                  </p>
+                  {!editing && (
+                    <p className="text-sm text-fg-muted">
+                      Don’t have one or not a federal contractor yet?{" "}
+                      <button
+                        type="button"
+                        className="text-accent underline"
+                        onClick={() => void manual()}
+                      >
+                        Set up manually.
+                      </button>
+                    </p>
+                  )}
                 </>
               )}
               {draft.step === 1 && (
                 <div className="w-full rounded border border-border p-5">
-                  {editing ? (
+                  {editingName ? (
                     <Field htmlFor="company-name" label="Company name" className="max-w-80">
                       <TextInput
                         id="company-name"
@@ -378,7 +419,7 @@ export function OnboardingFlow({
                       <button
                         type="button"
                         className="text-sm underline"
-                        onClick={() => setEditing(true)}
+                        onClick={() => setEditingName(true)}
                       >
                         Edit
                       </button>
@@ -391,7 +432,7 @@ export function OnboardingFlow({
                         {result?.state ?? "State not available"}
                       </p>
                       <p className="mt-4 text-sm text-fg-muted">
-                        {result?.totalAwards ?? 0} awards found ·{" "}
+                        {result?.totalAwards ?? 0} {editing ? "tracked jobs" : "awards found"} ·{" "}
                         {result?.awards.filter((a) => a.endDate !== null && a.endDate >= asOf)
                           .length ?? 0}{" "}
                         active contracts
@@ -413,6 +454,7 @@ export function OnboardingFlow({
                     asOf={asOf}
                     selection={draft.selected}
                     onSelectionChange={(selected) => update({ selected })}
+                    lockedIds={editing ? existingJobIds : undefined}
                     quickInputs={draft.awardInputs ?? {}}
                     onQuickInputChange={(id, input) =>
                       update({ awardInputs: { ...draft.awardInputs, [id]: input } })
@@ -455,6 +497,12 @@ export function OnboardingFlow({
               )}
               {draft.step === 4 && (
                 <>
+                  {editing && (
+                    <p className="text-xs text-fg-subtle">
+                      These are your setup estimates. Changes start today; blank fields or Skip keep
+                      them, and 0 stops an estimate. Other recurring costs stay in Settings.
+                    </p>
+                  )}
                   {currency("monthly", "Monthly overhead")}
                   {currency("payroll", "Weekly office payroll (optional)")}
                 </>
@@ -462,7 +510,7 @@ export function OnboardingFlow({
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 {draft.step > 0 && (
                   <Button type="button" onClick={() => void back()}>
-                    {draft.step === 1 && !draft.manual ? "Not my company" : "Back"}
+                    {draft.step === 1 && !draft.manual && !editing ? "Not my company" : "Back"}
                   </Button>
                 )}
                 <Button variant="primary" type="submit" disabled={!valid || pending}>
@@ -471,7 +519,9 @@ export function OnboardingFlow({
                     : draft.step === 1 && !draft.manual
                       ? "Yes, continue"
                       : draft.step === 4
-                        ? "Finish setup"
+                        ? editing
+                          ? "Save changes"
+                          : "Finish setup"
                         : "Continue"}
                 </Button>
                 {(draft.step === 3 || draft.step === 4) && (

@@ -14,6 +14,9 @@ const acronyms = new Set([
   "NAS",
   "NASNI",
   "NAVFAC",
+  "MILCON",
+  "NAWS",
+  "AFB",
   "USAF",
   "USN",
   "USMC",
@@ -45,7 +48,7 @@ export function readableCase(
   return value.replace(/[A-Z0-9]+(?:['’][A-Z]+)?/g, (word) => {
     const first = wordIndex++ === 0;
     const afterInstallation = installationName;
-    installationName = /^(MCAS|MCLB|MCB|NAS)$/.test(word);
+    installationName = /^(MCAS|MCLB|MCB|NAS|NAWS|AFB)$/.test(word);
     if (
       acronyms.has(word) ||
       /\d/.test(word) ||

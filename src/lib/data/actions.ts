@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { userDataClient } from "../supabase/server";
 import { unwrap } from "../supabase/security";
 import { toJson } from "../supabase/database.types";
-import { context, requireOrganization } from "./repository";
+import { context, requireOrganization, loadData } from "./repository";
 import {
   manualJobs,
   invoiceInput,
@@ -19,6 +19,9 @@ import {
 } from "./validation";
 import { isoDate, today } from "../finance";
 import { lookupUei } from "../usaspending";
+import { jobObligations } from "../job-values";
+import { refreshMissingObligations } from "../onboarding/editing";
+import { scheduleBilledEstimate } from "../onboarding/model";
 import { PAYMENT_RULES, FORECAST_DEFAULTS } from "../config";
 import type { ActionResult } from "@/components/product/action-form";
 async function perform(work: () => Promise<void>, target?: string): Promise<ActionResult> {
@@ -91,15 +94,29 @@ export async function finishOnboarding(_: ActionResult, form: FormData): Promise
           externalId: z.string().max(250),
           billedCents: z.number().int().min(0).max(1_000_000_000_000),
           paymentLagDays: z.number().int().min(0).max(36500),
+          billedSource: z.enum(["schedule", "manual"]).optional(),
+          contractValueCents: z.number().int().positive().max(1e12).optional(),
         }),
       )
       .max(1000)
       .parse(JSON.parse(String(form.get("job_inputs") ?? "[]")));
     const jobInputs = awards.map((a) => {
       const input = supplied.find((value) => value.externalId === a.externalId);
+      const value = a.obligationsCents ?? a.contractValueCents ?? input?.contractValueCents ?? null;
+      if (value === null)
+        throw new ActionError(
+          "A selected job has no contract value. Enter it on the Contracts step.",
+        );
+      const estimate = scheduleBilledEstimate(value, a.startDate, a.endDate, today());
+      if (!input && estimate === null)
+        throw new ActionError("Check billed so far on the Contracts step.");
       return {
         externalId: a.externalId,
-        billedCents: input?.billedCents ?? 0,
+        ...(a.obligationsCents === null && a.contractValueCents === null
+          ? { contractValueCents: input?.contractValueCents }
+          : {}),
+        billedSource: input?.billedSource ?? (input ? "manual" : "schedule"),
+        billedCents: input?.billedCents ?? estimate!,
         paymentLagDays: input?.paymentLagDays ?? FORECAST_DEFAULTS.paymentLagDays,
         costRatioBps: FORECAST_DEFAULTS.costRatioBps,
       };
@@ -135,6 +152,106 @@ export async function finishOnboarding(_: ActionResult, form: FormData): Promise
       }),
     );
   }, "/onboarding?done=1");
+}
+export async function saveContracts(_: ActionResult, form: FormData): Promise<ActionResult> {
+  return perform(async () => {
+    const ctx = await requireOrganization();
+    if (ctx.readOnly || !ctx.isOwner) throw new ActionError("Only an owner can edit contracts.");
+    const org = uuid.parse(form.get("organization_id"));
+    if (org !== ctx.organization.id)
+      throw new ActionError("This company is not the current workspace.");
+    const contracts = z
+      .array(
+        z.discriminatedUnion("tracked", [
+          z.object({ id: uuid, tracked: z.literal(false) }),
+          z.object({
+            id: uuid,
+            tracked: z.literal(true),
+            billedCents: z.number().int().min(0).max(1e12),
+            paymentLagDays: z.number().int().min(0).max(36500),
+            billedSource: z.enum(["schedule", "manual"]),
+            contractValueCents: z.number().int().positive().max(1e12).optional(),
+          }),
+        ]),
+      )
+      .max(1000)
+      .parse(JSON.parse(String(form.get("contracts") ?? "[]")));
+    if (new Set(contracts.map((c) => c.id)).size !== contracts.length)
+      throw new ActionError("Each contract must appear once.");
+    const stored = await loadData(),
+      refreshed = await refreshMissingObligations(stored, today(), lookupUei);
+    const verified = contracts.map((input) => {
+      const job = stored.jobs.find((j) => j.id === input.id && !j.voided_at);
+      if (!job) throw new ActionError("Job not available.");
+      const fresh = refreshed.jobs.find((j) => j.id === input.id);
+      const snapshot = stored.snapshots.find((s) => s.id === job.source_snapshot_id);
+      const publicAmount = jobObligations(fresh ?? job, snapshot);
+      return {
+        ...input,
+        ...(publicAmount !== null ? { publicObligationsCents: publicAmount } : {}),
+      };
+    });
+    const client = await userDataClient();
+    unwrap(
+      await client.rpc("update_contracts", { org_id: org, contract_values: toJson(verified) }),
+    );
+  });
+}
+export async function updateCompanySetup(_: ActionResult, form: FormData): Promise<ActionResult> {
+  return perform(async () => {
+    const ctx = await requireOrganization();
+    if (ctx.readOnly || !ctx.isOwner)
+      throw new ActionError("Only an owner can edit company setup.");
+    const org = uuid.parse(form.get("organization_id"));
+    if (org !== ctx.organization.id)
+      throw new ActionError("This company is not the current workspace.");
+    const nonnegative = money.refine((value) => value >= 0, "Cannot be negative");
+    const optionalAmount = (key: string) => {
+      const value = String(form.get(key) ?? "");
+      return value === "" ? null : nonnegative.parse(value);
+    };
+    const name = z.string().trim().min(1).max(200).parse(form.get("name"));
+    const uei = z
+      .string()
+      .regex(/^([A-Z0-9]{12})?$/)
+      .parse(form.get("uei"));
+    if ((uei || null) !== ctx.organization.uei)
+      throw new ActionError("The company UEI stays unchanged when editing setup.");
+    const jobs = z
+      .array(
+        z.object({
+          externalId: uuid,
+          billedCents: z.number().int().min(0).max(1_000_000_000_000),
+          paymentLagDays: z.number().int().min(0).max(36500),
+        }),
+      )
+      .max(1000)
+      .parse(JSON.parse(String(form.get("job_inputs") ?? "[]")));
+    const raw = String(form.get("opening_balance") ?? "");
+    const opening = raw ? money.parse(raw) : null;
+    const balanceDate = isoDate.parse(form.get("as_of_date"));
+    if (balanceDate > today()) throw new ActionError("The balance date cannot be in the future.");
+    const client = await userDataClient();
+    unwrap(
+      await client.rpc("update_company_setup", {
+        org_id: org,
+        setup_values: toJson({
+          name,
+          uei,
+          openingBalanceCents: opening,
+          balanceDate,
+          monthlyCents: optionalAmount("monthly"),
+          payrollCents: optionalAmount("payroll"),
+          defaultCostRatioBps: FORECAST_DEFAULTS.costRatioBps,
+          jobs: jobs.map((job) => ({
+            id: job.externalId,
+            billedCents: job.billedCents,
+            paymentLagDays: job.paymentLagDays,
+          })),
+        }),
+      }),
+    );
+  }, "/onboarding?done=1&edit=1");
 }
 export async function saveJob(_: ActionResult, form: FormData): Promise<ActionResult> {
   const id = String(form.get("id") ?? "");
@@ -347,7 +464,12 @@ export async function saveAssumptions(_: ActionResult, form: FormData): Promise<
       await client
         .from("forecast_assumptions")
         .upsert(
-          { ...input, enabled: form.get("enabled") === "on", organization_id: org },
+          {
+            ...input,
+            billed_source: "manual",
+            enabled: form.get("enabled") === "on",
+            organization_id: org,
+          },
           { onConflict: "organization_id,job_id" },
         )
         .select("id")

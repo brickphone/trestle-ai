@@ -534,3 +534,236 @@ describe("job forecast inputs and overhead separation", () => {
     );
   });
 });
+
+describe("editing existing company setup", () => {
+  it("updates in place, preserves ledger/source rows, ends old estimates, and is safe to retry", async () => {
+    const owner = randomUUID();
+    await db.query("insert into auth.users(id,email) values($1,'edit-owner@example.invalid')", [
+      owner,
+    ]);
+    const org = await createOrg(owner, "Before edit");
+    const today = (await db.query<{ day: string }>("select current_date::text as day")).rows[0]!
+      .day;
+    const source = (
+      await asUser(owner, "authenticated", (tx) =>
+        tx.query<{ id: string }>(
+          "insert into public.source_snapshots(organization_id,external_id,source_url,original) values($1,'edit-source','https://www.usaspending.gov/award/edit-source','{\"raw\":\"SOURCE UNCHANGED\"}') returning id",
+          [org],
+        ),
+      )
+    ).rows[0]!.id;
+    const job = (
+      await asUser(owner, "authenticated", (tx) =>
+        tx.query<{ id: string }>(
+          "insert into public.jobs(organization_id,source_snapshot_id,contract_number,contract_value_cents,start_date,end_date,retainage_bps,payment_terms_days) values($1,$2,'EDIT-JOB',1000000,current_date,current_date+180,500,14) returning id",
+          [org, source],
+        ),
+      )
+    ).rows[0]!.id;
+    const invoice = (
+      await asUser(owner, "authenticated", (tx) =>
+        tx.query<{ id: string }>(
+          "insert into public.government_invoices(organization_id,job_id,invoice_number,period_start,period_end,billed_cents,retainage_cents,submitted_date,payment_terms_days,portal,status) values($1,$2,'KEEP-INVOICE',current_date,current_date,10000,0,current_date,14,'other','accepted') returning id",
+          [org, job],
+        ),
+      )
+    ).rows[0]!.id;
+    await asUser(owner, "authenticated", async (tx) => {
+      await tx.query(
+        "insert into public.government_payments(organization_id,invoice_id,received_date,amount_cents,kind) values($1,$2,current_date,5000,'progress')",
+        [org, invoice],
+      );
+      await tx.query(
+        "insert into public.cash_balance_entries(organization_id,amount_cents,as_of_date,created_at) values($1,100000,current_date-7,now()-interval '1 day')",
+        [org],
+      );
+      await tx.query(
+        "insert into public.forecast_assumptions(organization_id,job_id,enabled,cost_ratio_bps,cost_profile,duration_months,payment_lag_days,retainage_release_days,cost_mode,billed_before_tracking_cents,billed_through_date) values($1,$2,false,9000,'front-loaded',6,30,40,'explicit',0,current_date-30)",
+        [org, job],
+      );
+      await tx.query(
+        "insert into public.recurring_costs(organization_id,label,category,amount_cents,frequency,start_date,cost_scope) values($1,'Monthly overhead','other',9000,'monthly',current_date-10,'overhead'),($1,'Weekly office payroll','payroll',5000,'weekly',current_date,'overhead'),($1,'Unrelated insurance','other',1234,'monthly',current_date,'overhead')",
+        [org],
+      );
+    });
+    const preserved = async () =>
+      Promise.all(
+        ["jobs", "government_invoices", "government_payments", "source_snapshots"].map((table) =>
+          db.query(`select * from public.${table} where organization_id=$1 order by id`, [org]),
+        ),
+      );
+    const before = await preserved();
+    const input = {
+      name: "Edited company",
+      uei: "",
+      jobs: [{ id: job, billedCents: 250000, paymentLagDays: 45 }],
+      openingBalanceCents: 200000,
+      balanceDate: today,
+      monthlyCents: 20000,
+      payrollCents: 0,
+      defaultCostRatioBps: 8500,
+    };
+    const apply = () =>
+      asUser(owner, "authenticated", (tx) =>
+        tx.query("select public.update_company_setup($1,$2)", [org, JSON.stringify(input)]),
+      );
+    await apply();
+    expect(await preserved()).toEqual(before);
+    expect(
+      (await db.query<{ name: string }>("select name from public.organizations where id=$1", [org]))
+        .rows[0]!.name,
+    ).toBe("Edited company");
+    const assumptions = await db.query<{
+      enabled: boolean;
+      cost_ratio_bps: number;
+      cost_profile: string;
+      payment_lag_days: number;
+      billed_before_tracking_cents: number;
+    }>(
+      "select enabled,cost_ratio_bps,cost_profile,payment_lag_days,billed_before_tracking_cents from public.forecast_assumptions where organization_id=$1",
+      [org],
+    );
+    expect(assumptions.rows).toEqual([
+      {
+        enabled: false,
+        cost_ratio_bps: 9000,
+        cost_profile: "front-loaded",
+        payment_lag_days: 45,
+        billed_before_tracking_cents: 250000,
+      },
+    ]);
+    const activeCosts = await db.query<{ label: string; amount_cents: number }>(
+      "select label,amount_cents from public.recurring_costs where organization_id=$1 and voided_at is null and (end_date is null or end_date>=current_date) order by label",
+      [org],
+    );
+    expect(activeCosts.rows).toEqual([
+      { label: "Monthly overhead", amount_cents: 20000 },
+      { label: "Unrelated insurance", amount_cents: 1234 },
+    ]);
+    const firstBalanceCount = (
+      await db.query("select * from public.cash_balance_entries where organization_id=$1", [org])
+    ).rows.length;
+    expect(firstBalanceCount).toBe(3);
+    await apply();
+    expect(
+      (await db.query("select * from public.cash_balance_entries where organization_id=$1", [org]))
+        .rows,
+    ).toHaveLength(firstBalanceCount);
+    expect(
+      (await db.query("select * from public.recurring_costs where organization_id=$1", [org])).rows,
+    ).toHaveLength(4);
+    expect(
+      (
+        await db.query(
+          "select * from public.audit_events where organization_id=$1 and actor_id=$2",
+          [org, owner],
+        )
+      ).rows.length,
+    ).toBeGreaterThan(0);
+    await expect(
+      asUser(owner, "authenticated", (tx) =>
+        tx.query("select public.update_company_setup($1,$2)", [
+          org,
+          JSON.stringify({
+            ...input,
+            name: "Should roll back",
+            jobs: [{ id: jobB, billedCents: 0, paymentLagDays: 0 }],
+          }),
+        ]),
+      ),
+    ).rejects.toThrow(/does not belong/);
+    expect(
+      (await db.query<{ name: string }>("select name from public.organizations where id=$1", [org]))
+        .rows[0]!.name,
+    ).toBe("Edited company");
+    for (const user of [b, staff, demo])
+      await expect(
+        asUser(user, "authenticated", (tx) =>
+          tx.query("select public.update_company_setup($1,$2)", [org, JSON.stringify(input)]),
+        ),
+      ).rejects.toThrow(/Read-only/);
+    await expect(
+      asUser(null, "anon", (tx) =>
+        tx.query("select public.update_company_setup($1,$2)", [org, JSON.stringify(input)]),
+      ),
+    ).rejects.toThrow(/permission denied/);
+  });
+});
+
+it("edits tracking and billing atomically while preserving job financial history and enforcing owner tenancy", async () => {
+  const owner = randomUUID();
+  await db.query("insert into auth.users(id)values($1)", [owner]);
+  const org = await createOrg(owner, "Contract editor test");
+  const job = (
+    await asUser(owner, "authenticated", (tx) =>
+      tx.query<{ id: string }>(
+        "insert into public.jobs(organization_id,contract_number,retainage_bps,payment_terms_days,status,start_date,end_date)values($1,'MISSING',500,30,'active',current_date-30,current_date+90)returning id",
+        [org],
+      ),
+    )
+  ).rows[0]!.id;
+  const apply = (values: unknown, user = owner) =>
+    asUser(user, "authenticated", (tx) =>
+      tx.query("select public.update_contracts($1,$2)", [org, JSON.stringify(values)]),
+    );
+  const entry = {
+    id: job,
+    tracked: true,
+    billedCents: 100000,
+    paymentLagDays: 45,
+    billedSource: "schedule",
+  };
+  await expect(apply([entry])).rejects.toThrow(/missing contract value/);
+  await apply([{ ...entry, contractValueCents: 1000000 }]);
+  await asUser(owner, "authenticated", (tx) =>
+    tx.query(
+      "update public.forecast_assumptions set cost_ratio_bps=9000,cost_profile='front-loaded' where job_id=$1",
+      [job],
+    ),
+  );
+  const snapshot = await db.query(
+    "select * from public.source_snapshots where organization_id=$1",
+    [org],
+  );
+  const bank = await db.query(
+    "select * from public.cash_balance_entries where organization_id=$1",
+    [org],
+  );
+  await apply([{ id: job, tracked: false }]);
+  expect(
+    (
+      await db.query<{ is_tracked: boolean; voided_at: null }>(
+        "select is_tracked,voided_at from public.jobs where id=$1",
+        [job],
+      )
+    ).rows,
+  ).toEqual([{ is_tracked: false, voided_at: null }]);
+  await apply([{ ...entry, billedSource: "manual", billedCents: 200000 }]);
+  expect(
+    (
+      await db.query(
+        "select cost_ratio_bps,cost_profile,payment_lag_days,billed_source,billed_before_tracking_cents from public.forecast_assumptions where job_id=$1",
+        [job],
+      )
+    ).rows,
+  ).toEqual([
+    {
+      cost_ratio_bps: 9000,
+      cost_profile: "front-loaded",
+      payment_lag_days: 45,
+      billed_source: "manual",
+      billed_before_tracking_cents: 200000,
+    },
+  ]);
+  expect(
+    await db.query("select * from public.source_snapshots where organization_id=$1", [org]),
+  ).toEqual(snapshot);
+  expect(
+    await db.query("select * from public.cash_balance_entries where organization_id=$1", [org]),
+  ).toEqual(bank);
+  await expect(apply([{ ...entry, id: jobB }])).rejects.toThrow(/Job not available/);
+  for (const user of [b, staff, demo]) await expect(apply([entry], user)).rejects.toThrow(/owner/);
+  await expect(
+    asUser(null, "anon", (tx) => tx.query("select public.update_contracts($1,'[]')", [org])),
+  ).rejects.toThrow(/permission denied/);
+});

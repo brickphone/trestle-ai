@@ -1,12 +1,17 @@
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { emptyDraft } from "@/lib/onboarding/model";
-const mocks = vi.hoisted(() => ({ context: vi.fn(), read: vi.fn(), lookup: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  context: vi.fn(),
+  read: vi.fn(),
+  lookup: vi.fn(),
+  load: vi.fn(),
+}));
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/server", () => ({
   requireUser: async () => ({ id: "verified-user", email: "owner@example.test" }),
 }));
-vi.mock("@/lib/data/repository", () => ({ context: mocks.context }));
+vi.mock("@/lib/data/repository", () => ({ context: mocks.context, loadData: mocks.load }));
 vi.mock("@/lib/supabase/server", () => ({
   userDataClient: async () => ({
     from: () => ({
@@ -21,7 +26,11 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 vi.mock("@/lib/usaspending", () => ({ lookupUei: mocks.lookup }));
-vi.mock("@/lib/data/actions", () => ({ finishOnboarding: vi.fn() }));
+vi.mock("@/lib/data/actions", () => ({
+  finishOnboarding: vi.fn(),
+  updateCompanySetup: vi.fn(),
+  saveContracts: vi.fn(),
+}));
 vi.mock("@/lib/onboarding/actions", () => ({
   saveOnboardingDraft: vi.fn(),
   findOnboardingCompany: vi.fn(),
@@ -32,6 +41,8 @@ vi.mock("next/navigation", () => ({
     throw Error(`Redirect: ${target}`);
   },
 }));
+import { demo } from "./fixtures";
+import EditContractsPage from "@/app/(app)/contracts/edit/page";
 import OnboardingPage from "@/app/(onboarding)/onboarding/page";
 const render = async (params: Record<string, string> = {}) =>
   renderToStaticMarkup(await OnboardingPage({ searchParams: Promise.resolve(params) }));
@@ -92,4 +103,36 @@ describe("focused onboarding server resume", () => {
     expect(await render({ done: "1" })).toContain("You’re set up");
     expect(mocks.read).not.toHaveBeenCalled();
   });
+});
+
+describe("editing current company setup", () => {
+  const org = {
+    ...demo.organization,
+    id: "10000000-0000-4000-8000-000000000001",
+    is_demo: false,
+    uei: "HSNPS86TJGM6",
+  };
+  it("redirects legacy edit URLs to the app-shell contracts editor without loading an onboarding draft", async () => {
+    mocks.context.mockResolvedValue({ organization: org, isOwner: true, readOnly: false });
+    await expect(render({ edit: "1" })).rejects.toThrow("Redirect: /contracts/edit");
+    expect(mocks.read).not.toHaveBeenCalled();
+    expect(mocks.lookup).not.toHaveBeenCalled();
+  });
+});
+
+it("renders contract editing without onboarding steps and denies non-owner/read-only workspaces", async () => {
+  mocks.load.mockResolvedValue({ ...demo, isOwner: true, readOnly: false });
+  const html = renderToStaticMarkup(await EditContractsPage());
+  expect(html).toContain("Edit contracts");
+  expect(html).toContain(">Save<");
+  expect(html).toContain(">Cancel<");
+  expect(html).not.toContain("Onboarding steps");
+  expect(html).not.toContain("Step 3 of 5");
+  for (const permissions of [
+    { isOwner: false, readOnly: false },
+    { isOwner: true, readOnly: true },
+  ]) {
+    mocks.load.mockResolvedValue({ ...demo, ...permissions });
+    await expect(EditContractsPage()).rejects.toThrow("Redirect: /settings");
+  }
 });

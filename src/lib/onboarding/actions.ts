@@ -1,4 +1,5 @@
 "use server";
+import { context } from "@/lib/data/repository";
 import { requireUser } from "@/lib/auth/server";
 import { userDataClient } from "@/lib/supabase/server";
 import { toJson } from "@/lib/supabase/database.types";
@@ -8,6 +9,11 @@ export async function saveOnboardingDraft(value: OnboardingDraft) {
   const user = await requireUser();
   const parsed = draftSchema.safeParse(value);
   if (!parsed.success) return { error: "Check your entries before continuing." };
+  if (parsed.data.editingOrganizationId) {
+    const ctx = await context();
+    if (ctx.readOnly || !ctx.isOwner || ctx.organization?.id !== parsed.data.editingOrganizationId)
+      return { error: "This account cannot edit this company’s setup." };
+  }
   const client = await userDataClient();
   const { error } = await client
     .from("onboarding_drafts")
