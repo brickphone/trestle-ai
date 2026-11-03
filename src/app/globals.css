@@ -318,3 +318,27 @@ summary:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* The question remains centered; the step list occupies a separate side column. */
+.onboarding-frame {
+  position: relative;
+}
+.onboarding-steps {
+  display: none;
+}
+@media (min-width: 1280px) {
+  .onboarding-steps {
+    display: block;
+    position: absolute;
+    top: 64px;
+    left: calc(50% - 520px);
+    width: 200px;
+  }
+  .onboarding-steps-wide {
+    left: calc(50% - 600px);
+  }
+}
+/* Keep the progress line anchored directly beneath the top bar. */
+.onboarding-frame [role="progressbar"] {
+  top: 0;
+}

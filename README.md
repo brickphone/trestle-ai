@@ -207,13 +207,28 @@ SQL Editor path. There is no runtime provisioning step or hosted database-reset 
 - Expected receipts use unpaid balances, explicit dates and current due-date fallbacks. Past-due or
   undated amounts are flagged and excluded until a usable date is supplied. Draft/rejected invoices
   are disclosed and excluded from expected receipts.
-- Future billings use the existing [cash-gap module](src/lib/cashgap/README.md): fixed 30-day months,
-  even billing, even/front-loaded costs, explicit lag and retainage release. Existing non-rejected
-  invoices, including drafts, replace the earliest model billings. Historical unbilled modeled work
-  is not silently carried forward. Disabled assumptions are disclosed.
-- Choose entered recurring costs or modeled costs; overlapping inputs exclude the model with a
-  warning. Company-wide cash/costs are never allocated to a job automatically. Job views without
-  an explicit opening balance show net contribution.
+- Active jobs project monthly billings through the performance end date using the
+  [cash-gap module](src/lib/cashgap/remaining.ts). The defaults in `FORECAST_DEFAULTS` are
+  operational estimates: 30-day expected payment lag, 85% job cost ratio, even cost profile.
+  These are separate from the sourced contractual payment terms. Public obligations form the
+  billing base; a user-entered override takes precedence, with contract value as fallback when
+  obligations are unavailable. Only approved adjustments outside the imported baseline are added.
+- Remaining billing value subtracts the opening billed total and tracked invoices. Historical
+  invoices up to the opening billed date replace that opening total (using the greater total),
+  while later invoices are added. Every nonvoid invoice, including drafts/rejections, suppresses
+  projections for overlapping calendar periods. Remaining unbilled value is divided across the
+  uncovered months; there is never a real invoice plus a projected invoice for the same period.
+- Each remaining calendar month, including clipped first/last months, gets an even billing
+  allocation. The cost profile allocates the cost budget between those months. Each month's exact
+  cost budget is paid in seven-day slices plus a month-end stub, prorated by days. Projected
+  receipts deduct the job retainage percentage; no release date is invented for projected retainage.
+- **No double counting:** cost-ratio projections cover field payroll/materials. Office payroll,
+  rent, insurance and other overhead are separate recurring costs, counted once. If any entered
+  job costs exist, they replace the entire job cost-ratio model; that job's billings still project.
+  Unclassified legacy company costs are excluded while job costs are projected, with a Settings
+  classification link. Existing generic company payroll is never silently reclassified as office
+  payroll. Staff/demo write restrictions and financial audit triggers apply to all new fields.
+
 - Source links preserve every projected flow. The headline uses the lowest daily net balance within
   each week, including opening cash; same-day flows are netted.
 
@@ -304,3 +319,77 @@ Implementation references: [Supabase SSR](https://supabase.com/docs/guides/auth/
 [database functions and privileges](https://supabase.com/docs/guides/database/functions),
 [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security),
 [USAspending award API](https://github.com/fedspendingtransparency/usaspending-api/blob/master/usaspending_api/api_contracts/contracts/v2/awards/award_id.md).
+
+## Onboarding award selection
+
+The picker fetches every USAspending contract-search page and initially displays awards ending
+within the last two calendar years, active awards and awards with unknown end dates. "Show older
+awards" retrieves the rest without clearing the current selection or company fields. Counts show
+visible awards versus all matching awards. The API's activity-date filter is deliberately not used
+as a substitute for performance-end filtering, because that can omit old active contracts.
+
+Only awards with an end date today or later, positive obligations, and no umbrella/minimum-guarantee
+classification are preselected. Umbrella awards have their own collapsed, unchecked group. Past awards are collapsed and
+unchecked; missing end dates show "Status unavailable" and are not guessed. All onboarding display
+dates include the year. Task/delivery orders include their parent IDV; raw PIIDs and descriptions
+remain in source snapshots while known IGF metadata flags are removed from displayed descriptions.
+Performance locations come from the award's place of performance, not the recipient's address.
+
+After updating an existing hosted project, run the updated `supabase/setup.sql` once in Supabase's
+SQL Editor (or apply migration `20261103000000_onboarding_award_selection.sql` through the migration
+workflow). Applied migrations are skipped. This keeps the onboarding import aligned with the picker:
+up to 1,000 selections across pages, preserved raw snapshots, cleaned job descriptions and completed
+job status for past performance periods. The application still needs only its normal Supabase
+URL/publishable key; no database-owner credentials are used by requests.
+
+Recorded-fixture tests replay all 113 public awards for `HSNPS86TJGM6`, including parent task orders,
+locations, historical active/completed groups, current-date absence of active contracts, page failures,
+full-year dates and loading older awards without losing choices. These records never seed an org.
+
+### Focused onboarding
+
+`/onboarding` runs outside the app shell: UEI lookup, company confirmation, award selection,
+opening cash, and recurring cost estimates. Manual entry skips award selection. Skipping cash
+leaves the opening balance missing; skipping payroll does not insert a zero estimate. The optional
+monthly estimate becomes a monthly recurring cost. Completion creates the workspace and all
+selected jobs and assumptions in one transaction, then shows a confirmation before Overview.
+
+Progress is saved after each step in `onboarding_drafts`, scoped to the authenticated user by
+forced RLS. Back preserves entries; a reload restores the last completed transition. Drafts are
+deleted atomically when setup finishes. The public award details are fetched again on resume and
+on completion; imported snapshots retain their original descriptions. No browser credentials or
+admin database connection are used.
+
+Apply the updated `supabase/setup.sql` in the hosted SQL Editor before testing this flow
+(versioned migration `20261103001000_onboarding_drafts.sql`). Existing migrations are skipped.
+The test-only browser transport in `e2e/fixtures/` uses local storage to simulate server persistence;
+it is never imported by application routes. Production drafts live in Postgres, not local storage.
+
+Onboarding browser checks cover all six screens at 375px and 1440px, heading focus, keyboard navigation,
+reload/resume, lookup errors and loading state, manual entry, skipped assumptions, and older-award
+selection. Before references are in `e2e/fixtures/onboarding-before/`; browser snapshots are in
+`e2e/visual.spec.ts-snapshots/`. The visual suite generates full-size before/after captures in
+`.visual/onboarding-before/` and `.visual/onboarding-after/` without connecting to a database.
+
+Onboarding display casing is presentation-only: source company/city names and award descriptions
+remain unchanged in drafts and source snapshots. Known agency/installation acronyms, corporate
+suffixes and building identifiers are preserved. The step list appears at 1280px and above while the
+question column remains centered; completed steps save the current entries before navigating back.
+The account button uses a keyboard-accessible menu. The Next.js “Insight” development indicator is
+not application UI; the production bundle check rejects its client markers.
+
+Onboarding money inputs insert US thousands separators while typing (for example `250,000.50`),
+but drafts and submissions keep the ungrouped decimal amount and financial records store integer
+cents. The onboarding route has its own streaming loading boundary; completion does not reread the
+finished draft. Final award verification fetches details only for selected awards, including past
+contracts. Public-data refresh failures preserve the draft, and a stale onboarding RPC reports the
+SQL bundle needed to update the database instead of a generic save error.
+
+Apply `supabase/setup.sql` after this change (migration `20261103002000_projected_job_forecast.sql`).
+It backfills the separate obligations field from original snapshots, adds billed-opening/override
+inputs and recurring-cost classification, and updates atomic onboarding. Original public values
+remain unchanged. Classify any existing generic company payroll in Settings before relying on the
+projection: either office overhead, or work costs assigned to a job. A zero entered overhead is
+allowed and creates no expense row. Run `npm test` for the hand-calculated $1.2M reference: Jan–Jun
+2026, 85% costs, 30-day lag, $100K opening and $20K overhead gives a $300K shortfall on March 1,
+just before the first payment on March 2. This reference includes 5% retainage.

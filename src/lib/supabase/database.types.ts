@@ -26,6 +26,7 @@ export type Database = {
   public: {
     Tables: {
       organizations: Table<Organization>;
+      onboarding_drafts: Table<{ user_id: string; draft: Json }>;
       memberships: Table<Membership>;
       staff_users: Table<StaffUser>;
       source_snapshots: Table<SourceSnapshot>;
@@ -54,6 +55,8 @@ export type Database = {
           payroll: number | null;
           retainage_bps: number;
           payment_terms_days: number;
+          other_monthly_costs?: number | null;
+          job_inputs?: Json;
         };
         Returns: string;
       };

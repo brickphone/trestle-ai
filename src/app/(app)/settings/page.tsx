@@ -1,11 +1,11 @@
 import { loadData } from "@/lib/data/repository";
-import { saveBalance, saveCost } from "@/lib/data/actions";
+import { saveBalance, saveCost, classifyCost } from "@/lib/data/actions";
 import { today } from "@/lib/finance";
 import { Money, DateText } from "@/components/ui/financial";
 import { PageHeader, PageBody } from "@/components/ui/page-header";
 import { Panel, DescriptionList } from "@/components/ui/panel";
 import { ActionForm } from "@/components/product/action-form";
-import { Input, Options } from "@/components/product/fields";
+import { Input, Options, Hidden } from "@/components/product/fields";
 import { RecordTable, cell } from "@/components/product/record-table";
 import { VoidForm } from "@/components/product/void-form";
 export default async function SettingsPage() {
@@ -85,7 +85,7 @@ export default async function SettingsPage() {
         </Panel>
         <Panel
           title="Recurring costs"
-          description="Manual estimates. Choose company-wide or a specific job. Void an old estimate and add its replacement to preserve history."
+          description="Office overhead is added once alongside projected job costs. Entered job costs replace that job’s full cost-ratio model. Unclassified legacy company payroll is excluded until reviewed."
         >
           <RecordTable
             label="Recurring costs"
@@ -97,7 +97,35 @@ export default async function SettingsPage() {
                 <td className={cell}>
                   {c.job_id
                     ? (data.jobs.find((j) => j.id === c.job_id)?.contract_number ?? "Not available")
-                    : "Company"}
+                    : c.cost_scope === "unclassified"
+                      ? "Needs classification"
+                      : "Office overhead"}
+                  {!c.voided_at && (
+                    <details className="mt-2">
+                      <summary className="cursor-pointer text-xs underline">Classify cost</summary>
+                      <ActionForm
+                        action={classifyCost}
+                        label="Save classification"
+                        readOnly={data.readOnly}
+                      >
+                        <Hidden name="id" value={c.id} />
+                        <Options
+                          name="job_id"
+                          label={`Cost classification ${c.label}`}
+                          value={c.job_id ?? ""}
+                        >
+                          <option value="">Office overhead (not tied to jobs)</option>
+                          {data.jobs
+                            .filter((j) => !j.voided_at)
+                            .map((j) => (
+                              <option key={j.id} value={j.id}>
+                                {j.contract_number} · Job work costs
+                              </option>
+                            ))}
+                        </Options>
+                      </ActionForm>
+                    </details>
+                  )}
                 </td>
                 <td className={cell}>
                   <Money cents={c.amount_cents} />
@@ -138,12 +166,12 @@ export default async function SettingsPage() {
                 />
                 <Input name="end_date" label="Last cost date (optional)" type="date" />
                 <Options name="job_id" label="Cost scope">
-                  <option value="">Company</option>
+                  <option value="">Office overhead (not tied to jobs)</option>
                   {data.jobs
                     .filter((j) => !j.voided_at)
                     .map((j) => (
                       <option key={j.id} value={j.id}>
-                        {j.contract_number}
+                        {j.contract_number} · Job work costs
                       </option>
                     ))}
                 </Options>

@@ -30,6 +30,10 @@ test("anonymous visitors cannot enter the workspace", async ({ page }) => {
   ]) {
     await page.goto(path);
     await expect(page).toHaveURL(/\/login$/);
+    if (process.env.PRODUCTION_UI_CHECK === "true") {
+      await expect(page.locator("nextjs-portal")).toHaveCount(0);
+      await expect(page.getByText("1 Insight", { exact: true })).toHaveCount(0);
+    }
   }
 });
 

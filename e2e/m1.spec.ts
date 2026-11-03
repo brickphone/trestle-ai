@@ -19,10 +19,14 @@ test.describe("M1 hosted workflow", () => {
     test.setTimeout(120000);
     const prerenderErrors: string[] = [];
     page.on("pageerror", (error) => {
-      if (/unstable value|Blocking Route/.test(error.message)) prerenderErrors.push(error.message);
+      if (/unstable value|Blocking Route|uncached data during a navigation/.test(error.message))
+        prerenderErrors.push(error.message);
     });
     page.on("console", (message) => {
-      if (message.type() === "error" && /unstable value|Blocking Route/.test(message.text()))
+      if (
+        message.type() === "error" &&
+        /unstable value|Blocking Route|uncached data during a navigation/.test(message.text())
+      )
         prerenderErrors.push(message.text());
     });
     const email = `m1-${randomUUID()}@example.com`,
@@ -50,19 +54,19 @@ test.describe("M1 hosted workflow", () => {
     await expect(page).toHaveURL(/\/onboarding$/);
     await axe(page);
     await expect(page.getByLabel("Company name")).toHaveCount(0);
-    await page.getByRole("link", { name: "Continue with manual entry" }).click();
-    await expect(page).toHaveURL(/\/onboarding\?manual=1/);
-    await expect(
-      page.getByRole("heading", { name: "Enter company details", exact: true }),
-    ).toBeVisible();
-    await expect(page.getByLabel("Unique Entity Identifier (UEI)")).toHaveCount(0);
+    await page.getByRole("button", { name: "Set up manually." }).click();
+    await expect(page.getByRole("heading", { name: "What’s your company called?" })).toBeVisible();
     expect(prerenderErrors).toEqual([]);
     await axe(page);
     await page.getByLabel("Company name").fill("M1 TEST contractor");
-    await page.getByLabel("Opening bank balance ($)", { exact: true }).fill("20000");
-    await page.getByLabel("Weekly payroll estimate ($)").fill("1000");
-    await page.getByRole("button", { name: "Create workspace" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await page.getByLabel("Current cash balance").fill("20000");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await page.getByLabel("Weekly office payroll (optional)", { exact: true }).fill("1000");
+    await page.getByRole("button", { name: "Finish setup", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "You’re set up" })).toBeVisible();
+    expect(prerenderErrors).toEqual([]);
+    await page.getByRole("link", { name: "Go to overview" }).click();
     await page.goto("/jobs");
     await page.getByLabel("Contract number", { exact: true }).fill("M1-TEST-CONTRACT");
     await page.getByLabel("Agency", { exact: true }).fill("Test agency");

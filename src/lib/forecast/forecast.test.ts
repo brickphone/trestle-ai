@@ -73,7 +73,23 @@ const data: ForecastData = {
   changes: [],
   balances: [balance],
   costs: [cost],
-  assumptions: [],
+  // This original reference isolates entered invoices/costs; default job projections
+  // have their own independently hand-calculated reference below.
+  assumptions: [
+    {
+      id: "disabled",
+      organization_id: "org",
+      created_at: new Date("2026-01-01"),
+      job_id: "job",
+      enabled: false,
+      cost_ratio_bps: 8500,
+      cost_profile: "even",
+      duration_months: 1,
+      payment_lag_days: 30,
+      retainage_release_days: 0,
+      cost_mode: "explicit",
+    },
+  ],
 };
 describe("13-week forecast", () => {
   it("matches a hand-calculated 13-week reference and traces every entry", () => {
@@ -158,16 +174,17 @@ describe("13-week forecast", () => {
       cost_mode: "explicit",
     };
     const result = forecast({ ...data, assumptions: [assumption] }, "2026-02-01");
-    const modeled = result.sources.filter((s) => s.id.startsWith("assumption-bill"));
-    expect(modeled[0]?.date).toBe("2026-04-16");
+    const modeled = result.sources.filter((s) => s.projection === "billing");
+    expect(modeled[0]?.date).toBe("2026-04-14");
     expect(modeled[0]?.amountCents).toBe(9500000);
     expect(result.sources.some((s) => s.id === "assumption-cost-60")).toBe(false);
     const conflict = forecast(
       { ...data, assumptions: [{ ...assumption, cost_mode: "modeled" }] },
       "2026-02-01",
     );
-    expect(conflict.issues.some((i) => i.label.includes("conflict"))).toBe(true);
-    expect(conflict.sources.some((s) => s.id.startsWith("assumption"))).toBe(false);
+    expect(conflict.issues.some((i) => i.label.includes("entered job costs replace"))).toBe(true);
+    expect(conflict.sources.some((s) => s.projection === "billing")).toBe(true);
+    expect(conflict.sources.some((s) => s.projection === "job-cost")).toBe(false);
   });
   it("keeps monthly dates anchored through February and excludes voided costs", () => {
     const result = forecast(
@@ -196,5 +213,170 @@ describe("13-week forecast", () => {
     expect(result.lowest.minimumCents).toBe(-1000000);
     expect(result.lowest.minimumDay).toBe("2026-02-02");
     expect(result.weeks[0]?.closingCents).toBe(8500000);
+  });
+});
+
+const reference: ForecastData = {
+  ...data,
+  jobs: [
+    { ...job, contract_value_cents: 120000000, start_date: "2026-01-01", end_date: "2026-06-30" },
+  ],
+  invoices: [],
+  payments: [],
+  changes: [],
+  assumptions: [],
+  balances: [{ ...balance, amount_cents: 10000000, as_of_date: "2026-01-01" }],
+  costs: [
+    {
+      ...cost,
+      id: "overhead",
+      job_id: null,
+      cost_scope: "overhead",
+      label: "Monthly overhead",
+      amount_cents: 2000000,
+      frequency: "monthly",
+      start_date: "2026-01-01",
+    },
+  ],
+};
+describe("remaining-work projections", () => {
+  it("matches the hand-calculated sawtooth reference before the first government payment", () => {
+    // $1.2m / 6 calendar months = $200k billed at each month end.
+    // Job costs = 85% * $200k = $170k per month, paid in weekly slices.
+    // Jan31 +30 days => first $190k net receipt on Mar2 (5% retainage).
+    // Before that payment: $100k opening - Jan/Feb job costs ($340k)
+    // - overhead on Jan1, Feb1 and Mar1 ($60k) = -$300k on Mar1.
+    // This is the global low in 13 weeks; later monthly receipts create the sawtooth.
+    const result = forecast(reference, "2026-01-01");
+    expect(result.lowest.minimumCents).toBe(-30000000);
+    expect(result.lowest.minimumDay).toBe("2026-03-01");
+    const projected = result.sources.filter((s) => s.projection === "billing");
+    expect(projected[0]?.date).toBe("2026-03-02");
+    expect(projected[0]?.amountCents).toBe(19000000);
+    expect(result.weeks.some((w) => w.inflowCents > 0)).toBe(true);
+    expect(result.weeks.some((w) => w.closingCents > w.startingCents)).toBe(true);
+    expect(
+      result.sources
+        .filter((s) => s.projection === "job-cost")
+        .reduce((sum, s) => sum - s.amountCents, 0),
+    ).toBe(102000000);
+    expect(result.sources.every((s) => s.id && s.date && s.href)).toBe(true);
+  });
+  it("never double counts job ratio costs and separately entered office overhead/payroll", () => {
+    const office = {
+      ...cost,
+      id: "office",
+      job_id: null,
+      cost_scope: "overhead" as const,
+      label: "Weekly office payroll",
+      amount_cents: 1000000,
+      start_date: "2026-01-01",
+    };
+    const result = forecast({ ...reference, costs: [...reference.costs, office] }, "2026-01-01");
+    // Jan..Mar job costs 510k + four overhead dates (80k) + 13 office payrolls (130k).
+    expect(result.weeks.reduce((sum, w) => sum + w.outflowCents, 0)).toBe(72000000);
+    const entered = {
+      ...cost,
+      id: "field",
+      cost_scope: "job" as const,
+      amount_cents: 100000,
+      start_date: "2026-01-01",
+    };
+    const explicit = forecast({ ...reference, costs: [...reference.costs, entered] }, "2026-01-01");
+    expect(explicit.sources.filter((s) => s.projection === "job-cost")).toHaveLength(0);
+    expect(explicit.weeks.reduce((sum, w) => sum + w.outflowCents, 0)).toBe(9300000);
+    expect(explicit.hasIncoming).toBe(true);
+  });
+  it("excludes unclassified legacy company payroll while modeling work and asks for classification", () => {
+    const legacy = {
+      ...cost,
+      id: "legacy",
+      job_id: null,
+      cost_scope: "unclassified" as const,
+      start_date: "2026-01-01",
+    };
+    const result = forecast({ ...reference, costs: [...reference.costs, legacy] }, "2026-01-01");
+    expect(result.sources.some((s) => s.id.startsWith("legacy"))).toBe(false);
+    expect(result.issues.some((i) => i.label.includes("classify"))).toBe(true);
+  });
+  it("replaces a projected period with its real invoice exactly once", () => {
+    const real = {
+      ...invoice,
+      billed_cents: 20000000,
+      retainage_cents: 1000000,
+      period_start: "2026-01-01",
+      period_end: "2026-01-31",
+      submitted_date: "2026-01-31",
+      expected_payment_date: "2026-03-02",
+    };
+    const result = forecast({ ...reference, invoices: [real] }, "2026-01-01");
+    const projections = result.sources.filter((s) => s.projection === "billing");
+    expect(projections).toHaveLength(5);
+    expect(projections.some((s) => s.period?.end === "2026-01-31")).toBe(false);
+    expect(
+      result.sources.filter((s) => s.date === "2026-03-02" && s.kind === "receipt"),
+    ).toHaveLength(1);
+    expect(projections.reduce((sum, s) => sum + s.amountCents, 0)).toBe(95000000);
+  });
+  it("uses obligations, allows explicit overrides, and counts opening billed amounts once", () => {
+    const assumption = {
+      ...data.assumptions[0]!,
+      enabled: true,
+      cost_mode: "modeled",
+      payment_lag_days: 30,
+      billed_before_tracking_cents: 20000000,
+      billed_through_date: "2026-01-01",
+    };
+    const imported = {
+      ...reference.jobs[0]!,
+      obligated_cents: 120000000,
+      contract_value_cents: 900000000,
+    };
+    const historical = {
+      ...invoice,
+      billed_cents: 20000000,
+      submitted_date: "2025-12-31",
+      period_start: "2025-12-01",
+      period_end: "2025-12-31",
+      status: "paid",
+    };
+    const result = forecast(
+      { ...reference, jobs: [imported], assumptions: [assumption], invoices: [historical] },
+      "2026-01-01",
+    );
+    expect(
+      result.sources
+        .filter((s) => s.projection === "billing")
+        .reduce((sum, s) => sum + s.amountCents, 0),
+    ).toBe(95000002); // Six per-invoice retainage roundings retain $49,999.98.
+    const override = forecast(
+      {
+        ...reference,
+        jobs: [imported],
+        assumptions: [
+          { ...assumption, billed_before_tracking_cents: 0, value_override_cents: 60000000 },
+        ],
+      },
+      "2026-01-01",
+    );
+    expect(
+      override.sources
+        .filter((s) => s.projection === "billing")
+        .reduce((sum, s) => sum + s.amountCents, 0),
+    ).toBe(57000000);
+  });
+  it("warns instead of inventing income when value or future dates are missing", () => {
+    for (const changed of [
+      { contract_value_cents: null },
+      { end_date: null },
+      { end_date: "2025-12-31" },
+    ]) {
+      const result = forecast(
+        { ...reference, jobs: [{ ...reference.jobs[0]!, ...changed }] },
+        "2026-01-01",
+      );
+      expect(result.hasIncoming).toBe(false);
+      expect(result.issues.some((i) => i.label.includes("needed for projected income"))).toBe(true);
+    }
   });
 });

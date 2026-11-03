@@ -77,7 +77,7 @@ describe("versioned migrations and real PostgreSQL RLS without Docker", () => {
     const result = await db.query<{ relrowsecurity: boolean; relforcerowsecurity: boolean }>(
       "select relrowsecurity,relforcerowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r'",
     );
-    expect(result.rows).toHaveLength(12);
+    expect(result.rows).toHaveLength(13);
     expect(result.rows.every((r) => r.relrowsecurity && r.relforcerowsecurity)).toBe(true);
     expect(
       (
@@ -286,5 +286,251 @@ describe("versioned migrations and real PostgreSQL RLS without Docker", () => {
     await expect(
       asUser(null, "anon", (tx) => tx.query("select public.request_security_context()")),
     ).rejects.toThrow(/permission denied/);
+  });
+});
+
+describe("onboarding award snapshots and cross-page imports", () => {
+  it("atomically imports more than one old page, preserves raw flags and applies end-date status", async () => {
+    const user = randomUUID();
+    await db.query(
+      "insert into auth.users(id,email,encrypted_password) values($1,$2,'test-only')",
+      [user, `${user}@test.invalid`],
+    );
+    const awards = Array.from({ length: 21 }, (_, index) => ({
+      externalId: `recorded-selection-${index}`,
+      sourceUrl: "https://www.usaspending.gov/award/test",
+      contractNumber: `Task order ${String(index).padStart(4, "0")} under TEST-IDV`,
+      rawContractNumber: String(index).padStart(4, "0"),
+      description: "IGF::OT::IGF Renovate clinic",
+      displayDescription: "Renovate clinic",
+      agency: "Test agency",
+      contractValueCents: 100000,
+      startDate: "2020-08-13",
+      endDate: index === 20 ? null : index === 0 ? "2021-02-09" : "2099-01-01",
+    }));
+    await asUser(user, "authenticated", async (tx) => {
+      const created = await tx.query<{ id: string }>(
+        "select public.complete_onboarding('Recorded fixture',null,'usaspending',$1,0,current_date,null,500,14) as id",
+        [JSON.stringify(awards)],
+      );
+      const org = created.rows[0]!.id;
+      const jobs = await tx.query<{ description: string; status: string; contract_number: string }>(
+        "select description,status,contract_number from public.jobs where organization_id=$1 order by contract_number",
+        [org],
+      );
+      expect(jobs.rows).toHaveLength(21);
+      expect(jobs.rows.every((j) => j.description === "Renovate clinic")).toBe(true);
+      expect(jobs.rows[0]?.status).toBe("complete");
+      expect(jobs.rows[1]?.status).toBe("active");
+      expect(jobs.rows[20]?.status).toBe("planned");
+      const snapshots = await tx.query<{
+        original: { description: string; rawContractNumber: string };
+      }>("select original from public.source_snapshots where organization_id=$1", [org]);
+      expect(
+        snapshots.rows.every((s) => s.original.description === "IGF::OT::IGF Renovate clinic"),
+      ).toBe(true);
+      expect(snapshots.rows.some((s) => s.original.rawContractNumber === "0011")).toBe(true);
+    });
+  });
+});
+
+describe("resumable onboarding drafts", () => {
+  it("fails the request guard when draft RLS is disabled", async () => {
+    await db.exec("alter table public.onboarding_drafts disable row level security");
+    try {
+      const result = await asUser(a, "authenticated", (tx) =>
+        tx.query<{ context: { rls_active: boolean } }>(
+          "select public.request_security_context() as context",
+        ),
+      );
+      expect(result.rows[0]!.context.rls_active).toBe(false);
+    } finally {
+      await db.exec("alter table public.onboarding_drafts enable row level security");
+    }
+  });
+
+  it("enforces identity for draft reads and writes, including direct queries", async () => {
+    await asUser(a, "authenticated", (tx) =>
+      tx.query("insert into public.onboarding_drafts(user_id,draft) values($1,$2)", [
+        a,
+        JSON.stringify({ step: 3, name: "Saved company" }),
+      ]),
+    );
+    const own = await asUser(a, "authenticated", (tx) =>
+      tx.query("select draft from public.onboarding_drafts"),
+    );
+    expect(own.rows).toHaveLength(1);
+    expect(
+      (await asUser(b, "authenticated", (tx) => tx.query("select * from public.onboarding_drafts")))
+        .rows,
+    ).toHaveLength(0);
+    await expect(
+      asUser(b, "authenticated", (tx) =>
+        tx.query("insert into public.onboarding_drafts(user_id,draft) values($1,'{}')", [a]),
+      ),
+    ).rejects.toThrow(/row-level security/);
+    expect(
+      (
+        await asUser(b, "authenticated", (tx) =>
+          tx.query(
+            "update public.onboarding_drafts set draft='{}' where user_id=$1 returning user_id",
+            [a],
+          ),
+        )
+      ).rows,
+    ).toHaveLength(0);
+    await expect(
+      asUser(null, "anon", (tx) => tx.query("select * from public.onboarding_drafts")),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      asUser(staff, "authenticated", (tx) =>
+        tx.query("insert into public.onboarding_drafts(user_id,draft) values($1,'{}')", [staff]),
+      ),
+    ).rejects.toThrow(/row-level security/);
+  });
+  it("atomically completes skipped assumptions and monthly costs and clears the draft", async () => {
+    const user = randomUUID();
+    await db.query("insert into auth.users(id,email) values($1,'draft@example.invalid')", [user]);
+    await asUser(user, "authenticated", (tx) =>
+      tx.query("insert into public.onboarding_drafts(user_id,draft) values($1,'{\"step\":4}')", [
+        user,
+      ]),
+    );
+    const result = await asUser(user, "authenticated", (tx) =>
+      tx.query<{ id: string }>(
+        "select public.complete_onboarding('Monthly test',null,'manual','[]',null,current_date,null,500,14,12345) as id",
+      ),
+    );
+    const id = result.rows[0]!.id;
+    expect(
+      (await db.query("select * from public.onboarding_drafts where user_id=$1", [user])).rows,
+    ).toHaveLength(0);
+    expect(
+      (await db.query("select * from public.cash_balance_entries where organization_id=$1", [id]))
+        .rows,
+    ).toHaveLength(0);
+    const costs = await db.query<{ frequency: string; amount_cents: number }>(
+      "select frequency,amount_cents from public.recurring_costs where organization_id=$1",
+      [id],
+    );
+    expect(costs.rows).toEqual([{ frequency: "monthly", amount_cents: 12345 }]);
+  });
+});
+
+describe("job forecast inputs and overhead separation", () => {
+  it("saves opening billed totals, lag, public obligations and office overhead atomically", async () => {
+    const user = randomUUID();
+    await db.query("insert into auth.users(id,email) values($1,'projection@example.invalid')", [
+      user,
+    ]);
+    const award = {
+      externalId: "projection-source",
+      sourceUrl: "https://www.usaspending.gov/award/projection-source",
+      contractNumber: "PROJECTION-1",
+      description: "RAW CONTRACT DESCRIPTION",
+      displayDescription: "RAW CONTRACT DESCRIPTION",
+      contractValueCents: 900000000,
+      obligationsCents: 120000000,
+      startDate: "2026-01-01",
+      endDate: "2030-06-30",
+    };
+    const result = await asUser(user, "authenticated", (tx) =>
+      tx.query<{ id: string }>(
+        "select public.complete_onboarding('Projection setup',null,'usaspending',$1,10000000,current_date,6000000,500,14,2000000,$2) as id",
+        [
+          JSON.stringify([award]),
+          JSON.stringify([
+            {
+              externalId: "projection-source",
+              billedCents: 25000000,
+              paymentLagDays: 35,
+              costRatioBps: 8500,
+            },
+          ]),
+        ],
+      ),
+    );
+    const org = result.rows[0]!.id;
+    const jobs = await asUser(user, "authenticated", (tx) =>
+      tx.query<{ id: string; obligated_cents: number }>(
+        "select id,obligated_cents from public.jobs where organization_id=$1",
+        [org],
+      ),
+    );
+    expect(jobs.rows[0]!.obligated_cents).toBe(120000000);
+    const assumptions = await asUser(user, "authenticated", (tx) =>
+      tx.query<{
+        billed_before_tracking_cents: number;
+        payment_lag_days: number;
+        cost_mode: string;
+      }>(
+        "select billed_before_tracking_cents,payment_lag_days,cost_mode from public.forecast_assumptions where organization_id=$1",
+        [org],
+      ),
+    );
+    expect(assumptions.rows).toEqual([
+      { billed_before_tracking_cents: 25000000, payment_lag_days: 35, cost_mode: "modeled" },
+    ]);
+    const costs = await asUser(user, "authenticated", (tx) =>
+      tx.query<{ cost_scope: string; label: string }>(
+        "select cost_scope,label from public.recurring_costs where organization_id=$1 order by label",
+        [org],
+      ),
+    );
+    expect(costs.rows).toEqual([
+      { cost_scope: "overhead", label: "Monthly overhead" },
+      { cost_scope: "overhead", label: "Weekly office payroll" },
+    ]);
+    await asUser(user, "authenticated", (tx) =>
+      tx.query("update public.jobs set contract_value_cents=60000000 where id=$1", [
+        jobs.rows[0]!.id,
+      ]),
+    );
+    const edited = await asUser(user, "authenticated", (tx) =>
+      tx.query<{ value_override_cents: number }>(
+        "select value_override_cents from public.forecast_assumptions where organization_id=$1",
+        [org],
+      ),
+    );
+    expect(edited.rows[0]!.value_override_cents).toBe(60000000);
+    expect(
+      (
+        await db.query<{ original: unknown }>(
+          "select original from public.source_snapshots where organization_id=$1",
+          [org],
+        )
+      ).rows[0]!.original,
+    ).toEqual(award);
+    expect(
+      (
+        await asUser(b, "authenticated", (tx) =>
+          tx.query(
+            "update public.forecast_assumptions set payment_lag_days=0 where organization_id=$1 returning id",
+            [org],
+          ),
+        )
+      ).rows,
+    ).toHaveLength(0);
+  });
+  it("leaves ambiguous legacy company payroll unclassified and enforces job links", async () => {
+    const result = await asUser(a, "authenticated", (tx) =>
+      tx.query<{ id: string; cost_scope: string }>(
+        "insert into public.recurring_costs(organization_id,label,category,amount_cents,frequency,start_date) values($1,'Weekly payroll estimate','payroll',100,'weekly',current_date) returning id,cost_scope",
+        [orgA],
+      ),
+    );
+    expect(result.rows[0]!.cost_scope).toBe("unclassified");
+    await expect(
+      asUser(a, "authenticated", (tx) =>
+        tx.query("update public.recurring_costs set cost_scope='job' where id=$1", [
+          result.rows[0]!.id,
+        ]),
+      ),
+    ).rejects.toThrow(/check constraint/);
+    await asUser(a, "authenticated", (tx) =>
+      tx.query("update public.recurring_costs set cost_scope='overhead' where id=$1", [
+        result.rows[0]!.id,
+      ]),
+    );
   });
 });

@@ -14,3 +14,11 @@ export const PAYMENT_RULES = {
   subDueSoonDays: 3,
   retainageReminderDays: 60,
 };
+
+/** Operational estimates, not statutory payment terms. Editable for each job. */
+export const FORECAST_DEFAULTS = {
+  paymentLagDays: 30,
+  costRatioBps: 8500,
+  costProfile: "even" as const,
+  costMode: "modeled" as const,
+};

@@ -16,6 +16,7 @@ import { VoidForm } from "@/components/product/void-form";
 import { Input, Notes, Options, Hidden, dollars } from "@/components/product/fields";
 import { RecordTable, cell } from "@/components/product/record-table";
 import { Checkbox } from "@/components/ui/form";
+import { FORECAST_DEFAULTS } from "@/lib/config";
 import { today } from "@/lib/finance";
 export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -81,6 +82,15 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
           />
         </StatGrid>
         <Panel title="Job details">
+          <p className="mb-4 text-sm text-fg-muted">
+            Public obligations: <Money cents={job.obligated_cents} /> · Forecast value before
+            approved changes:{" "}
+            <Money
+              cents={
+                assumptions?.value_override_cents ?? job.obligated_cents ?? job.contract_value_cents
+              }
+            />
+          </p>
           <JobForm job={job} readOnly={readOnly} />
           {snapshot && (
             <details className="mt-4">
@@ -193,13 +203,13 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
         <Panel
           id="assumptions"
           title="Future billing assumptions"
-          description="Optional scenario. 30-day model months; costs at month end. These are estimates, not observed job data."
+          description="Calendar-month billings and weekly job costs for remaining work. Projected, not invoiced; verify these assumptions."
         >
           <ActionForm action={saveAssumptions} label="Save assumptions" readOnly={readOnly}>
             <Hidden name="job_id" value={id} />
             <Checkbox
               name="enabled"
-              defaultChecked={assumptions?.enabled ?? false}
+              defaultChecked={assumptions?.enabled ?? true}
               label="Include projected future billings"
             />
             <div className="grid gap-3 md:grid-cols-2">
@@ -208,33 +218,40 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
                 label="Cost ratio (%)"
                 type="number"
                 step="0.01"
-                value={assumptions ? assumptions.cost_ratio_bps / 100 : ""}
+                value={(assumptions?.cost_ratio_bps ?? FORECAST_DEFAULTS.costRatioBps) / 100}
+                required
+              />
+              <Hidden name="duration_months" value="1" />
+              <Input
+                name="billed_before_tracking_cents"
+                label="Billed before tracking ($)"
+                value={dollars(assumptions?.billed_before_tracking_cents ?? 0)}
+                hint="Opening billed total; historical invoices replace this total rather than adding it again."
                 required
               />
               <Input
-                name="duration_months"
-                label="Duration (30-day months)"
-                type="number"
-                value={assumptions?.duration_months}
+                name="billed_through_date"
+                label="Opening billed total as-of date"
+                type="date"
+                max={today()}
+                value={assumptions?.billed_through_date ?? today()}
                 required
-                min={1}
+              />
+              <Input
+                name="value_override_cents"
+                label="Forecast billing value override ($, optional)"
+                value={dollars(assumptions?.value_override_cents)}
+                hint="Default: public obligations, or entered contract value if obligations are unavailable. Approved changes are added separately."
               />
               <Input
                 name="payment_lag_days"
                 label="Expected payment lag (days)"
                 type="number"
-                value={assumptions?.payment_lag_days}
+                value={assumptions?.payment_lag_days ?? FORECAST_DEFAULTS.paymentLagDays}
                 required
                 min={0}
               />
-              <Input
-                name="retainage_release_days"
-                label="Retainage receipt delay after completion (days)"
-                type="number"
-                value={assumptions?.retainage_release_days}
-                required
-                min={0}
-              />
+              <Hidden name="retainage_release_days" value="0" />
               <Options
                 name="cost_profile"
                 label="Cost profile"
@@ -246,15 +263,17 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
               <Options
                 name="cost_mode"
                 label="Forecast cost source"
-                value={assumptions?.cost_mode ?? "explicit"}
+                value={assumptions?.cost_mode ?? FORECAST_DEFAULTS.costMode}
               >
-                <option value="explicit">Entered recurring costs only</option>
-                <option value="modeled">Model costs (no entered recurring costs)</option>
+                <option value="explicit">Entered job costs only</option>
+                <option value="modeled">Projected job costs (overhead stays separate)</option>
               </Options>
             </div>
             <p className="text-sm text-fg-muted">
-              Existing invoices replace modeled billings. Modeled costs cannot overlap entered
-              recurring costs. The model requires the job value and start date.
+              Real invoices suppress projections for overlapping billing periods. Entered job costs
+              replace the entire cost-ratio model for that job; company overhead is added once. A
+              billing value and future end date are required. No retainage release is projected
+              without an actual invoice and expected release date.
             </p>
           </ActionForm>
         </Panel>

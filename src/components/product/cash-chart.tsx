@@ -58,6 +58,7 @@ export function CashChart({
   const path = points
     .map((p, i) => `${i ? "L" : "M"}${x(p.day).toFixed(2)},${y(p.cents).toFixed(2)}`)
     .join(" ");
+  const hasProjections = weeks.some((w) => w.sources.some((s) => s.projection === "billing"));
   const selected = active === null ? null : weeks[active];
   const crosshair = selected ? ((selected.index + 0.5) / range) * 100 : 0;
   const zeroY = Math.max(0, Math.min(184, y(0)));
@@ -88,6 +89,14 @@ export function CashChart({
           ))}
         </div>
       </figcaption>
+      {hasProjections && (
+        <p className="mb-2 text-xs text-fg-subtle">
+          Hollow markers: Projected, not invoiced income.{" "}
+          <a href={`${sourcePrefix}#projection-sources`} className="underline">
+            Review sources
+          </a>
+        </p>
+      )}
       <div className="chart-frame">
         {ticks.map((value, i) => (
           <span
@@ -186,6 +195,27 @@ export function CashChart({
               strokeLinejoin="round"
               vectorEffect="non-scaling-stroke"
             />
+            {points
+              .filter(
+                (p) =>
+                  p.day > 0 &&
+                  weeks.some((w) =>
+                    w.sources.some((s) => s.projection === "billing" && s.date === p.date),
+                  ),
+              )
+              .map((p) => (
+                <circle
+                  key={p.day}
+                  data-projected-receipt
+                  cx={x(p.day)}
+                  cy={y(p.cents)}
+                  r="3"
+                  fill="var(--color-canvas)"
+                  stroke="var(--color-accent)"
+                  strokeWidth="1.5"
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
             {selected && (
               <line
                 data-crosshair
@@ -261,7 +291,30 @@ export function CashChart({
               <dd className="text-right">
                 <Money cents={-selected.outflowCents} />
               </dd>
+              {selected.sources.some((s) => s.projection === "billing") && (
+                <>
+                  <dt>Projected, not invoiced</dt>
+                  <dd className="text-right">
+                    <Money
+                      cents={selected.sources
+                        .filter((s) => s.projection === "billing")
+                        .reduce((sum, s) => sum + s.amountCents, 0)}
+                    />
+                  </dd>
+                  <dt>Invoiced / recorded</dt>
+                  <dd className="text-right">
+                    <Money
+                      cents={selected.sources
+                        .filter((s) => s.kind === "receipt" && !s.projection)
+                        .reduce((sum, s) => sum + s.amountCents, 0)}
+                    />
+                  </dd>
+                </>
+              )}
             </dl>
+            {selected.sources.some((s) => s.projection === "billing") && (
+              <p className="mt-2 text-xs">Includes Projected, not invoiced income.</p>
+            )}
           </div>
         )}
       </div>

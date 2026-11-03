@@ -19,7 +19,7 @@ export function JobForm({ job, readOnly = false }: { job?: Job; readOnly?: boole
           name="contract_value_cents"
           label="Contract value ($)"
           value={dollars(job?.contract_value_cents)}
-          hint="Confirm the contract value. Obligations are a separate source amount."
+          hint="Editing this value overrides the forecast billing value. Public obligations remain separate."
         />
         <Options name="status" label="Job status" value={job?.status ?? "active"}>
           {["planned", "active", "complete", "closed"].map((s) => (

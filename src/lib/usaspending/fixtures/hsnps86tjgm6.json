@@ -1,0 +1,3971 @@
+{
+  "recordedAt": "2026-11-03",
+  "uei": "HSNPS86TJGM6",
+  "recipient": {
+    "count": 1,
+    "results": [
+      {
+        "recipient_name": "WEST COAST BUILDING & CONSTRUCTION, INC.",
+        "recipient_level": null,
+        "uei": "HSNPS86TJGM6",
+        "duns": null
+      }
+    ],
+    "messages": [
+      "The response value of 'recipient_level' is deprecated to avoid to confusion when returning only a single Recipient in the response. The request value of 'recipient_levels' will continue to limit the response."
+    ]
+  },
+  "pages": [
+    {
+      "spending_level": "awards",
+      "limit": 100,
+      "results": [
+        {
+          "internal_id": 272722451,
+          "Award ID": "0007",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2025-04-10",
+          "generated_internal_id": "CONT_AWD_0007_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 310744347,
+          "Award ID": "N6247320F5145",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2021-09-30",
+          "generated_internal_id": "CONT_AWD_N6247320F5145_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310744348,
+          "Award ID": "N6247320F5146",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2021-05-06",
+          "generated_internal_id": "CONT_AWD_N6247320F5146_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310743245,
+          "Award ID": "N6247320C0006",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2021-02-09",
+          "generated_internal_id": "CONT_AWD_N6247320C0006_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 310744456,
+          "Award ID": "N6247320F5264",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-12-02",
+          "generated_internal_id": "CONT_AWD_N6247320F5264_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310744373,
+          "Award ID": "N6247320F5173",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-11-02",
+          "generated_internal_id": "CONT_AWD_N6247320F5173_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310744230,
+          "Award ID": "N6247320F5018",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-09-08",
+          "generated_internal_id": "CONT_AWD_N6247320F5018_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310743667,
+          "Award ID": "N6247320F4423",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-06-25",
+          "generated_internal_id": "CONT_AWD_N6247320F4423_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742843,
+          "Award ID": "N6247319F5201",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-06-05",
+          "generated_internal_id": "CONT_AWD_N6247319F5201_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742660,
+          "Award ID": "N6247319F5003",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-03-09",
+          "generated_internal_id": "CONT_AWD_N6247319F5003_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742662,
+          "Award ID": "N6247319F5005",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-02-14",
+          "generated_internal_id": "CONT_AWD_N6247319F5005_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742622,
+          "Award ID": "N6247319F4963",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-01-31",
+          "generated_internal_id": "CONT_AWD_N6247319F4963_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742623,
+          "Award ID": "N6247319F4964",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-01-24",
+          "generated_internal_id": "CONT_AWD_N6247319F4964_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742659,
+          "Award ID": "N6247319F5002",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2020-01-08",
+          "generated_internal_id": "CONT_AWD_N6247319F5002_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742976,
+          "Award ID": "N6247319F5374",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2019-11-22",
+          "generated_internal_id": "CONT_AWD_N6247319F5374_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742657,
+          "Award ID": "N6247319F5000",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2019-11-09",
+          "generated_internal_id": "CONT_AWD_N6247319F5000_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742861,
+          "Award ID": "N6247319F5220",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2019-11-08",
+          "generated_internal_id": "CONT_AWD_N6247319F5220_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742203,
+          "Award ID": "N6247319F4519",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2019-10-22",
+          "generated_internal_id": "CONT_AWD_N6247319F4519_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742168,
+          "Award ID": "N6247319F4482",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2019-07-01",
+          "generated_internal_id": "CONT_AWD_N6247319F4482_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310742232,
+          "Award ID": "N6247319F4549",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2019-06-17",
+          "generated_internal_id": "CONT_AWD_N6247319F4549_9700_N6247319D0201_9700"
+        },
+        {
+          "internal_id": 310740037,
+          "Award ID": "N6247318C0620",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2019-02-11",
+          "generated_internal_id": "CONT_AWD_N6247318C0620_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 310740025,
+          "Award ID": "N6247318C0008",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2019-02-05",
+          "generated_internal_id": "CONT_AWD_N6247318C0008_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 310740703,
+          "Award ID": "N6247318F4627",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-11-26",
+          "generated_internal_id": "CONT_AWD_N6247318F4627_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310741202,
+          "Award ID": "N6247318F5168",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-11-19",
+          "generated_internal_id": "CONT_AWD_N6247318F5168_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310741372,
+          "Award ID": "N6247318F5348",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-11-16",
+          "generated_internal_id": "CONT_AWD_N6247318F5348_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310740361,
+          "Award ID": "N6247318F4263",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-10-10",
+          "generated_internal_id": "CONT_AWD_N6247318F4263_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310740432,
+          "Award ID": "N6247318F4337",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-10-01",
+          "generated_internal_id": "CONT_AWD_N6247318F4337_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310739214,
+          "Award ID": "N6247317C5011",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-08-31",
+          "generated_internal_id": "CONT_AWD_N6247317C5011_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 310739209,
+          "Award ID": "N6247317C5002",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-08-26",
+          "generated_internal_id": "CONT_AWD_N6247317C5002_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 310740438,
+          "Award ID": "N6247318F4344",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-08-02",
+          "generated_internal_id": "CONT_AWD_N6247318F4344_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310740125,
+          "Award ID": "N6247318F4014",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-05-16",
+          "generated_internal_id": "CONT_AWD_N6247318F4014_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310739210,
+          "Award ID": "N6247317C5003",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-03-30",
+          "generated_internal_id": "CONT_AWD_N6247317C5003_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 310739844,
+          "Award ID": "N6247317F4682",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-03-26",
+          "generated_internal_id": "CONT_AWD_N6247317F4682_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310739686,
+          "Award ID": "N6247317F4498",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2018-01-02",
+          "generated_internal_id": "CONT_AWD_N6247317F4498_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310739595,
+          "Award ID": "N6247317F4396",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-12-26",
+          "generated_internal_id": "CONT_AWD_N6247317F4396_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 292988252,
+          "Award ID": "AG9AB5C170008",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-10-31",
+          "generated_internal_id": "CONT_AWD_AG9AB5C170008_12C2_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 310739490,
+          "Award ID": "N6247317F4287",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-10-30",
+          "generated_internal_id": "CONT_AWD_N6247317F4287_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 310739522,
+          "Award ID": "N6247317F4320",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-08-31",
+          "generated_internal_id": "CONT_AWD_N6247317F4320_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 273571884,
+          "Award ID": "0030",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-08-28",
+          "generated_internal_id": "CONT_AWD_0030_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 272562442,
+          "Award ID": "0005",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-08-25",
+          "generated_internal_id": "CONT_AWD_0005_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 272650168,
+          "Award ID": "0006",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-08-21",
+          "generated_internal_id": "CONT_AWD_0006_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 273306545,
+          "Award ID": "0020",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-08-18",
+          "generated_internal_id": "CONT_AWD_0020_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 310739362,
+          "Award ID": "N6247317F4146",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-08-11",
+          "generated_internal_id": "CONT_AWD_N6247317F4146_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 272455389,
+          "Award ID": "0004",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-07-07",
+          "generated_internal_id": "CONT_AWD_0004_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 272788308,
+          "Award ID": "0008",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-06-18",
+          "generated_internal_id": "CONT_AWD_0008_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 272057179,
+          "Award ID": "0001",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-05-15",
+          "generated_internal_id": "CONT_AWD_0001_9700_N6247317D5001_9700"
+        },
+        {
+          "internal_id": 272722571,
+          "Award ID": "0007",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-01-31",
+          "generated_internal_id": "CONT_AWD_0007_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273503230,
+          "Award ID": "0027",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2017-01-12",
+          "generated_internal_id": "CONT_AWD_0027_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273544660,
+          "Award ID": "0029",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-12-30",
+          "generated_internal_id": "CONT_AWD_0029_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272057139,
+          "Award ID": "0001",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-12-20",
+          "generated_internal_id": "CONT_AWD_0001_9700_N6247316G1842_9700"
+        },
+        {
+          "internal_id": 273525190,
+          "Award ID": "0028",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-10-31",
+          "generated_internal_id": "CONT_AWD_0028_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273589261,
+          "Award ID": "0031",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-10-28",
+          "generated_internal_id": "CONT_AWD_0031_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273362745,
+          "Award ID": "0022",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-10-28",
+          "generated_internal_id": "CONT_AWD_0022_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273444814,
+          "Award ID": "0025",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-10-07",
+          "generated_internal_id": "CONT_AWD_0025_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273264203,
+          "Award ID": "0019",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-30",
+          "generated_internal_id": "CONT_AWD_0019_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273503244,
+          "Award ID": "0027",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-29",
+          "generated_internal_id": "CONT_AWD_0027_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273444830,
+          "Award ID": "0025",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-29",
+          "generated_internal_id": "CONT_AWD_0025_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273175659,
+          "Award ID": "0016",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-29",
+          "generated_internal_id": "CONT_AWD_0016_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273141836,
+          "Award ID": "0015",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-29",
+          "generated_internal_id": "CONT_AWD_0015_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273068395,
+          "Award ID": "0013",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-29",
+          "generated_internal_id": "CONT_AWD_0013_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273387847,
+          "Award ID": "0023",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-28",
+          "generated_internal_id": "CONT_AWD_0023_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273362762,
+          "Award ID": "0022",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-28",
+          "generated_internal_id": "CONT_AWD_0022_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273236171,
+          "Award ID": "0018",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-28",
+          "generated_internal_id": "CONT_AWD_0018_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273206813,
+          "Award ID": "0017",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-28",
+          "generated_internal_id": "CONT_AWD_0017_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273106324,
+          "Award ID": "0014",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-28",
+          "generated_internal_id": "CONT_AWD_0014_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 272650138,
+          "Award ID": "0006",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-28",
+          "generated_internal_id": "CONT_AWD_0006_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273236148,
+          "Award ID": "0018",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-27",
+          "generated_internal_id": "CONT_AWD_0018_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273421707,
+          "Award ID": "0024",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-12",
+          "generated_internal_id": "CONT_AWD_0024_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273480322,
+          "Award ID": "0026",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-02",
+          "generated_internal_id": "CONT_AWD_0026_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273622348,
+          "Award ID": "0033",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-09-01",
+          "generated_internal_id": "CONT_AWD_0033_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273027984,
+          "Award ID": "0012",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-08-09",
+          "generated_internal_id": "CONT_AWD_0012_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273606083,
+          "Award ID": "0032",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-07-18",
+          "generated_internal_id": "CONT_AWD_0032_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273332846,
+          "Award ID": "0021",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-07-01",
+          "generated_internal_id": "CONT_AWD_0021_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272983974,
+          "Award ID": "0011",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-05-01",
+          "generated_internal_id": "CONT_AWD_0011_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272455331,
+          "Award ID": "0004",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-03-25",
+          "generated_internal_id": "CONT_AWD_0004_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273306521,
+          "Award ID": "0020",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-03-14",
+          "generated_internal_id": "CONT_AWD_0020_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273264178,
+          "Award ID": "0019",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-03-14",
+          "generated_internal_id": "CONT_AWD_0019_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273106297,
+          "Award ID": "0014",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-02-13",
+          "generated_internal_id": "CONT_AWD_0014_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272983914,
+          "Award ID": "0011",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-02-12",
+          "generated_internal_id": "CONT_AWD_0011_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 273421722,
+          "Award ID": "0024",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-01-29",
+          "generated_internal_id": "CONT_AWD_0024_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 272850863,
+          "Award ID": "0009",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-01-15",
+          "generated_internal_id": "CONT_AWD_0009_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 273068366,
+          "Award ID": "0013",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2016-01-06",
+          "generated_internal_id": "CONT_AWD_0013_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272935988,
+          "Award ID": "0010",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-12-21",
+          "generated_internal_id": "CONT_AWD_0010_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 272722525,
+          "Award ID": "0007",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-12-21",
+          "generated_internal_id": "CONT_AWD_0007_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272984006,
+          "Award ID": "0011",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-12-18",
+          "generated_internal_id": "CONT_AWD_0011_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 273206788,
+          "Award ID": "0017",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-11-30",
+          "generated_internal_id": "CONT_AWD_0017_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272850934,
+          "Award ID": "0009",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-11-24",
+          "generated_internal_id": "CONT_AWD_0009_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272936087,
+          "Award ID": "0010",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-11-20",
+          "generated_internal_id": "CONT_AWD_0010_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 272562396,
+          "Award ID": "0005",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-10-30",
+          "generated_internal_id": "CONT_AWD_0005_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 272650092,
+          "Award ID": "0006",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-10-29",
+          "generated_internal_id": "CONT_AWD_0006_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273175633,
+          "Award ID": "0016",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-10-16",
+          "generated_internal_id": "CONT_AWD_0016_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273141808,
+          "Award ID": "0015",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-10-14",
+          "generated_internal_id": "CONT_AWD_0015_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 273027955,
+          "Award ID": "0012",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-09-30",
+          "generated_internal_id": "CONT_AWD_0012_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272455275,
+          "Award ID": "0004",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-09-25",
+          "generated_internal_id": "CONT_AWD_0004_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272345587,
+          "Award ID": "0003",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-09-25",
+          "generated_internal_id": "CONT_AWD_0003_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272562343,
+          "Award ID": "0005",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-09-04",
+          "generated_internal_id": "CONT_AWD_0005_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272936051,
+          "Award ID": "0010",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-07-31",
+          "generated_internal_id": "CONT_AWD_0010_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 272345650,
+          "Award ID": "0003",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-07-31",
+          "generated_internal_id": "CONT_AWD_0003_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 272215516,
+          "Award ID": "0002",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-07-18",
+          "generated_internal_id": "CONT_AWD_0002_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 272788193,
+          "Award ID": "0008",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-06-29",
+          "generated_internal_id": "CONT_AWD_0008_9700_N6247313G3040_9700"
+        }
+      ],
+      "page_metadata": {
+        "page": 1,
+        "hasNext": true,
+        "last_record_unique_id": 272788193,
+        "last_record_sort_value": "1435536000000"
+      },
+      "messages": [
+        "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. "
+      ]
+    },
+    {
+      "spending_level": "awards",
+      "limit": 100,
+      "results": [
+        {
+          "internal_id": 272057023,
+          "Award ID": "0001",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-06-13",
+          "generated_internal_id": "CONT_AWD_0001_9700_N6247315D4814_9700"
+        },
+        {
+          "internal_id": 310738917,
+          "Award ID": "N6247315M4805",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-05-26",
+          "generated_internal_id": "CONT_AWD_N6247315M4805_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 272056941,
+          "Award ID": "0001",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-05-13",
+          "generated_internal_id": "CONT_AWD_0001_9700_N6247315D0604_9700"
+        },
+        {
+          "internal_id": 310738502,
+          "Award ID": "N6247313C3636",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2015-02-28",
+          "generated_internal_id": "CONT_AWD_N6247313C3636_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 310738719,
+          "Award ID": "N6247314C4015",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2014-12-29",
+          "generated_internal_id": "CONT_AWD_N6247314C4015_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 272650009,
+          "Award ID": "0006",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2014-11-14",
+          "generated_internal_id": "CONT_AWD_0006_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 272562263,
+          "Award ID": "0005",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2014-08-04",
+          "generated_internal_id": "CONT_AWD_0005_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 272455186,
+          "Award ID": "0004",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2014-05-02",
+          "generated_internal_id": "CONT_AWD_0004_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 310738758,
+          "Award ID": "N6247314M4001",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2014-04-25",
+          "generated_internal_id": "CONT_AWD_N6247314M4001_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 309197897,
+          "Award ID": "M0068114P0031",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2014-03-24",
+          "generated_internal_id": "CONT_AWD_M0068114P0031_9700_-NONE-_-NONE-"
+        },
+        {
+          "internal_id": 272056826,
+          "Award ID": "0001",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2014-02-27",
+          "generated_internal_id": "CONT_AWD_0001_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 272345495,
+          "Award ID": "0003",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2013-12-11",
+          "generated_internal_id": "CONT_AWD_0003_9700_N6247313G3040_9700"
+        },
+        {
+          "internal_id": 272215349,
+          "Award ID": "0002",
+          "Recipient UEI": "HSNPS86TJGM6",
+          "End Date": "2013-12-06",
+          "generated_internal_id": "CONT_AWD_0002_9700_N6247313G3040_9700"
+        }
+      ],
+      "page_metadata": {
+        "page": 2,
+        "hasNext": false,
+        "last_record_unique_id": null,
+        "last_record_sort_value": "None"
+      },
+      "messages": [
+        "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. "
+      ]
+    }
+  ],
+  "details": {
+    "CONT_AWD_0007_9700_N6247313G3040_9700": {
+      "piid": "0007",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF RENOVATE RESTROOM B467 NASNI",
+      "base_exercised_options": 87866.89,
+      "total_obligation": 87866.89,
+      "period_of_performance": {
+        "start_date": "2014-12-04",
+        "end_date": "2025-04-10"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247320F5145_9700_N6247319D0201_9700": {
+      "piid": "N6247320F5145",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "JOC IDIQ CONTRACT N62473-19-D-0201 (WEST COAST) MCAS MIRAMAR - TASK ORDER AWARD N6247320F5145 REPAIR MOTORCYCLE TRAINING COURSE.",
+      "base_exercised_options": 220294.48,
+      "total_obligation": 220294.48,
+      "period_of_performance": {
+        "start_date": "2020-08-20",
+        "end_date": "2021-09-30"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247320F5146_9700_N6247319D0201_9700": {
+      "piid": "N6247320F5146",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X016 MIRAMAR - RPR QUEBEC",
+      "base_exercised_options": 554417.29,
+      "total_obligation": 554417.29,
+      "period_of_performance": {
+        "start_date": "2020-08-05",
+        "end_date": "2021-05-06"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247320C0006_9700_-NONE-_-NONE-": {
+      "piid": "N6247320C0006",
+      "type": "D",
+      "type_description": "DEFINITIVE CONTRACT",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "REPAIR ASPHALT AT MITSCHER AND MIRAMAR WAY @ MCAS MIRAMAR, SAN DIEGO, CA",
+      "base_exercised_options": 1018910,
+      "total_obligation": 1018910,
+      "period_of_performance": {
+        "start_date": "2020-08-13",
+        "end_date": "2021-02-09"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247320F5264_9700_N6247319D0201_9700": {
+      "piid": "N6247320F5264",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IDIQ - 1ST OPTION",
+      "base_exercised_options": 36288.6,
+      "total_obligation": 36288.6,
+      "period_of_performance": {
+        "start_date": "2020-08-17",
+        "end_date": "2020-12-02"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247320F4423_9700_N6247319D0201_9700": {
+      "piid": "N6247320F4423",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X013 MCAS MIRAMAR - ASPHALT REPAIRS ON AIRFIELD",
+      "base_exercised_options": 387921.09,
+      "total_obligation": 387921.09,
+      "period_of_performance": {
+        "start_date": "2020-03-26",
+        "end_date": "2020-06-25"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247320F5018_9700_N6247319D0201_9700": {
+      "piid": "N6247320F5018",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X014 MIRAMAR - RUBBER REMOVAL ON CARRIER DECK",
+      "base_exercised_options": 32240.36,
+      "total_obligation": 32240.36,
+      "period_of_performance": {
+        "start_date": "2020-07-10",
+        "end_date": "2020-09-08"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247320F5173_9700_N6247319D0201_9700": {
+      "piid": "N6247320F5173",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X015 MIRAMAR - REPAIR CONCRETE, 24R",
+      "base_exercised_options": 188527.37,
+      "total_obligation": 188527.37,
+      "period_of_performance": {
+        "start_date": "2020-08-04",
+        "end_date": "2020-11-02"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F5201_9700_N6247319D0201_9700": {
+      "piid": "N6247319F5201",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X012 MCAS MIRAMAR - SINKHOLE, B8402",
+      "base_exercised_options": 305622.41,
+      "total_obligation": 305622.41,
+      "period_of_performance": {
+        "start_date": "2019-09-11",
+        "end_date": "2020-06-05"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F4963_9700_N6247319D0201_9700": {
+      "piid": "N6247319F4963",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X006 MCAS MIRAMAR - RPR ASPHALT HGR 3",
+      "base_exercised_options": 247415.19,
+      "total_obligation": 247415.19,
+      "period_of_performance": {
+        "start_date": "2019-09-09",
+        "end_date": "2020-01-31"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F5003_9700_N6247319D0201_9700": {
+      "piid": "N6247319F5003",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "MCAS MIRAMAR - INSTALL TURNOUT LANES ON AMMO ROAD (MI2021R)",
+      "base_exercised_options": 461620.36,
+      "total_obligation": 461620.36,
+      "period_of_performance": {
+        "start_date": "2019-09-11",
+        "end_date": "2020-03-09"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F5005_9700_N6247319D0201_9700": {
+      "piid": "N6247319F5005",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "MCAS MIRAMAR - QUEBEC TAXIWAY STRIPING",
+      "base_exercised_options": 325326.64,
+      "total_obligation": 325326.64,
+      "period_of_performance": {
+        "start_date": "2019-09-19",
+        "end_date": "2020-02-14"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F4964_9700_N6247319D0201_9700": {
+      "piid": "N6247319F4964",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X005 MCAS MIRAMAR - NGATE TO DELTA RD ASPHALT RPRS",
+      "base_exercised_options": 281591.48,
+      "total_obligation": 281591.48,
+      "period_of_performance": {
+        "start_date": "2019-09-03",
+        "end_date": "2020-01-24"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F5002_9700_N6247319D0201_9700": {
+      "piid": "N6247319F5002",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "MCAS MIRAMAR - REPAIR ASPHALT ON RUNWAY 24L OVERRUNS",
+      "base_exercised_options": 379001.46,
+      "total_obligation": 379001.46,
+      "period_of_performance": {
+        "start_date": "2019-08-26",
+        "end_date": "2020-01-08"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F5000_9700_N6247319D0201_9700": {
+      "piid": "N6247319F5000",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "MCAS MIRAMAR - RUBBER REMOVAL ON RUNWAYS 24L&24R - Q4",
+      "base_exercised_options": 314877.77,
+      "total_obligation": 314877.77,
+      "period_of_performance": {
+        "start_date": "2019-09-10",
+        "end_date": "2019-11-09"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F5374_9700_N6247319D0201_9700": {
+      "piid": "N6247319F5374",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X011 MCAS MIRAMAR - ASPHALT, B9570, 8477",
+      "base_exercised_options": 47762.13,
+      "total_obligation": 47762.13,
+      "period_of_performance": {
+        "start_date": "2019-09-18",
+        "end_date": "2019-11-22"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F4482_9700_N6247319D0201_9700": {
+      "piid": "N6247319F4482",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X003 RUBBER REMOVAL, RUNWAYS 24L&24R, 2ND QUARTER",
+      "base_exercised_options": 224501,
+      "total_obligation": 224501,
+      "period_of_performance": {
+        "start_date": "2019-04-01",
+        "end_date": "2019-07-01"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F5220_9700_N6247319D0201_9700": {
+      "piid": "N6247319F5220",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "ASPHALT REPAIR IN THE PARKING LOT, B7208",
+      "base_exercised_options": 224850.89,
+      "total_obligation": 224850.89,
+      "period_of_performance": {
+        "start_date": "2019-09-13",
+        "end_date": "2019-11-08"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F4519_9700_N6247319D0201_9700": {
+      "piid": "N6247319F4519",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "X004 MCAS MIRAMAR - RPR ASPHALT AT BRIDGE 9342",
+      "base_exercised_options": 43348.57,
+      "total_obligation": 43348.57,
+      "period_of_performance": {
+        "start_date": "2019-09-03",
+        "end_date": "2019-10-22"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247319F4549_9700_N6247319D0201_9700": {
+      "piid": "N6247319F4549",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X008 REPAIR SINK HOLE AT EDSON RD ABOARD MCAS MIRAMA",
+      "base_exercised_options": 125852.66,
+      "total_obligation": 125852.66,
+      "period_of_performance": {
+        "start_date": "2019-05-23",
+        "end_date": "2019-06-17"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247319D0201",
+        "generated_unique_award_id": "CONT_IDV_N6247319D0201_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318C0620_9700_-NONE-_-NONE-": {
+      "piid": "N6247318C0620",
+      "type": "D",
+      "type_description": "DEFINITIVE CONTRACT",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF RUBBER REMOVAL",
+      "base_exercised_options": 625015,
+      "total_obligation": 625015,
+      "period_of_performance": {
+        "start_date": "2018-07-31",
+        "end_date": "2019-02-11"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318F4627_9700_N6247317D5001_9700": {
+      "piid": "N6247318F4627",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X015 REPAIR PARKING LOTS AT BLDGS 6360 AND 6311",
+      "base_exercised_options": 551132.51,
+      "total_obligation": 551132.51,
+      "period_of_performance": {
+        "start_date": "2018-05-30",
+        "end_date": "2018-11-26"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318C0008_9700_-NONE-_-NONE-": {
+      "piid": "N6247318C0008",
+      "type": "D",
+      "type_description": "DEFINITIVE CONTRACT",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF N62473-18-C-0008, RESTRIPING PROJECTS AT VARIOUS LOCATIONS @ MCAS MIRAMAR, SAN DIEGO, CA",
+      "base_exercised_options": 796437,
+      "total_obligation": 796437,
+      "period_of_performance": {
+        "start_date": "2018-08-09",
+        "end_date": "2019-02-05"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318F5168_9700_N6247317D5001_9700": {
+      "piid": "N6247318F5168",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X017 CROSSWALKS AT PLESS AVE, MIRAMAR",
+      "base_exercised_options": 13059.42,
+      "total_obligation": 13059.42,
+      "period_of_performance": {
+        "start_date": "2018-09-20",
+        "end_date": "2018-11-19"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318F4263_9700_N6247317D5001_9700": {
+      "piid": "N6247318F4263",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X013 RUBBER REMOVAL, 2ND&3RD QTR, RUNWAYS @ MCAS M",
+      "base_exercised_options": 273344.64,
+      "total_obligation": 273344.64,
+      "period_of_performance": {
+        "start_date": "2018-02-15",
+        "end_date": "2018-10-10"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318F4337_9700_N6247317D5001_9700": {
+      "piid": "N6247318F4337",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X014 REPAIR CONCRETE QUEBEC TAXIWAY, RUNWAY 24R&ABANDONED MANHOLE @ MCAS MIRAMAR, SAN DIEGO, CA",
+      "base_exercised_options": 311468.93,
+      "total_obligation": 311468.93,
+      "period_of_performance": {
+        "start_date": "2018-03-13",
+        "end_date": "2018-10-01"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317C5011_9700_-NONE-_-NONE-": {
+      "piid": "N6247317C5011",
+      "type": "D",
+      "type_description": "DEFINITIVE CONTRACT",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIR ASPHALT MAGAZINE ROAD @ MCAS MIRAMAR, SAN DIEGO, CA",
+      "base_exercised_options": 613878.22,
+      "total_obligation": 613878.22,
+      "period_of_performance": {
+        "start_date": "2017-08-31",
+        "end_date": "2018-08-31"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318F5348_9700_N6247317D5001_9700": {
+      "piid": "N6247318F5348",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X018 REPAIR ASPHALT AT FUEL TRUCK PARKING LOT, MCAS",
+      "base_exercised_options": 27199.41,
+      "total_obligation": 27199.41,
+      "period_of_performance": {
+        "start_date": "2018-09-18",
+        "end_date": "2018-11-16"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317C5002_9700_-NONE-_-NONE-": {
+      "piid": "N6247317C5002",
+      "type": "D",
+      "type_description": "DEFINITIVE CONTRACT",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIRS TO DE LA GARZA ROAD @ MCAS MIRAMAR, SAN DIEGO, CA",
+      "base_exercised_options": 904595.02,
+      "total_obligation": 904595.02,
+      "period_of_performance": {
+        "start_date": "2016-12-29",
+        "end_date": "2018-08-26"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317C5003_9700_-NONE-_-NONE-": {
+      "piid": "N6247317C5003",
+      "type": "D",
+      "type_description": "DEFINITIVE CONTRACT",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIR TAXIWAYS AT VARIOUS LOCATIONS @ MCAS MIRAMAR, SAN DIEGO, CA.",
+      "base_exercised_options": 763416.37,
+      "total_obligation": 763416.37,
+      "period_of_performance": {
+        "start_date": "2017-09-19",
+        "end_date": "2018-03-30"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318F4014_9700_N6247317D5001_9700": {
+      "piid": "N6247318F4014",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X010 REPAIR ASPHALT, ELROD AVE @ MCAS MIRAMAR, SAN D",
+      "base_exercised_options": 442912.78,
+      "total_obligation": 442912.78,
+      "period_of_performance": {
+        "start_date": "2018-01-16",
+        "end_date": "2018-05-16"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247318F4344_9700_N6247317D5001_9700": {
+      "piid": "N6247318F4344",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X016 REPAIR CONCRETE ON SIERRA TAXIWAY",
+      "base_exercised_options": 123517.97,
+      "total_obligation": 123517.97,
+      "period_of_performance": {
+        "start_date": "2018-04-16",
+        "end_date": "2018-08-02"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317F4682_9700_N6247317D5001_9700": {
+      "piid": "N6247317F4682",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X011 REPAIR JOINT SEALS RUNWAY 06R AND 24L @ MCAS MIRAMAR,SAN DIEGO, CA",
+      "base_exercised_options": 405542.94,
+      "total_obligation": 405542.94,
+      "period_of_performance": {
+        "start_date": "2017-09-27",
+        "end_date": "2018-03-26"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_AG9AB5C170008_12C2_-NONE-_-NONE-": {
+      "piid": "AG9AB5C170008",
+      "type": "D",
+      "type_description": "DEFINITIVE CONTRACT",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF R5 REGIONAL OFFICE PARKING LOT EXPANSION, REPAVING FOR 20 SPACES. AAP#39331",
+      "base_exercised_options": 861840.87,
+      "total_obligation": 861840.87,
+      "period_of_performance": {
+        "start_date": "2017-03-02",
+        "end_date": "2017-10-31"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Agriculture"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "VALLEJO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317F4498_9700_N6247317D5001_9700": {
+      "piid": "N6247317F4498",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 232904.75,
+      "total_obligation": 232904.75,
+      "period_of_performance": {
+        "start_date": "2017-09-13",
+        "end_date": "2018-01-02"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317F4396_9700_N6247317D5001_9700": {
+      "piid": "N6247317F4396",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X008 REPAIR CONCRETE ON RUNWAY 24R",
+      "base_exercised_options": 127353.31,
+      "total_obligation": 127353.31,
+      "period_of_performance": {
+        "start_date": "2017-08-30",
+        "end_date": "2017-12-26"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0005_9700_N6247317D5001_9700": {
+      "piid": "0005",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 345864.63,
+      "total_obligation": 345864.63,
+      "period_of_performance": {
+        "start_date": "2017-04-26",
+        "end_date": "2017-08-25"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317F4287_9700_N6247317D5001_9700": {
+      "piid": "N6247317F4287",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF X007 RESTRIPE PARKING LOT AT BLDGS 2660 AND 2661",
+      "base_exercised_options": 119512.58,
+      "total_obligation": 119512.58,
+      "period_of_performance": {
+        "start_date": "2017-08-08",
+        "end_date": "2017-10-30"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317F4320_9700_N6247317D5001_9700": {
+      "piid": "N6247317F4320",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REMOVE RUBBER, RUNWAYS 24L&24R @ MCAS MIRAMAR",
+      "base_exercised_options": 130566.59,
+      "total_obligation": 130566.59,
+      "period_of_performance": {
+        "start_date": "2017-08-15",
+        "end_date": "2017-08-31"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0030_9700_N6247315D4814_9700": {
+      "piid": "0030",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF NMCSD B1 REPLACE FLOORING 5TH FL BLOCK H L50045-15 TO #11 AT NAVAL BASE SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 149475.36,
+      "total_obligation": 149475.36,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2017-08-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247317F4146_9700_N6247317D5001_9700": {
+      "piid": "N6247317F4146",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIR SINKHOLE AT WAREHOUSE RD @ MCAS MIRAMAR, SAN DIEGO, CA",
+      "base_exercised_options": 387514.76,
+      "total_obligation": 387514.76,
+      "period_of_performance": {
+        "start_date": "2017-07-12",
+        "end_date": "2017-08-11"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0004_9700_N6247317D5001_9700": {
+      "piid": "0004",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 210884.53,
+      "total_obligation": 210884.53,
+      "period_of_performance": {
+        "start_date": "2017-03-20",
+        "end_date": "2017-07-07"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0020_9700_N6247315D4814_9700": {
+      "piid": "0020",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF NMCSD B1 3RD FL REPLACE FLOORING S BLOCK AT NAVAL BASE SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 111190.66,
+      "total_obligation": 111190.66,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2017-08-18"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0006_9700_N6247317D5001_9700": {
+      "piid": "0006",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 145874.72,
+      "total_obligation": 145874.72,
+      "period_of_performance": {
+        "start_date": "2017-04-13",
+        "end_date": "2017-08-21"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0007_9700_N6247315D4814_9700": {
+      "piid": "0007",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF NMCSD B1 REPLACE FLOORING PROJECT L5004515TO1 AT NAVAL BASE SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 72113.38,
+      "total_obligation": 72113.38,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2017-01-31"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0001_9700_N6247317D5001_9700": {
+      "piid": "0001",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 145318.74,
+      "total_obligation": 145318.74,
+      "period_of_performance": {
+        "start_date": "2017-02-13",
+        "end_date": "2017-05-15"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247317D5001",
+        "generated_unique_award_id": "CONT_IDV_N6247317D5001_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0008_9700_N6247315D4814_9700": {
+      "piid": "0008",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF NMCSD B1 BLOCK S, 2ND FLOOR L5004515TO3 AT NAVAL AIR STATION SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 118618.29,
+      "total_obligation": 118618.29,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2017-06-18"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0027_9700_N6247315D0604_9700": {
+      "piid": "0027",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 96996.32,
+      "total_obligation": 96996.32,
+      "period_of_performance": {
+        "start_date": "2016-09-14",
+        "end_date": "2017-01-12"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0031_9700_N6247315D4814_9700": {
+      "piid": "0031",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  IDIQ FLOORING 238330 NBSD NMCSD",
+      "base_exercised_options": 212463.34,
+      "total_obligation": 212463.34,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2016-10-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0028_9700_N6247315D0604_9700": {
+      "piid": "0028",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 134636.42,
+      "total_obligation": 134636.42,
+      "period_of_performance": {
+        "start_date": "2016-08-10",
+        "end_date": "2016-10-31"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0001_9700_N6247316G1842_9700": {
+      "piid": "0001",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REFURBISH FLOORS&PAINT, B-290, NASNI, NBC.",
+      "base_exercised_options": 162580,
+      "total_obligation": 162580,
+      "period_of_performance": {
+        "start_date": "2016-08-05",
+        "end_date": "2016-12-20"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247316G1842",
+        "generated_unique_award_id": "CONT_IDV_N6247316G1842_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0029_9700_N6247315D0604_9700": {
+      "piid": "0029",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 184642.29,
+      "total_obligation": 184642.29,
+      "period_of_performance": {
+        "start_date": "2016-09-22",
+        "end_date": "2016-12-30"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0022_9700_N6247315D0604_9700": {
+      "piid": "0022",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 381934.04,
+      "total_obligation": 381934.04,
+      "period_of_performance": {
+        "start_date": "2016-06-14",
+        "end_date": "2016-10-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0019_9700_N6247315D4814_9700": {
+      "piid": "0019",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  IDIQ FLOORING 238330 NBSD NMCSD",
+      "base_exercised_options": 17305.2,
+      "total_obligation": 17305.2,
+      "period_of_performance": {
+        "start_date": "2015-09-30",
+        "end_date": "2016-09-30"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0027_9700_N6247315D4814_9700": {
+      "piid": "0027",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  IDIQ FLOORING 238330 NBSD NMCSD",
+      "base_exercised_options": 101179.81,
+      "total_obligation": 101179.81,
+      "period_of_performance": {
+        "start_date": "2015-09-30",
+        "end_date": "2016-09-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0025_9700_N6247315D0604_9700": {
+      "piid": "0025",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 87633.6,
+      "total_obligation": 87633.6,
+      "period_of_performance": {
+        "start_date": "2016-08-22",
+        "end_date": "2016-10-07"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0015_9700_N6247315D4814_9700": {
+      "piid": "0015",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  IDIQ FLOORING 238330 NBSD NMCSD",
+      "base_exercised_options": 152434.99,
+      "total_obligation": 152434.99,
+      "period_of_performance": {
+        "start_date": "2015-09-30",
+        "end_date": "2016-09-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0016_9700_N6247315D4814_9700": {
+      "piid": "0016",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF IDIQ FLOORING 238330 NBSD NMCSD",
+      "base_exercised_options": 140223.32,
+      "total_obligation": 140223.32,
+      "period_of_performance": {
+        "start_date": "2015-09-30",
+        "end_date": "2016-09-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0013_9700_N6247315D4814_9700": {
+      "piid": "0013",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  IDIQ FLOORING 238330 NBSD NMCSD",
+      "base_exercised_options": 127145.83,
+      "total_obligation": 127145.83,
+      "period_of_performance": {
+        "start_date": "2015-09-30",
+        "end_date": "2016-09-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0025_9700_N6247315D4814_9700": {
+      "piid": "0025",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF   IDIQ FLOORING 238330 NBSD NMCSD",
+      "base_exercised_options": 119247.37,
+      "total_obligation": 119247.37,
+      "period_of_performance": {
+        "start_date": "2015-09-30",
+        "end_date": "2016-09-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0018_9700_N6247315D4814_9700": {
+      "piid": "0018",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  NMCSD B1 REPLACE FLOORING 4TH FL BLOCK S L5004515 TO #13 AT NAVAL BASE SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 17327.2,
+      "total_obligation": 17327.2,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2016-09-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0022_9700_N6247315D4814_9700": {
+      "piid": "0022",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF L50045 15 TASK ORDER 15 NMCSD B2 REPLACE FLOORING AT NAVAL BASE SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 193647.83,
+      "total_obligation": 193647.83,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2016-09-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0023_9700_N6247315D4814_9700": {
+      "piid": "0023",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF L50045 15 TASK ORDER 14 NMCSD B2 REPLACE FLOORING DRM AREA AT NAVAL BASE SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 205045.74,
+      "total_obligation": 205045.74,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2016-09-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0017_9700_N6247315D4814_9700": {
+      "piid": "0017",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF   IDIQ FLOORING 238330 NBSD NMCSD",
+      "base_exercised_options": 153951.36,
+      "total_obligation": 153951.36,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2016-09-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0014_9700_N6247315D4814_9700": {
+      "piid": "0014",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF NMCSD B1 3RD FL REPLACE FLOORING F AND G BLOCK L5004515 TO #8 AT NAVAL BASE SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 83083.46,
+      "total_obligation": 83083.46,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2016-09-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0018_9700_N6247315D0604_9700": {
+      "piid": "0018",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 44645.46,
+      "total_obligation": 44645.46,
+      "period_of_performance": {
+        "start_date": "2016-07-07",
+        "end_date": "2016-09-27"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0024_9700_N6247315D0604_9700": {
+      "piid": "0024",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 44855.09,
+      "total_obligation": 44855.09,
+      "period_of_performance": {
+        "start_date": "2016-09-12",
+        "end_date": "2016-09-12"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0006_9700_N6247315D4814_9700": {
+      "piid": "0006",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF NMCSD B1 REPLACE FLOORING PROJECT L5004515TO2 AT NAVAL AIR STATION SAN DIEGO, SAN DIEGO, CA",
+      "base_exercised_options": 15753.77,
+      "total_obligation": 15753.77,
+      "period_of_performance": {
+        "start_date": "2015-09-29",
+        "end_date": "2016-09-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0033_9700_N6247315D4814_9700": {
+      "piid": "0033",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IDIQ FLOORING 238330 NBSD NMCSD  IGF::OT::IGF",
+      "base_exercised_options": 231960.67,
+      "total_obligation": 231960.67,
+      "period_of_performance": {
+        "start_date": "2016-03-31",
+        "end_date": "2016-09-01"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0012_9700_N6247315D4814_9700": {
+      "piid": "0012",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF B3563 FLOORING&PAINT CDC NBSD",
+      "base_exercised_options": 537577.47,
+      "total_obligation": 537577.47,
+      "period_of_performance": {
+        "start_date": "2015-06-30",
+        "end_date": "2016-08-09"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0026_9700_N6247315D0604_9700": {
+      "piid": "0026",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 20267.34,
+      "total_obligation": 20267.34,
+      "period_of_performance": {
+        "start_date": "2016-07-14",
+        "end_date": "2016-09-02"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0032_9700_N6247315D4814_9700": {
+      "piid": "0032",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "B3637 3594 KENNEL EPOXY FLOORING NBSD  IGF::OT::IGF",
+      "base_exercised_options": 195979.54,
+      "total_obligation": 195979.54,
+      "period_of_performance": {
+        "start_date": "2016-03-30",
+        "end_date": "2016-07-18"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0021_9700_N6247315D0604_9700": {
+      "piid": "0021",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 408046.22,
+      "total_obligation": 408046.22,
+      "period_of_performance": {
+        "start_date": "2016-04-19",
+        "end_date": "2016-07-01"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0011_9700_N6247315D0604_9700": {
+      "piid": "0011",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF - REPAIR CONCRETE AT SOUTHSIDE OF HANGAR 3",
+      "base_exercised_options": 533047.21,
+      "total_obligation": 533047.21,
+      "period_of_performance": {
+        "start_date": "2015-08-28",
+        "end_date": "2016-05-01"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0004_9700_N6247315D4814_9700": {
+      "piid": "0004",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "B3 CORRIDOR C5 FLOORING NMCSD IGF::OT::IGF",
+      "base_exercised_options": 172682.34,
+      "total_obligation": 172682.34,
+      "period_of_performance": {
+        "start_date": "2015-09-10",
+        "end_date": "2016-03-25"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0020_9700_N6247315D0604_9700": {
+      "piid": "0020",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF CLEAN AND REPAIR STORM DRAINS NORTH OF B3587",
+      "base_exercised_options": 20854.2,
+      "total_obligation": 20854.2,
+      "period_of_performance": {
+        "start_date": "2016-03-14",
+        "end_date": "2016-03-14"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0014_9700_N6247315D0604_9700": {
+      "piid": "0014",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF INSTALL PARKING LOT AT BAUER AND ANDERSON AVE",
+      "base_exercised_options": 335369.19,
+      "total_obligation": 335369.19,
+      "period_of_performance": {
+        "start_date": "2015-09-18",
+        "end_date": "2016-02-13"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0011_9700_N6247313G3040_9700": {
+      "piid": "0011",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF - PERIOD 3/30/2014 TO 9/30/2015",
+      "base_exercised_options": 619381.42,
+      "total_obligation": 619381.42,
+      "period_of_performance": {
+        "start_date": "2015-09-28",
+        "end_date": "2016-02-12"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "BARSTOW",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0024_9700_N6247315D4814_9700": {
+      "piid": "0024",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "B151 CERAMIC TILE FLOORING NBSD IGF::OT::IGF",
+      "base_exercised_options": 21831.93,
+      "total_obligation": 21831.93,
+      "period_of_performance": {
+        "start_date": "2015-09-15",
+        "end_date": "2016-01-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0019_9700_N6247315D0604_9700": {
+      "piid": "0019",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  EMERGENCY FLOOD REMEDIATION AND REPAIR OF GONZALVES",
+      "base_exercised_options": 15201.06,
+      "total_obligation": 15201.06,
+      "period_of_performance": {
+        "start_date": "2016-03-14",
+        "end_date": "2016-03-14"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0013_9700_N6247315D0604_9700": {
+      "piid": "0013",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF RPR CONCRETE AT QUEBEC TAXIWAY",
+      "base_exercised_options": 484329.71,
+      "total_obligation": 484329.71,
+      "period_of_performance": {
+        "start_date": "2015-09-17",
+        "end_date": "2016-01-06"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0010_9700_N6247313G3040_9700": {
+      "piid": "0010",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  - RPR RESTROOMS IN BLDG 7128",
+      "base_exercised_options": 115014.1,
+      "total_obligation": 115014.1,
+      "period_of_performance": {
+        "start_date": "2015-09-11",
+        "end_date": "2015-12-21"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0007_9700_N6247315D0604_9700": {
+      "piid": "0007",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  REPAIR CONCRETE AT C-130 TAXIWAY",
+      "base_exercised_options": 171459.74,
+      "total_obligation": 171459.74,
+      "period_of_performance": {
+        "start_date": "2015-08-31",
+        "end_date": "2015-12-21"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0009_9700_N6247313G3040_9700": {
+      "piid": "0009",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF PERIOD NBC CURB DRAIN INLET-SWALE 3/30/2014 TO 9/30/2015",
+      "base_exercised_options": 62234.59,
+      "total_obligation": 62234.59,
+      "period_of_performance": {
+        "start_date": "2015-08-19",
+        "end_date": "2016-01-15"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0011_9700_N6247315D4814_9700": {
+      "piid": "0011",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF B1 5FLR CARPET&CEILING BDWY CMPLX SD",
+      "base_exercised_options": 58408.22,
+      "total_obligation": 58408.22,
+      "period_of_performance": {
+        "start_date": "2015-06-30",
+        "end_date": "2015-12-18"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0017_9700_N6247315D0604_9700": {
+      "piid": "0017",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF EMERGENCY CONCRETE REPAIR AT 24R TAXIWAY, MCAS MIRAMAR, SAN DIEGO, CA",
+      "base_exercised_options": 26144.02,
+      "total_obligation": 26144.02,
+      "period_of_performance": {
+        "start_date": "2015-11-18",
+        "end_date": "2015-11-30"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0009_9700_N6247315D0604_9700": {
+      "piid": "0009",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIR AND RESTRIPE NORTH SIDE PARKING LOT, B6311  @ MCAS MIRAMAR, SAN DIEGO,CA",
+      "base_exercised_options": 162661.15,
+      "total_obligation": 162661.15,
+      "period_of_performance": {
+        "start_date": "2015-08-26",
+        "end_date": "2015-11-24"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0010_9700_N6247315D4814_9700": {
+      "piid": "0010",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "8IGF::OT::IGF - B-1 LOADING DOCK EPOXY BDWY CMPLX",
+      "base_exercised_options": 84889.43,
+      "total_obligation": 84889.43,
+      "period_of_performance": {
+        "start_date": "2015-06-29",
+        "end_date": "2015-11-20"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0006_9700_N6247315D0604_9700": {
+      "piid": "0006",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF - RPR CONCRETE AT ECHO TAXIWAY",
+      "base_exercised_options": 147740.64,
+      "total_obligation": 147740.64,
+      "period_of_performance": {
+        "start_date": "2015-08-31",
+        "end_date": "2015-10-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0015_9700_N6247315D0604_9700": {
+      "piid": "0015",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF - RUBBER REMOVAL AT FLIGHT LINE FOR AIR SHOW.",
+      "base_exercised_options": 91976.71,
+      "total_obligation": 91976.71,
+      "period_of_performance": {
+        "start_date": "2015-09-14",
+        "end_date": "2015-10-14"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0005_9700_N6247315D4814_9700": {
+      "piid": "0005",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF B3294 EPOXY FLOORING LOCKERS FIREHSE NB",
+      "base_exercised_options": 21472.56,
+      "total_obligation": 21472.56,
+      "period_of_performance": {
+        "start_date": "2015-06-30",
+        "end_date": "2015-10-30"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0016_9700_N6247315D0604_9700": {
+      "piid": "0016",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  EMERGENCY SINKHOLE REPAIR AT BOYINGTON RD",
+      "base_exercised_options": 15322.33,
+      "total_obligation": 15322.33,
+      "period_of_performance": {
+        "start_date": "2015-09-12",
+        "end_date": "2015-10-16"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0012_9700_N6247315D0604_9700": {
+      "piid": "0012",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIR ASPHALT FOSTER LN MIRAMAR",
+      "base_exercised_options": 123398.22,
+      "total_obligation": 123398.22,
+      "period_of_performance": {
+        "start_date": "2015-08-03",
+        "end_date": "2015-09-30"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0005_9700_N6247315D0604_9700": {
+      "piid": "0005",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  - RPR ASPHALT AT PLESS AVE",
+      "base_exercised_options": 76031.41,
+      "total_obligation": 76031.41,
+      "period_of_performance": {
+        "start_date": "2015-07-17",
+        "end_date": "2015-09-04"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0004_9700_N6247315D0604_9700": {
+      "piid": "0004",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF - RPR ASPHALT AT EAST MIRAMAR",
+      "base_exercised_options": 172524.04,
+      "total_obligation": 172524.04,
+      "period_of_performance": {
+        "start_date": "2015-08-06",
+        "end_date": "2015-09-25"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0003_9700_N6247315D0604_9700": {
+      "piid": "0003",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF RPR ASPHALT FUEL TRUCK PARKING",
+      "base_exercised_options": 39112.18,
+      "total_obligation": 39112.18,
+      "period_of_performance": {
+        "start_date": "2015-08-04",
+        "end_date": "2015-09-25"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0010_9700_N6247315D0604_9700": {
+      "piid": "0010",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF RESTRIPE PARKING LOT&STALLS ZONE 5 CBQ",
+      "base_exercised_options": 103097.16,
+      "total_obligation": 103097.16,
+      "period_of_performance": {
+        "start_date": "2015-06-24",
+        "end_date": "2015-07-31"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0008_9700_N6247313G3040_9700": {
+      "piid": "0008",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIR SINK HOLE, B-653, NASNI, NBC, CA",
+      "base_exercised_options": 81777.77,
+      "total_obligation": 81777.77,
+      "period_of_performance": {
+        "start_date": "2014-12-29",
+        "end_date": "2015-06-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0003_9700_N6247315D4814_9700": {
+      "piid": "0003",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF B61 EPOXY FLOORING CNC SHOPS NBSD",
+      "base_exercised_options": 41485,
+      "total_obligation": 41485,
+      "period_of_performance": {
+        "start_date": "2015-04-01",
+        "end_date": "2015-07-31"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0002_9700_N6247315D4814_9700": {
+      "piid": "0002",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF B12 GYM FLOORING NMC - IDIQ FLOORING TASK ORDER 0002",
+      "base_exercised_options": 60722.64,
+      "total_obligation": 60722.64,
+      "period_of_performance": {
+        "start_date": "2015-03-31",
+        "end_date": "2015-07-18"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247313C3636_9700_-NONE-_-NONE-": {
+      "piid": "N6247313C3636",
+      "type": "D",
+      "type_description": "DCA",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF - REPAIR DIVE BUS AND DIVE BUS GENERATOR",
+      "base_exercised_options": 247956.45,
+      "total_obligation": 247956.45,
+      "period_of_performance": {
+        "start_date": "2013-09-24",
+        "end_date": "2015-02-28"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247315M4805_9700_-NONE-_-NONE-": {
+      "piid": "N6247315M4805",
+      "type": "B",
+      "type_description": "PURCHASE ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGT::OF::IGT BLDG 20&BLDG 77 INSTALL FRENCH DRAINS, NBSD",
+      "base_exercised_options": 113818.49,
+      "total_obligation": 113818.49,
+      "period_of_performance": {
+        "start_date": "2015-02-13",
+        "end_date": "2015-05-26"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0001_9700_N6247315D4814_9700": {
+      "piid": "0001",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  B3155 MAILROOM EPOXY FLOORING CNC NBSD",
+      "base_exercised_options": 7798,
+      "total_obligation": 7798,
+      "period_of_performance": {
+        "start_date": "2015-03-31",
+        "end_date": "2015-06-13"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D4814",
+        "generated_unique_award_id": "CONT_IDV_N6247315D4814_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0001_9700_N6247315D0604_9700": {
+      "piid": "0001",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF RUBBER REMOVAL RUNWAYS 24L&24R, MARINE CORPS AIR STATION (MCAS) MIRAMAR, SAN DIEGO, CA.",
+      "base_exercised_options": 87127.31,
+      "total_obligation": 87127.31,
+      "period_of_performance": {
+        "start_date": "2015-04-13",
+        "end_date": "2015-05-13"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247315D0604",
+        "generated_unique_award_id": "CONT_IDV_N6247315D0604_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247314C4015_9700_-NONE-_-NONE-": {
+      "piid": "N6247314C4015",
+      "type": "D",
+      "type_description": "DEFINITIVE CONTRACT",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF  B-261 DEMOLITION NBSD",
+      "base_exercised_options": 371393.86,
+      "total_obligation": 371393.86,
+      "period_of_performance": {
+        "start_date": "2014-09-30",
+        "end_date": "2014-12-29"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0004_9700_N6247313G3040_9700": {
+      "piid": "0004",
+      "type": "C",
+      "type_description": "DO",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF CONSTRUCT ONE (1) DIVER PLATOON CAGE",
+      "base_exercised_options": 188290.2,
+      "total_obligation": 188290.2,
+      "period_of_performance": {
+        "start_date": "2013-09-23",
+        "end_date": "2014-05-02"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0006_9700_N6247313G3040_9700": {
+      "piid": "0006",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF",
+      "base_exercised_options": 54000,
+      "total_obligation": 54000,
+      "period_of_performance": {
+        "start_date": "2014-08-08",
+        "end_date": "2014-11-14"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0005_9700_N6247313G3040_9700": {
+      "piid": "0005",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIR ROOM 117 IN BUILDING 51, BAYSIDE, NAVAL BASE POINT LOMA, SAN DIEGO, CALIFORNIA",
+      "base_exercised_options": 18500,
+      "total_obligation": 18500,
+      "period_of_performance": {
+        "start_date": "2014-05-06",
+        "end_date": "2014-08-04"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_M0068114P0031_9700_-NONE-_-NONE-": {
+      "piid": "M0068114P0031",
+      "type": "B",
+      "type_description": "PURCHASE ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "VIRGIN CLASS II BASE MATERIAL",
+      "base_exercised_options": 312225,
+      "total_obligation": 312225,
+      "period_of_performance": {
+        "start_date": "2014-03-07",
+        "end_date": "2014-03-24"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "CAMP PENDLETON",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0003_9700_N6247313G3040_9700": {
+      "piid": "0003",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "POWER UPGRADES TO TAP GYM AT NAVAL AMPHIBIOUS BASE, NAVAL BASE CORONADO",
+      "base_exercised_options": 9234,
+      "total_obligation": 9234,
+      "period_of_performance": {
+        "start_date": "2013-09-12",
+        "end_date": "2013-12-11"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0001_9700_N6247313G3040_9700": {
+      "piid": "0001",
+      "type": "C",
+      "type_description": "DO",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF REPAIR/REPLACE SAFETY GLASS BLDG 24010",
+      "base_exercised_options": 11500,
+      "total_obligation": 11500,
+      "period_of_performance": {
+        "start_date": "2013-08-30",
+        "end_date": "2014-02-27"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_N6247314M4001_9700_-NONE-_-NONE-": {
+      "piid": "N6247314M4001",
+      "type": "B",
+      "type_description": "PO",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "IGF::OT::IGF PURCHASE AND INSTALL TRUCK MOUNTED CRANE NAVAL BASE SAN DIEGO, CA",
+      "base_exercised_options": 12623.86,
+      "total_obligation": 12623.86,
+      "period_of_performance": {
+        "start_date": "2013-12-02",
+        "end_date": "2014-04-25"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": null,
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    },
+    "CONT_AWD_0002_9700_N6247313G3040_9700": {
+      "piid": "0002",
+      "type": "C",
+      "type_description": "DELIVERY ORDER",
+      "recipient": {
+        "recipient_uei": "HSNPS86TJGM6"
+      },
+      "description": "PERIOD 3/30/2013 TO 3/29/2014 IGF::OT::IGF",
+      "base_exercised_options": 63960,
+      "total_obligation": 63960,
+      "period_of_performance": {
+        "start_date": "2013-09-03",
+        "end_date": "2013-12-06"
+      },
+      "awarding_agency": {
+        "toptier_agency": {
+          "name": "Department of Defense"
+        }
+      },
+      "parent_award": {
+        "piid": "N6247313G3040",
+        "generated_unique_award_id": "CONT_IDV_N6247313G3040_9700"
+      },
+      "place_of_performance": {
+        "city_name": "SAN DIEGO",
+        "state_code": "CA"
+      }
+    }
+  }
+}

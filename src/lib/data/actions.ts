@@ -1,4 +1,5 @@
 "use server";
+import { ActionError } from "./action-error";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -18,12 +19,13 @@ import {
 } from "./validation";
 import { isoDate, today } from "../finance";
 import { lookupUei } from "../usaspending";
-import { PAYMENT_RULES } from "../config";
+import { PAYMENT_RULES, FORECAST_DEFAULTS } from "../config";
 import type { ActionResult } from "@/components/product/action-form";
 async function perform(work: () => Promise<void>, target?: string): Promise<ActionResult> {
   try {
     await work();
   } catch (error) {
+    if (error instanceof ActionError) return { error: error.message };
     if (error instanceof z.ZodError)
       return {
         error: error.issues
@@ -36,6 +38,11 @@ async function perform(work: () => Promise<void>, target?: string): Promise<Acti
       cause && typeof cause === "object" && "message" in cause && typeof cause.message === "string"
         ? cause.message
         : undefined;
+    if (code === "PGRST202" || code === "PGRST203" || code === "42883")
+      return {
+        error:
+          "Database setup needs updating. Run the current supabase/setup.sql in Supabase SQL Editor, then try again. Your saved progress is kept.",
+      };
     if (code === "23505") return { error: "A record with this reference already exists." };
     if (code === "42501" || message === "Read-only account")
       return { error: "This account does not have permission to make this change." };
@@ -59,30 +66,56 @@ async function writable() {
 export async function finishOnboarding(_: ActionResult, form: FormData): Promise<ActionResult> {
   return perform(async () => {
     const existing = await context();
-    if (existing.organization) throw new Error("Already onboarded");
+    if (existing.organization) return;
     const name = z.string().trim().min(1).max(200).parse(form.get("name"));
     const uei = z
       .string()
       .regex(/^([A-Z0-9]{12})?$/)
       .parse(String(form.get("uei") ?? "").toUpperCase());
-    const selected = z.array(z.string().max(250)).max(20).parse(form.getAll("award"));
-    const page = z.coerce
-      .number()
-      .int()
-      .min(1)
-      .max(500)
-      .parse(form.get("page") ?? 1);
-    const lookup = uei && selected.length ? await lookupUei(uei, fetch, page) : null;
-    if (selected.length && lookup?.kind !== "found") throw new Error("Lookup failed");
+    const selected = z.array(z.string().max(250)).max(1000).parse(form.getAll("award"));
+    const lookup =
+      uei && selected.length ? await lookupUei(uei, fetch, { selectedAwardIds: selected }) : null;
+    if (selected.length && lookup?.kind !== "found")
+      throw new ActionError(
+        "Could not refresh your selected contracts from USAspending. Your saved progress is kept. Try again, or return to Contracts to review your selection.",
+      );
     const awards =
       lookup?.kind === "found" ? lookup.awards.filter((a) => selected.includes(a.externalId)) : [];
-    if (awards.length !== selected.length) throw new Error("Awards changed; refresh selection");
+    if (awards.length !== selected.length)
+      throw new ActionError(
+        "Your selected awards have changed in USAspending. Return to Contracts to review them. Your other entries are kept.",
+      );
+    const supplied = z
+      .array(
+        z.object({
+          externalId: z.string().max(250),
+          billedCents: z.number().int().min(0).max(1_000_000_000_000),
+          paymentLagDays: z.number().int().min(0).max(36500),
+        }),
+      )
+      .max(1000)
+      .parse(JSON.parse(String(form.get("job_inputs") ?? "[]")));
+    const jobInputs = awards.map((a) => {
+      const input = supplied.find((value) => value.externalId === a.externalId);
+      return {
+        externalId: a.externalId,
+        billedCents: input?.billedCents ?? 0,
+        paymentLagDays: input?.paymentLagDays ?? FORECAST_DEFAULTS.paymentLagDays,
+        costRatioBps: FORECAST_DEFAULTS.costRatioBps,
+      };
+    });
     const balanceValue = String(form.get("opening_balance") ?? "");
     const amount = balanceValue ? money.parse(balanceValue) : null;
     const asOf = isoDate.parse(form.get("as_of_date"));
     if (asOf > today()) throw new Error("Future balance");
     const payroll = String(form.get("payroll") ?? "");
-    const payrollAmount = payroll ? positiveMoney.parse(payroll) : null;
+    const payrollAmount = payroll
+      ? money.refine((v) => v >= 0, "Cannot be negative").parse(payroll)
+      : null;
+    const monthly = String(form.get("monthly") ?? "");
+    const monthlyAmount = monthly
+      ? money.refine((v) => v >= 0, "Cannot be negative").parse(monthly)
+      : null;
     const client = await userDataClient();
     unwrap(
       await client.rpc("complete_onboarding", {
@@ -95,11 +128,13 @@ export async function finishOnboarding(_: ActionResult, form: FormData): Promise
         opening_balance: amount,
         balance_date: asOf,
         payroll: payrollAmount,
+        other_monthly_costs: monthlyAmount,
+        job_inputs: toJson(jobInputs),
         retainage_bps: PAYMENT_RULES.retainageBps,
         payment_terms_days: PAYMENT_RULES.progressDays,
       }),
     );
-  }, "/");
+  }, "/onboarding?done=1");
 }
 export async function saveJob(_: ActionResult, form: FormData): Promise<ActionResult> {
   const id = String(form.get("id") ?? "");
@@ -252,7 +287,31 @@ export async function saveCost(_: ActionResult, form: FormData): Promise<ActionR
     unwrap(
       await client
         .from("recurring_costs")
-        .insert({ ...input, organization_id: org, job_id: job || null })
+        .insert({
+          ...input,
+          organization_id: org,
+          job_id: job || null,
+          cost_scope: job ? "job" : "overhead",
+        })
+        .select("id")
+        .single(),
+    );
+  }, "/settings");
+}
+export async function classifyCost(_: ActionResult, form: FormData): Promise<ActionResult> {
+  return perform(async () => {
+    const org = await writable(),
+      id = uuid.parse(form.get("id")),
+      job = String(form.get("job_id") ?? "");
+    if (job) uuid.parse(job);
+    const client = await userDataClient();
+    unwrap(
+      await client
+        .from("recurring_costs")
+        .update({ cost_scope: job ? "job" : "overhead", job_id: job || null })
+        .eq("organization_id", org)
+        .eq("id", id)
+        .is("voided_at", null)
         .select("id")
         .single(),
     );
@@ -271,7 +330,13 @@ export async function saveAssumptions(_: ActionResult, form: FormData): Promise<
           .max(1000)
           .transform((v) => Math.round(v * 100)),
         cost_profile: z.enum(["even", "front-loaded"]),
-        duration_months: z.coerce.number().int().min(1).max(1200),
+        duration_months: z.coerce.number().int().min(1).max(1200).default(1),
+        billed_before_tracking_cents: money.refine((v) => v >= 0, "Cannot be negative"),
+        billed_through_date: isoDate.refine((v) => v <= today(), "Cannot be in the future"),
+        value_override_cents: z.union([
+          z.literal("").transform(() => null),
+          money.refine((v) => v >= 0, "Cannot be negative"),
+        ]),
         payment_lag_days: z.coerce.number().int().min(0).max(36500),
         retainage_release_days: z.coerce.number().int().min(0).max(36500),
         cost_mode: z.enum(["explicit", "modeled"]),

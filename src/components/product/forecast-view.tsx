@@ -44,9 +44,14 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
           </ul>
         </Panel>
       )}
-      <p className="text-sm text-fg-muted">
+      <p id="projection-sources" className="text-sm text-fg-muted">
         Forecast starts at the beginning of the balance as-of date. Recorded receipts on or after
-        that date are included. Recurring costs are estimates.{" "}
+        that date are included. Recurring costs are estimates. Projected, not invoiced receipts are
+        separate from real invoices; any invoice suppresses the projection for its billing period.
+        Remaining unbilled value is spread across uncovered months. Job cost ratios cover field
+        payroll and materials; company office overhead is added once. Entered job costs replace the
+        entire cost model for that job. Unclassified company costs are excluded while job costs are
+        projected. Projected retainage is withheld, with no assumed release date.{" "}
         {result.isContribution ? "Company cash is not allocated to this job." : ""}
       </p>
       {result.opening && (
@@ -132,6 +137,14 @@ export function ForecastView({ result }: { result: ReturnType<typeof forecast> }
                       </Link>
                       <span className="block text-xs text-fg-muted">
                         <DateText value={s.date} /> · {s.estimate ? "Estimate" : "Recorded"}
+                        {s.projection === "billing" && s.period && (
+                          <>
+                            {" "}
+                            · Billing period <DateText value={s.period.start} />–
+                            <DateText value={s.period.end} /> · Gross <Money cents={s.grossCents} />{" "}
+                            less withheld retainage <Money cents={s.retainedCents} />
+                          </>
+                        )}
                       </span>
                     </li>
                   ))}

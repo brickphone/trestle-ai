@@ -28,6 +28,7 @@ export type SourceSnapshot = {
   fetched_at: Date;
 };
 export type Job = Financial & {
+  obligated_cents?: number | null;
   source_snapshot_id: string | null;
   contract_number: string;
   agency: string | null;
@@ -77,6 +78,7 @@ export type Balance = Financial & {
   as_of_date: string;
 };
 export type RecurringCost = Financial & {
+  cost_scope?: "job" | "overhead" | "unclassified";
   job_id: string | null;
   label: string;
   category: string;
@@ -86,6 +88,9 @@ export type RecurringCost = Financial & {
   end_date: string | null;
 };
 export type Assumption = RecordBase & {
+  billed_before_tracking_cents?: number;
+  billed_through_date?: string | null;
+  value_override_cents?: number | null;
   job_id: string;
   enabled: boolean;
   cost_ratio_bps: number;

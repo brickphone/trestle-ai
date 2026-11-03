@@ -8,7 +8,7 @@ describe("USAspending on-demand adapter", () => {
       .mockResolvedValueOnce(Response.json(fixture.recipient))
       .mockResolvedValueOnce(Response.json(fixture.search))
       .mockResolvedValueOnce(Response.json(fixture.award));
-    const result = await lookupUei("JTAPCFM4NSL4", mock);
+    const result = await lookupUei("JTAPCFM4NSL4", mock, { includeOlder: true });
     expect(result.kind).toBe("found");
     if (result.kind === "found") {
       expect(result.awards[0]?.contractValueCents).toBe(6124134);
@@ -19,7 +19,7 @@ describe("USAspending on-demand adapter", () => {
   });
   it("returns a manual path when not found", async () => {
     const mock = vi.fn().mockResolvedValue(Response.json({ results: [] }));
-    expect((await lookupUei("JTAPCFM4NSL4", mock)).kind).toBe("not-found");
+    expect((await lookupUei("JTAPCFM4NSL4", mock, { includeOlder: true })).kind).toBe("not-found");
   });
   it("returns a manual path for HTTP, network and malformed-response failures", async () => {
     for (const mock of [
@@ -27,7 +27,7 @@ describe("USAspending on-demand adapter", () => {
       vi.fn().mockRejectedValue(new Error("network")),
       vi.fn().mockResolvedValue(Response.json({ invalid: true })),
     ])
-      expect((await lookupUei("JTAPCFM4NSL4", mock)).kind).toBe("error");
+      expect((await lookupUei("JTAPCFM4NSL4", mock, { includeOlder: true })).kind).toBe("error");
   });
   it("never falls back from absent contract value to obligations", async () => {
     const mock = vi
@@ -35,7 +35,7 @@ describe("USAspending on-demand adapter", () => {
       .mockResolvedValueOnce(Response.json(fixture.recipient))
       .mockResolvedValueOnce(Response.json(fixture.search))
       .mockResolvedValueOnce(Response.json({ ...fixture.award, base_exercised_options: null }));
-    const result = await lookupUei("JTAPCFM4NSL4", mock);
+    const result = await lookupUei("JTAPCFM4NSL4", mock, { includeOlder: true });
     if (result.kind !== "found") throw new Error("Lookup failed");
     expect(result.awards[0]?.contractValueCents).toBeNull();
   });
@@ -47,7 +47,7 @@ describe("USAspending on-demand adapter", () => {
       .mockResolvedValueOnce(
         Response.json({ ...fixture.award, recipient: { recipient_uei: "DIFFERENTUEI" } }),
       );
-    const result = await lookupUei("JTAPCFM4NSL4", mock);
+    const result = await lookupUei("JTAPCFM4NSL4", mock, { includeOlder: true });
     expect(result.kind === "found" && result.awards.length).toBe(0);
   });
 });

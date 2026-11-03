@@ -1,4 +1,5 @@
 import type {
+  ComponentProps,
   InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
@@ -45,7 +46,7 @@ export function Field({
   );
 }
 
-export function TextInput({ className, ...rest }: InputHTMLAttributes<HTMLInputElement>) {
+export function TextInput({ className, ...rest }: ComponentProps<"input">) {
   return <input className={cn(control, className)} {...rest} />;
 }
 

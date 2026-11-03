@@ -275,3 +275,37 @@ for (const [id, label, amount, date, jobId] of [
     start_date: date,
     end_date: date,
   });
+
+/** Fictional, hand-calculated forecast reference. Never seeded into a real organization. */
+export const projectedDemo: typeof demo = {
+  ...demo,
+  jobs: [
+    {
+      ...demo.jobs[0]!,
+      contract_value_cents: 120000000,
+      start_date: "2026-01-01",
+      end_date: "2026-06-30",
+      retainage_bps: 500,
+      status: "active",
+    },
+  ],
+  changes: [],
+  invoices: [],
+  payments: [],
+  assumptions: [],
+  balances: [{ ...demo.balances[0]!, amount_cents: 10000000, as_of_date: "2026-01-01" }],
+  costs: [
+    {
+      ...demo.costs[0]!,
+      id: "projected-overhead",
+      job_id: null,
+      cost_scope: "overhead",
+      category: "other",
+      label: "Monthly overhead",
+      frequency: "monthly",
+      amount_cents: 2000000,
+      start_date: "2026-01-01",
+      end_date: null,
+    },
+  ],
+};

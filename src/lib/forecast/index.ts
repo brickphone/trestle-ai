@@ -7,8 +7,9 @@ import type {
   RecurringCost,
   Assumption,
 } from "../data/types";
-import { addDays, daysBetween, invoiceDueDate, retainedCents } from "../finance";
-import { calculateCashGap } from "../cashgap";
+import { addDays, daysBetween, invoiceDueDate } from "../finance";
+import { projectRemainingWork } from "../cashgap/remaining";
+import { FORECAST_DEFAULTS } from "../config";
 export type ForecastData = {
   jobs: Job[];
   invoices: Invoice[];
@@ -26,6 +27,10 @@ export type CashSource = {
   href: string;
   estimate: boolean;
   kind: "receipt" | "cost" | "opening";
+  projection?: "billing" | "job-cost";
+  period?: { start: string; end: string };
+  grossCents?: number;
+  retainedCents?: number;
 };
 export type ForecastIssue = { label: string; href: string };
 export const active = <T extends { voided_at: Date | null }>(rows: T[]) =>
@@ -66,7 +71,7 @@ export function forecast(data: ForecastData, startDate: string, jobId?: string) 
     issues.push({
       label: jobId
         ? "No job opening balance; showing net cash contribution."
-        : "Opening bank balance is missing for this forecast date.",
+        : "Opening balance missing for this forecast date.",
       href: "/settings#balances",
     });
   else
@@ -137,11 +142,26 @@ export function forecast(data: ForecastData, startDate: string, jobId?: string) 
         });
     }
   }
-  const costs = active(data.costs).filter((c) => !jobId || c.job_id === jobId);
-  if (
-    costs.length === 0 &&
-    !data.assumptions.some((a) => a.enabled && a.cost_mode === "modeled" && jobIds.has(a.job_id))
-  )
+  const costScope = (c: RecurringCost) =>
+    c.cost_scope ?? (c.job_id ? "job" : c.category === "payroll" ? "unclassified" : "overhead");
+  const allCosts = active(data.costs).filter((c) => !jobId || c.job_id === jobId);
+  const modeledJobs = jobs.filter(
+    (j) =>
+      j.status === "active" &&
+      data.assumptions.find((a) => a.job_id === j.id)?.enabled !== false &&
+      data.assumptions.find((a) => a.job_id === j.id)?.cost_mode !== "explicit",
+  );
+  const costs = allCosts.filter((c) => {
+    if (costScope(c) === "unclassified" && modeledJobs.length) {
+      issues.push({
+        label: `${c.label}: classify this cost as office overhead or job costs in Settings. It is excluded while job costs are projected, to prevent double counting.`,
+        href: `/settings#cost-${c.id}`,
+      });
+      return false;
+    }
+    return true;
+  });
+  if (costs.length === 0 && modeledJobs.length === 0)
     issues.push({
       label: jobId
         ? "No costs assigned to this job; company costs are not allocated."
@@ -176,87 +196,114 @@ export function forecast(data: ForecastData, startDate: string, jobId?: string) 
     }
   }
   for (const job of jobs) {
-    const assumption = data.assumptions.find((a) => a.job_id === job.id && a.enabled);
-    if (!assumption) {
-      if (job.status === "active")
-        issues.push({
-          label: `${job.contract_number}: future billings are not modeled.`,
-          href: `/jobs/${job.id}#assumptions`,
-        });
-      continue;
-    }
-    const value = effectiveValue(job, data.changes);
-    if (value === null || value < 0 || !job.start_date) {
+    if (job.status !== "active") continue;
+    const assumption = data.assumptions.find((a) => a.job_id === job.id);
+    if (assumption?.enabled === false) {
       issues.push({
-        label: `${job.contract_number}: value/start date needed for projected billings.`,
-        href: `/jobs/${job.id}`,
-      });
-      continue;
-    }
-    if (assumption.cost_mode === "modeled" && costs.some((c) => c.job_id === job.id || !c.job_id)) {
-      issues.push({
-        label: `${job.contract_number}: modeled costs conflict with entered recurring costs; modeled scenario excluded.`,
+        label: `${job.contract_number}: projected billings are disabled.`,
         href: `/jobs/${job.id}#assumptions`,
       });
       continue;
     }
-    const scenario = calculateCashGap({
-      contractValueCents: value,
-      durationMonths: assumption.duration_months,
-      costRatio: assumption.cost_ratio_bps / 10000,
-      paymentLagDays: assumption.payment_lag_days,
-      retainageRatio: job.retainage_bps / 10000,
-      retainageReleaseDays: assumption.retainage_release_days,
-      costProfile: assumption.cost_profile as "even" | "front-loaded",
-    });
-    let unallocated = invoices
-      .filter((i) => i.job_id === job.id && i.status !== "rejected")
+    const value =
+      assumption?.value_override_cents ?? job.obligated_cents ?? job.contract_value_cents;
+    const approved = active(data.changes)
+      .filter((c) => c.job_id === job.id && c.status === "approved")
+      .reduce((sum, c) => sum + c.amount_cents, 0);
+    const href = `/jobs/${job.id}#assumptions`;
+    if (value === null || value === undefined || !job.end_date || job.end_date < startDate) {
+      issues.push({
+        label: `${job.contract_number}: billing value and a future end date are needed for projected income.`,
+        href,
+      });
+      continue;
+    }
+    const jobInvoices = invoices.filter((i) => i.job_id === job.id);
+    const billedInvoices = jobInvoices.filter((i) => !["draft", "rejected"].includes(i.status));
+    const baseline = assumption?.billed_before_tracking_cents ?? 0;
+    const baselineDate = assumption?.billed_through_date ?? null;
+    const prior = billedInvoices
+      .filter((i) => baselineDate && (i.submitted_date ?? i.period_end) <= baselineDate)
       .reduce((s, i) => s + i.billed_cents, 0);
-    let projectedRetention = 0;
-    for (const event of scenario.timeline) {
-      if (event.billingsCents) {
-        const used = Math.min(unallocated, event.billingsCents);
-        unallocated -= used;
-        const billing = event.billingsCents - used;
-        const billingDate = addDays(job.start_date, event.day);
-        if (billing > 0 && billingDate >= startDate) {
-          const retained = retainedCents(billing, job.retainage_bps);
-          projectedRetention += retained;
-          sources.push({
-            id: `${assumption.id}-bill-${event.day}`,
-            date: addDays(billingDate, assumption.payment_lag_days),
-            amountCents: billing - retained,
-            label: `${job.contract_number}: projected future billing`,
-            href: `/jobs/${job.id}#assumptions`,
-            estimate: true,
-            kind: "receipt",
-          });
-        }
-      }
-      if (event.costsCents && assumption.cost_mode === "modeled")
-        sources.push({
-          id: `${assumption.id}-cost-${event.day}`,
-          date: addDays(job.start_date, event.day),
-          amountCents: -event.costsCents,
-          label: `${job.contract_number}: modeled cost`,
-          href: `/jobs/${job.id}#assumptions`,
-          estimate: true,
-          kind: "cost",
-        });
-    }
-    if (projectedRetention)
-      sources.push({
-        id: `${assumption.id}-retained`,
-        date: addDays(
-          job.start_date,
-          assumption.duration_months * 30 + assumption.retainage_release_days,
-        ),
-        amountCents: projectedRetention,
-        label: `${job.contract_number}: projected retainage`,
-        href: `/jobs/${job.id}#assumptions`,
-        estimate: true,
-        kind: "receipt",
+    const after = billedInvoices
+      .filter((i) => !baselineDate || (i.submitted_date ?? i.period_end) > baselineDate)
+      .reduce((s, i) => s + i.billed_cents, 0);
+    const remaining = Math.max(0, value + approved - Math.max(baseline, prior) - after);
+    if (!remaining) continue;
+    const start = job.start_date && job.start_date > startDate ? job.start_date : startDate;
+    let plan: ReturnType<typeof projectRemainingWork>;
+    try {
+      plan = projectRemainingWork({
+        valueCents: remaining,
+        start,
+        end: job.end_date,
+        costRatio: (assumption?.cost_ratio_bps ?? FORECAST_DEFAULTS.costRatioBps) / 10000,
+        paymentLagDays: assumption?.payment_lag_days ?? FORECAST_DEFAULTS.paymentLagDays,
+        retainageRatio: job.retainage_bps / 10000,
+        costProfile: (assumption?.cost_profile ?? FORECAST_DEFAULTS.costProfile) as
+          "even" | "front-loaded",
+        covered: jobInvoices.map((i) => ({ start: i.period_start, end: i.period_end })),
       });
+    } catch (error) {
+      if (!(error instanceof RangeError)) throw error;
+      issues.push({
+        label: `${job.contract_number}: remaining value or dates exceed the projection limits. Review billing details.`,
+        href,
+      });
+      continue;
+    }
+
+    for (const billing of plan.billings)
+      if (billing.amountCents > 0)
+        sources.push({
+          id: `${job.id}-projected-${billing.period.end}`,
+          date: billing.date,
+          amountCents: billing.amountCents,
+          label: `${job.contract_number}: Projected, not invoiced`,
+          href,
+          estimate: true,
+          kind: "receipt",
+          projection: "billing",
+          period: billing.period,
+          grossCents: billing.grossCents,
+          retainedCents: billing.retainedCents,
+        });
+    if (!plan.billings.length)
+      issues.push({
+        label: `${job.contract_number}: all remaining billing periods have invoices; review their status and expected dates.`,
+        href,
+      });
+    const enteredJobCosts = costs.filter(
+      (c) =>
+        c.job_id === job.id &&
+        costScope(c) === "job" &&
+        (!c.end_date || c.end_date >= start) &&
+        c.start_date <= job.end_date!,
+    );
+    if (enteredJobCosts.length) {
+      issues.push({
+        label: `${job.contract_number}: entered job costs replace all projected job costs. Include field payroll and materials in those entries.`,
+        href: `/settings`,
+      });
+    } else if (assumption?.cost_mode !== "explicit") {
+      for (const cost of plan.costs)
+        if (cost.amountCents > 0)
+          sources.push({
+            id: `${job.id}-projected-cost-${cost.date}`,
+            date: cost.date,
+            amountCents: -cost.amountCents,
+            label: `${job.contract_number}: Projected job costs`,
+            href,
+            estimate: true,
+            kind: "cost",
+            projection: "job-cost",
+          });
+    } else
+      issues.push({
+        label: `${job.contract_number}: no entered job costs; cost modeling is disabled.`,
+        href,
+      });
+    // No assumed retainage-release date: withheld projected amounts remain outside the forecast.
   }
   let balance = opening?.amount_cents ?? 0;
   const weeks = Array.from({ length: 13 }, (_, index) => {
@@ -302,6 +349,8 @@ export function forecast(data: ForecastData, startDate: string, jobId?: string) 
     issues,
     isContribution: !!jobId && !opening,
     hasBalance: !!opening,
+    hasActiveJobs: jobs.some((j) => j.status === "active"),
+    hasIncoming: weeks.some((w) => w.inflowCents > 0),
   };
 }
 export function finalPaymentDate(invoice: Invoice, payments: Payment[]) {

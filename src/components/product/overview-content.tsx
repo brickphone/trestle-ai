@@ -76,6 +76,7 @@ function Upcoming({
                   </span>
                   <Money
                     cents={s.amountCents}
+                    whole
                     className={title === "Money in" ? "text-success-strong" : undefined}
                   />
                 </Link>
@@ -141,6 +142,25 @@ export function OverviewContent({ data }: { data: Awaited<ReturnType<typeof load
       <h1 className="sr-only">Overview</h1>
       <div className="pt-8">
         <PageBody>
+          {result.hasActiveJobs && !result.hasIncoming && (
+            <p role="status" className="border-l-2 border-warning p-3 text-sm text-warning-strong">
+              Your forecast has no incoming payments. Add invoices or check your jobs’ billing
+              details.{" "}
+              <Link href="/jobs" className="underline">
+                Review jobs
+              </Link>
+            </p>
+          )}
+          {!result.hasBalance && (
+            <p role="status" className="border-l-2 border-warning p-3 text-sm text-warning-strong">
+              Opening balance missing.{" "}
+              <Link href="/settings#balances" className="underline">
+                Add your opening bank balance
+              </Link>{" "}
+              to see projected cash.
+            </p>
+          )}
+
           {!jobs.length && !balance ? (
             firstRun
           ) : (
@@ -215,7 +235,7 @@ export function OverviewContent({ data }: { data: Awaited<ReturnType<typeof load
                   title="Money out"
                   data={data}
                   sources={upcoming.filter((s) => s.kind === "cost")}
-                  note="Entered recurring and modeled costs. Subcontractor payables are not included."
+                  note="Projected job costs and office overhead are separate. Entered job costs replace that job’s cost model. Subcontractor payables are not included."
                 />
               </div>
               {!jobs.length && firstRun}
